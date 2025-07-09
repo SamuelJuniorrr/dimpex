@@ -411,10 +411,16 @@
                         <option value="Aprovado">Aprovado</option>
                         <option value="Em Produção">Em Produção</option>
                         <option value="Carga Pronta">Carga Pronta</option>
+                        <option value="Reserva de Espaço (Booking)">Reserva de Espaço (Booking)</option>
+                        <option value="Coleta da Carga (Pickup)">Coleta da Carga (Pickup)</option>
                         <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
                         <option value="Documentação Pendente">Documentação Pendente</option>
                         <option value="Documentação OK">Documentação OK</option>
+                        <option value="Em Trânsito">Em Trânsito</option>
                         <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
+                        <option value="Desembaraço Aduaneiro">Desembaraço Aduaneiro</option>
+                        <option value="Liberação para Entrega">Liberação para Entrega</option>
+                        <option value="Entrega ao Cliente">Entrega ao Cliente</option>
                     </select>
                 </div>
             </div>
@@ -495,10 +501,16 @@
                         <option value="Aprovado">Aprovado</option>
                         <option value="Em Produção">Em Produção</option>
                         <option value="Carga Pronta">Carga Pronta</option>
+                        <option value="Reserva de Espaço (Booking)">Reserva de Espaço (Booking)</option>
+                        <option value="Coleta da Carga (Pickup)">Coleta da Carga (Pickup)</option>
                         <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
                         <option value="Documentação Pendente">Documentação Pendente</option>
                         <option value="Documentação OK">Documentação OK</option>
+                        <option value="Em Trânsito">Em Trânsito</option>
                         <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
+                        <option value="Desembaraço Aduaneiro">Desembaraço Aduaneiro</option>
+                        <option value="Liberação para Entrega">Liberação para Entrega</option>
+                        <option value="Entrega ao Cliente">Entrega ao Cliente</option>
                     </select>
                     <button class="btn-primary" style="margin-top: 10px;" onclick="saveOrderStatus()">Salvar Novo Status</button>
                 </div>
@@ -674,7 +686,7 @@
                 fornecedor: 'Fornecedor XY',
                 cliente: 'Cliente C',
                 aprovacaoDate: '2025-07-01',
-                statusDimpex: 'Saída do Porto de Embarque (ATD)',
+                statusDimpex: 'Reserva de Espaço (Booking)', // Updated status
                 customsBroker: { name: 'Despachante Delta', contact: 'contato@delta.com', phone: '31 9123-4567' },
                 shippingDetails: { containerSize: '1x20GP', incoterm: 'FOB', originPort: 'Xiamen', destinationPort: 'Rio de Janeiro', eta: '2025-09-10' },
                 documents: [
@@ -693,7 +705,7 @@
                 fornecedor: 'Fornecedor LONCIN',
                 cliente: 'Cliente D',
                 aprovacaoDate: '2025-07-02',
-                statusDimpex: 'Documentação Pendente',
+                statusDimpex: 'Coleta da Carga (Pickup)', // Updated status
                 customsBroker: { name: 'Despachante Epsilon', contact: 'contato@epsilon.com', phone: '41 9543-2109' },
                 shippingDetails: { containerSize: '1x40HQ', incoterm: 'CFR', originPort: 'Qingdao', destinationPort: 'Itajaí', eta: '2025-09-25' },
                 documents: [
@@ -711,7 +723,7 @@
                 fornecedor: 'Fornecedor XY',
                 cliente: 'Cliente E',
                 aprovacaoDate: '2025-07-03',
-                statusDimpex: 'Documentação OK',
+                statusDimpex: 'Saída do Porto de Embarque (ATD)',
                 customsBroker: { name: 'Despachante Zeta', contact: 'contato@zeta.com', phone: '61 9321-0987' },
                 shippingDetails: { containerSize: 'LCL', incoterm: 'DDP', originPort: 'Shenzhen', destinationPort: 'Brasília', eta: '2025-10-01' },
                 documents: [
@@ -730,7 +742,7 @@
                 fornecedor: 'Fornecedor LONCIN',
                 cliente: 'Cliente F',
                 aprovacaoDate: '2025-07-04',
-                statusDimpex: 'Chegada no Porto de Destino (ATA)',
+                statusDimpex: 'Documentação Pendente', // Updated status
                 customsBroker: { name: 'Despachante Eta', contact: 'contato@eta.com', phone: '81 9012-3456' },
                 shippingDetails: { containerSize: '1x20GP', incoterm: 'FCA', originPort: 'Foshan', destinationPort: 'Recife', eta: '2025-10-15' },
                 documents: [
@@ -741,6 +753,99 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 1, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                ]
+            },
+            {
+                id: 'PED-025',
+                poCliente: '4040JKL',
+                fornecedor: 'Fornecedor XY',
+                cliente: 'Cliente G',
+                aprovacaoDate: '2025-07-05',
+                statusDimpex: 'Em Trânsito', // New status
+                customsBroker: { name: 'Despachante Theta', contact: 'contato@theta.com', phone: '91 9456-7890' },
+                shippingDetails: { containerSize: '1x40GP', incoterm: 'FOB', originPort: 'Shanghai', destinationPort: 'Manaus', eta: '2025-10-20' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-12' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-12' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-12' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 2, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                ]
+            },
+            {
+                id: 'PED-026',
+                poCliente: '5050MNO',
+                fornecedor: 'Fornecedor LONCIN',
+                cliente: 'Cliente H',
+                aprovacaoDate: '2025-07-06',
+                statusDimpex: 'Chegada no Porto de Destino (ATA)',
+                customsBroker: { name: 'Despachante Iota', contact: 'contato@iota.com', phone: '71 9678-9012' },
+                shippingDetails: { containerSize: 'LCL', incoterm: 'CFR', originPort: 'Ningbo', destinationPort: 'Salvador', eta: '2025-10-25' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-15' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-15' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-15' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 10, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
+                ]
+            },
+            {
+                id: 'PED-027',
+                poCliente: '6060PQR',
+                fornecedor: 'Fornecedor XY',
+                cliente: 'Cliente I',
+                aprovacaoDate: '2025-07-07',
+                statusDimpex: 'Desembaraço Aduaneiro', // New status
+                customsBroker: { name: 'Despachante Kappa', contact: 'contato@kappa.com', phone: '85 9123-4567' },
+                shippingDetails: { containerSize: '1x20GP', incoterm: 'DAP', originPort: 'Guangzhou', destinationPort: 'Fortaleza', eta: '2025-11-01' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-18' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-18' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-18' },
+                    { name: 'Certificado de Conformidade', status: 'Pendente', receivedDate: '' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 3, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                ]
+            },
+            {
+                id: 'PED-028',
+                poCliente: '7070STU',
+                fornecedor: 'Fornecedor LONCIN',
+                cliente: 'Cliente J',
+                aprovacaoDate: '2025-07-08',
+                statusDimpex: 'Liberação para Entrega', // New status
+                customsBroker: { name: 'Despachante Lambda', contact: 'contato@lambda.com', phone: '62 9876-5432' },
+                shippingDetails: { containerSize: '1x40HQ', incoterm: 'DDP', originPort: 'Foshan', destinationPort: 'Goiânia', eta: '2025-11-05' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-20' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-20' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-20' },
+                    { name: 'Comprovante de Pagamento de Impostos', status: 'Recebido', receivedDate: '2025-07-20' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 1, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                ]
+            },
+            {
+                id: 'PED-029',
+                poCliente: '8080VWX',
+                fornecedor: 'Fornecedor XY',
+                cliente: 'Cliente K',
+                aprovacaoDate: '2025-07-09',
+                statusDimpex: 'Entrega ao Cliente', // New status
+                customsBroker: { name: 'Despachante Mu', contact: 'contato@mu.com', phone: '11 9111-2222' },
+                shippingDetails: { containerSize: 'LCL', incoterm: 'FOB', originPort: 'Shenzhen', destinationPort: 'São Paulo', eta: '2025-11-10' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-22' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-22' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-22' },
+                    { name: 'Comprovante de Entrega', status: 'Recebido', receivedDate: '2025-07-22' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 5, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
                 ]
             }
         ];
@@ -753,11 +858,16 @@
             { name: 'Aprovado', class: 'approved', description: 'Pedido aprovado pela Gerência, aguardando início do processo Dimpex.' },
             { name: 'Em Produção', class: 'in-production', description: 'Fornecedor iniciou a produção dos itens.' },
             { name: 'Carga Pronta', class: 'ready-cargo', description: 'Mercadoria pronta para embarque na origem.' },
+            { name: 'Reserva de Espaço (Booking)', class: 'booking', description: 'Espaço no navio reservado.' },
+            { name: 'Coleta da Carga (Pickup)', class: 'pickup', description: 'Carga coletada do fornecedor.' },
             { name: 'Saída do Porto de Embarque (ATD)', class: 'atd', description: 'Carga embarcada e saiu do porto de origem.' },
             { name: 'Documentação Pendente', class: 'pending-doc', description: 'Aguardando recebimento e conferência de documentos do despachante.' },
             { name: 'Documentação OK', class: 'doc-ok', description: 'Todos os documentos recebidos e validados.' },
-            { name: 'Chegada no Porto de Destino (ATA)', class: 'ata', description: 'Navio chegou ao porto de destino.' }
-            // More steps can be added here as needed, e.g., "Desembaraço Aduaneiro", "Liberação para Entrega", "Entregue"
+            { name: 'Em Trânsito', class: 'in-transit', description: 'Navio com a carga está em trânsito.' },
+            { name: 'Chegada no Porto de Destino (ATA)', class: 'ata', description: 'Navio chegou ao porto de destino.' },
+            { name: 'Desembaraço Aduaneiro', class: 'customs-clearance', description: 'Processo de desembaraço aduaneiro em andamento.' },
+            { name: 'Liberação para Entrega', class: 'released-delivery', description: 'Carga liberada para transporte ao cliente.' },
+            { name: 'Entrega ao Cliente', class: 'delivered', description: 'Mercadoria entregue ao cliente.' }
         ];
 
         function showMessage(title, content, type = 'info', onConfirm = null, onCancel = null) {
@@ -826,17 +936,12 @@
                 row.onclick = () => showDetailPage(order.id);
 
                 let statusClass = '';
-                switch (order.statusDimpex) {
-                    case 'Aprovado': statusClass = 'approved'; break;
-                    case 'Em Produção': statusClass = 'in-production'; break;
-                    case 'Carga Pronta': statusClass = 'ready-cargo'; break;
-                    case 'Saída do Porto de Embarque (ATD)': statusClass = 'atd'; break;
-                    case 'Documentação Pendente': statusClass = 'pending-doc'; break;
-                    case 'Documentação OK': statusClass = 'doc-ok'; break;
-                    case 'Chegada no Porto de Destino (ATA)': statusClass = 'ata'; break;
-                    default: statusClass = '';
+                // Determine the status class based on the order's statusDimpex
+                const flowStep = dimpexTrackingFlow.find(step => step.name === order.statusDimpex);
+                if (flowStep) {
+                    statusClass = flowStep.class;
                 }
-
+                
                 row.innerHTML = `
                     <td>${order.id}</td>
                     <td>${order.poCliente}</td>
@@ -923,10 +1028,9 @@
                     stepClass = 'future';
                 }
                 
-                if (stepClass === 'completed' || stepClass === 'active') {
-                    if (step.class) {
-                        stepClass += ` ${step.class}`;
-                    }
+                // Add specific class for styling based on the step's predefined class
+                if (step.class) {
+                    stepClass += ` ${step.class}`;
                 }
 
                 if (stepClass.includes('completed')) {
