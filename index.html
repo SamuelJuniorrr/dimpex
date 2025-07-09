@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Fluig - Central Dimpex de Pedidos</title>
+    <title>Portal Fluig - Central Dimpex de Embarques</title>
     <style>
         /* Re-use common styles */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -112,7 +112,10 @@
             font-weight: 500;
             color: #555;
         }
-        .input-group select {
+        .input-group select,
+        .input-group input[type="text"],
+        .input-group input[type="date"],
+        .input-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -121,6 +124,12 @@
             outline: none;
             transition: border-color 0.2s ease-in-out;
         }
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            border-color: var(--primary-color);
+        }
+
         .filters {
             display: flex;
             flex-wrap: wrap;
@@ -184,6 +193,14 @@
         .status-indicator.doc-ok { background-color: var(--green-success); }
         .status-indicator.ata { background-color: var(--purple-status); }
         
+        /* New status colors */
+        .status-indicator.booking { background-color: #ff8c00; } /* Dark Orange */
+        .status-indicator.pickup { background-color: #4CAF50; } /* Green */
+        .status-indicator.in-transit { background-color: #008CBA; } /* Dark Blue */
+        .status-indicator.customs-clearance { background-color: #f44336; } /* Red */
+        .status-indicator.released-delivery { background-color: #8A2BE2; } /* Blue Violet */
+        .status-indicator.delivered { background-color: var(--green-success); } /* Green Success */
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -271,6 +288,23 @@
             color: #333;
             font-size: 14px;
         }
+        .detail-item input[type="text"],
+        .detail-item input[type="date"],
+        .detail-item textarea,
+        .detail-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .detail-item input:read-only,
+        .detail-item textarea:read-only {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
 
         /* Tracking Flow Styles */
         .tracking-steps {
@@ -285,6 +319,7 @@
             overflow-x: auto;
             white-space: nowrap;
             min-height: 120px;
+            gap: 10px; /* Space between steps */
         }
 
         .tracking-steps::before {
@@ -306,12 +341,13 @@
             min-width: 100px;
             position: relative;
             z-index: 2;
-            padding: 0 10px;
+            padding: 0 5px; /* Reduced padding */
+            text-align: center;
         }
 
         .tracking-step .circle {
-            width: 30px;
-            height: 30px;
+            width: 35px; /* Slightly larger */
+            height: 35px; /* Slightly larger */
             border-radius: 50%;
             background-color: #e0e0e0;
             display: flex;
@@ -321,60 +357,39 @@
             color: #666;
             margin-bottom: 10px;
             flex-shrink: 0;
+            border: 2px solid transparent; /* Default border */
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow for circles */
         }
 
         .tracking-step span {
-            font-size: 12px;
+            font-size: 11px; /* Slightly smaller font for more steps */
             text-align: center;
             color: #666;
             word-wrap: break-word;
             white-space: normal;
+            transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
         }
 
         /* Status-specific styles for tracking steps */
         .tracking-step.completed .circle {
             background-color: var(--green-success);
             color: #fff;
+            border-color: var(--green-success);
         }
         .tracking-step.active .circle {
             background-color: var(--primary-color);
             color: #fff;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.4); /* More prominent shadow */
         }
-        .tracking-step.pending .circle {
-            background-color: var(--orange-warning);
-            color: #fff;
+        .tracking-step.future .circle {
+            background-color: #e0e0e0;
+            color: #666;
+            border-color: #e0e0e0;
         }
-        .tracking-step.rejected .circle,
-        .tracking-step.cancelled .circle {
-            background-color: var(--red-alert);
-            color: #fff;
-        }
-        .tracking-step.approved .circle,
-        .tracking-step.production .circle,
-        .tracking-step.ready-cargo .circle,
-        .tracking-step.atd .circle,
-        .tracking-step.pending-doc .circle,
-        .tracking-step.doc-ok .circle,
-        .tracking-step.ata .circle,
-        .tracking-step.finished .circle {
-            background-color: var(--green-success);
-            color: #fff;
-        }
-        .tracking-step.negotiation .circle,
-        .tracking-step.waiting-approval .circle {
-            background-color: var(--orange-warning);
-            color: #fff;
-        }
-        .tracking-step.separation .circle,
-        .tracking-step.conference .circle,
-        .tracking-step.in-transit .circle,
-        .tracking-step.delivered .circle {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-
+        
+        /* Text styles for steps */
         .tracking-step.completed span {
             color: #333;
             font-weight: 500;
@@ -383,10 +398,39 @@
             color: var(--primary-color);
             font-weight: bold;
         }
-        .tracking-step.rejected span,
-        .tracking-step.cancelled span {
-            color: var(--red-alert);
-            font-weight: bold;
+        .tracking-step.future span {
+            color: #999;
+        }
+
+        /* Specific colors for new steps - ensure these are distinct */
+        .tracking-step.booking .circle { background-color: #ff8c00; border-color: #ff8c00; } /* Dark Orange */
+        .tracking-step.pickup .circle { background-color: #20c997; border-color: #20c997; } /* Teal Green */
+        .tracking-step.in-transit .circle { background-color: #008CBA; border-color: #008CBA; } /* Dark Blue */
+        .tracking-step.customs-clearance .circle { background-color: #f44336; border-color: #f44336; } /* Red Alert */
+        .tracking-step.released-delivery .circle { background-color: #6f42c1; border-color: #6f42c1; } /* Purple */
+        .tracking-step.delivered .circle { background-color: #28a745; border-color: #28a745; } /* Green Success */
+
+        .attached-files-list {
+            list-style: none;
+            padding: 0;
+        }
+        .attached-files-list li {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .attached-files-list li a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .attached-files-list li a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -394,8 +438,8 @@
     <div id="dimpex-central-page" class="page active">
         <header class="header">
             <div class="header-left">
-                <h1>Central Dimpex de Pedidos</h1>
-                <p>Gerencie e acompanhe os pedidos de importação de Hong Kong.</p>
+                <h1>Central Dimpex de Embarques</h1>
+                <p>Gerencie e acompanhe os embarques de Hong Kong.</p>
             </div>
             <div class="header-right">
                 <button class="btn-secondary" onclick="showMessage('Navegação', 'Esta ação levaria de volta à Central de Pedidos principal. (Funcionalidade de navegação simulada)')">Voltar para Central de Pedidos</button>
@@ -429,11 +473,13 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Nº Pedido</th>
-                            <th>PO Cliente</th>
-                            <th>Fornecedor</th>
-                            <th>Cliente</th>
-                            <th>Data Aprovação</th>
+                            <th>Data</th>
+                            <th>Nome Embarque</th>
+                            <th>Nome Fornecedor</th>
+                            <th>Número BL</th>
+                            <th>Data BL</th>
+                            <th>Nome Cliente</th>
+                            <th>Data de Pagamento</th>
                             <th>Status Dimpex</th>
                         </tr>
                     </thead>
@@ -449,7 +495,7 @@
     <div id="dimpex-detail-page" class="page">
         <header class="header">
             <div class="header-left">
-                <h1>Detalhes do Pedido Dimpex: <span id="detailOrderId"></span></h1>
+                <h1>Detalhes do Embarque: <span id="detailShipmentName"></span></h1>
                 <p>Informações completas e acompanhamento do processo de importação.</p>
             </div>
             <div class="header-right">
@@ -458,33 +504,97 @@
         </header>
 
         <div class="container">
-            <!-- Order Overview Section -->
+            <!-- Shipment Overview Section -->
             <div class="form-section">
-                <h2 class="section-title">Visão Geral do Pedido</h2>
+                <h2 class="section-title">Visão Geral do Embarque</h2>
                 <div class="detail-grid">
                     <div class="detail-item">
-                        <div class="detail-label">Nº Pedido:</div>
+                        <div class="detail-label">Nº Pedido (Interno):</div>
                         <div class="detail-value" id="overviewOrderId"></div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">PO Cliente:</div>
-                        <div class="detail-value" id="overviewPoCliente"></div>
+                        <div class="detail-label">Nome Embarque:</div>
+                        <input type="text" id="detailShipmentNameInput" readonly>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data:</div>
+                        <input type="date" id="detailShipmentDate" readonly>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Fornecedor:</div>
-                        <div class="detail-value" id="overviewFornecedor"></div>
+                        <input type="text" id="detailFornecedor" readonly>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Cliente:</div>
-                        <div class="detail-value" id="overviewCliente"></div>
+                        <div class="detail-label">Loja Fornecedor:</div>
+                        <input type="text" id="detailFornecedorLoja" readonly>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Data Aprovação:</div>
-                        <div class="detail-value" id="overviewAprovacaoDate"></div>
+                        <div class="detail-label">TOY Number:</div>
+                        <input type="text" id="detailToyNumber" readonly>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Status Dimpex Atual:</div>
-                        <div class="detail-value" id="overviewStatusDimpex"></div>
+                        <div class="detail-label">INCOTERM:</div>
+                        <input type="text" id="detailIncoterm">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">POL (Porto Origem):</div>
+                        <input type="text" id="detailPol">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">POD (Porto Destino):</div>
+                        <input type="text" id="detailPod">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Previsão Embarque:</div>
+                        <input type="date" id="detailPrevEmbarque">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Pagto Ant BL:</div>
+                        <input type="text" id="detailPagtoAntBL" readonly>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Agente de Carga:</div>
+                        <input type="text" id="detailCargoAgent">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data Booking:</div>
+                        <input type="date" id="detailDtBooking">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Número BL:</div>
+                        <input type="text" id="detailBlNumber">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data BL:</div>
+                        <input type="date" id="detailBlDate">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data ETA:</div>
+                        <input type="date" id="detailDtETA">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data Desembaraço:</div>
+                        <input type="date" id="detailDtDesembaraco">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Containers 20':</div>
+                        <input type="text" id="detailCont20">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Containers 40':</div>
+                        <input type="text" id="detailCont40">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Containers 40HQ:</div>
+                        <input type="text" id="detailCont40HQ">
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Containers LCL:</div>
+                        <input type="text" id="detailContLCL">
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">Follow Up:</div>
+                        <textarea id="detailFollowUp" rows="3"></textarea>
                     </div>
                 </div>
             </div>
@@ -516,6 +626,14 @@
                 </div>
             </div>
 
+            <!-- Attached Documents Section -->
+            <div class="form-section">
+                <h2 class="section-title">Arquivos Anexados</h2>
+                <ul id="attachedFilesList" class="attached-files-list">
+                    <!-- Attached files will be rendered here -->
+                </ul>
+            </div>
+
             <!-- Customs Broker Section -->
             <div class="form-section">
                 <h2 class="section-title">Informações do Despachante</h2>
@@ -535,9 +653,9 @@
                 </div>
             </div>
 
-            <!-- Shipping Details Section -->
-            <div class="form-section">
-                <h2 class="section-title">Detalhes do Transporte</h2>
+            <!-- Shipping Details Section (redundant with new fields, but kept for now) -->
+            <div class="form-section" style="display: none;">
+                <h2 class="section-title">Detalhes do Transporte (Antigo)</h2>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Tamanho Container:</div>
@@ -559,26 +677,6 @@
                         <div class="detail-label">ETA (Previsão Chegada):</div>
                         <div class="detail-value" id="shippingETA"></div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Document Management Section -->
-            <div class="form-section">
-                <h2 class="section-title">Documentos do Processo</h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Documento</th>
-                                <th>Status</th>
-                                <th>Data Recebimento</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="documentsTableBody">
-                            <!-- Documents will be rendered here -->
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
@@ -618,6 +716,18 @@
         </div>
     </div>
 
+    <!-- NEW: Modal para Visualização de Documentos -->
+    <div id="documentViewerModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeDocumentViewerModal()">&times;</button>
+            <h3 id="documentViewerTitle"></h3>
+            <pre id="documentViewerContent" style="white-space: pre-wrap; word-wrap: break-word; max-height: 70vh; overflow-y: auto; background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid var(--border-color);"></pre>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="closeDocumentViewerModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentDimpexOrder = null; // Global variable to hold the currently viewed order
 
@@ -628,12 +738,37 @@
                 id: 'PED-015',
                 poCliente: '1127TYCH',
                 fornecedor: 'Fornecedor LONCIN',
+                fornecedorLoja: '01',
                 cliente: 'Cliente A',
                 aprovacaoDate: '2025-06-29',
-                statusDimpex: 'Aprovado',
+                statusDimpex: 'Reserva de Espaço (Booking)', // Starting point for Dimpex
+                shipmentName: 'EMB-001-CLIA', // New field
+                toyNumber: 'TOY1250001', // Example TOY number
+                blNumber: 'BL-HKG-001', // Example BL
+                blDate: '2025-07-10', // Example BL Date
+                paymentDate: '2025-08-15', // Example Payment Date (Finance)
+                pol: 'Shanghai', // Port of Loading
+                pod: 'Santos', // Port of Discharge
+                prevEmbarque: '2025-07-05', // Editable
+                dtBooking: '2025-07-01',
+                dtETA: '2025-08-18',
+                dtDesembaraco: '', // Will be updated
+                cargoAgent: 'Agente Marítimo X', // Editable
+                paymentBeforeBL: true, // Finance field (read-only)
+                container20: '1',
+                container40: '0',
+                container40HQ: '0',
+                containerLCL: '0',
+                followUp: 'Primeira reserva de espaço confirmada. Aguardando coleta da carga.',
+                incoterm: 'FOB', // Editable
                 customsBroker: { name: 'Despachante Alfa', contact: 'contato@alfa.com', phone: '11 9876-5432' },
-                shippingDetails: { containerSize: '1x20GP', incoterm: 'FOB', originPort: 'Shanghai', destinationPort: 'Santos', eta: '2025-08-18' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-015)', status: 'Recebido', receivedDate: '2025-06-28', fileLink: '#',
+                      content: '--- Solicitação do Cliente (PED-015) ---\n\nCliente: Cliente A\nData da Solicitação: 2025-06-28\n\nItens Solicitados:\n- Motor Diesel 10HP (Modelo MX-100): 5 unidades\n\nDetalhes Adicionais:\n- Uso: Novo projeto de expansão.\n- Prioridade: Alta.\n- Observações: Necessário entrega até 2025-08-20.\n\nAtenciosamente,\nEquipe de Compras Cliente A'
+                    },
+                    { name: 'PO Aprovada (PED-015)', status: 'Recebido', receivedDate: '2025-06-29', fileLink: '#',
+                      content: '--- Ordem de Compra Aprovada (PO-1127TYCH) ---\n\nNúmero PO: 1127TYCH\nPedido Interno: PED-015\nFornecedor: Fornecedor LONCIN (Loja 01)\nData de Aprovação: 2025-06-29\n\nItens da PO:\n- Código: PROD001\n- Descrição: Motor Diesel 10HP (Modelo MX-100)\n- Quantidade: 5 UN\n- Preço Unitário (USD): 140.00\n- Preço Unitário (BRL): 152.00\n\nCondições de Pagamento: 30 dias após data BL.\nValor Total PO: USD 700.00\n\nStatus: APROVADA\n\nGerado por: Gerência de Compras'
+                    },
                     { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
                     { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
                     { name: 'Packing List', status: 'Pendente', receivedDate: '' },
@@ -647,12 +782,33 @@
                 id: 'PED-019',
                 poCliente: '8795MX',
                 fornecedor: 'Fornecedor XY',
+                fornecedorLoja: '02',
                 cliente: 'Cliente B',
                 aprovacaoDate: '2025-06-30',
-                statusDimpex: 'Em Produção',
+                statusDimpex: 'Coleta da Carga (Pickup)',
+                shipmentName: 'EMB-002-CLIB',
+                toyNumber: 'TOY1250002',
+                blNumber: '',
+                blDate: '',
+                paymentDate: '2025-09-01',
+                pol: 'Guangzhou',
+                pod: 'Paranaguá',
+                prevEmbarque: '2025-07-08',
+                dtBooking: '2025-07-03',
+                dtETA: '2025-09-05',
+                dtDesembaraco: '',
+                cargoAgent: 'Logística Global',
+                paymentBeforeBL: false,
+                container20: '0',
+                container40: '1',
+                container40HQ: '0',
+                containerLCL: '0',
+                followUp: 'Coleta agendada para amanhã. Documentos iniciais recebidos.',
+                incoterm: 'CIF',
                 customsBroker: { name: 'Despachante Beta', contact: 'contato@beta.com', phone: '21 9987-6543' },
-                shippingDetails: { containerSize: '1x40HQ', incoterm: 'CIF', originPort: 'Guangzhou', destinationPort: 'Paranaguá', eta: '2025-09-05' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-019)', status: 'Recebido', receivedDate: '2025-06-29', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-019)', status: 'Recebido', receivedDate: '2025-06-30', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
                     { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
                     { name: 'Packing List', status: 'Pendente', receivedDate: '' },
@@ -666,12 +822,33 @@
                 id: 'PED-020',
                 poCliente: '0129VO',
                 fornecedor: 'Fornecedor LONCIN',
+                fornecedorLoja: '01',
                 cliente: 'Toyama Chile',
                 aprovacaoDate: '2025-06-25',
-                statusDimpex: 'Carga Pronta',
+                statusDimpex: 'Saída do Porto de Embarque (ATD)',
+                shipmentName: 'EMB-003-TYCH',
+                toyNumber: 'TOY1250003',
+                blNumber: 'BL-HKG-002',
+                blDate: '2025-07-05',
+                paymentDate: '2025-08-25',
+                pol: 'Ningbo',
+                pod: 'Valparaíso',
+                prevEmbarque: '2025-07-03',
+                dtBooking: '2025-06-28',
+                dtETA: '2025-08-20',
+                dtDesembaraco: '',
+                cargoAgent: 'TransOceanic',
+                paymentBeforeBL: true,
+                container20: '0',
+                container40: '0',
+                container40HQ: '0',
+                containerLCL: '1',
+                followUp: 'Carga embarcada com sucesso. BL e documentos principais recebidos.',
+                incoterm: 'EXW',
                 customsBroker: { name: 'Despachante Gama', contact: 'contato@gama.com', phone: '51 9765-4321' },
-                shippingDetails: { containerSize: 'LCL', incoterm: 'EXW', originPort: 'Ningbo', destinationPort: 'Valparaíso', eta: '2025-08-20' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-020)', status: 'Recebido', receivedDate: '2025-06-24', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-020)', status: 'Recebido', receivedDate: '2025-06-25', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-01' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-01' },
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-01' }
@@ -681,90 +858,36 @@
                 ]
             },
             {
-                id: 'PED-021',
-                poCliente: '9999XYZ',
-                fornecedor: 'Fornecedor XY',
-                cliente: 'Cliente C',
-                aprovacaoDate: '2025-07-01',
-                statusDimpex: 'Reserva de Espaço (Booking)', // Updated status
-                customsBroker: { name: 'Despachante Delta', contact: 'contato@delta.com', phone: '31 9123-4567' },
-                shippingDetails: { containerSize: '1x20GP', incoterm: 'FOB', originPort: 'Xiamen', destinationPort: 'Rio de Janeiro', eta: '2025-09-10' },
-                documents: [
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-05' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-05' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-05' },
-                    { name: 'Certificado Sanitário', status: 'Pendente', receivedDate: '' }
-                ],
-                productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 2, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
-                ]
-            },
-            {
-                id: 'PED-022',
-                poCliente: '1010ABC',
-                fornecedor: 'Fornecedor LONCIN',
-                cliente: 'Cliente D',
-                aprovacaoDate: '2025-07-02',
-                statusDimpex: 'Coleta da Carga (Pickup)', // Updated status
-                customsBroker: { name: 'Despachante Epsilon', contact: 'contato@epsilon.com', phone: '41 9543-2109' },
-                shippingDetails: { containerSize: '1x40HQ', incoterm: 'CFR', originPort: 'Qingdao', destinationPort: 'Itajaí', eta: '2025-09-25' },
-                documents: [
-                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
-                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
-                    { name: 'Packing List', status: 'Pendente', receivedDate: '' }
-                ],
-                productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 3, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
-                ]
-            },
-            {
-                id: 'PED-023',
-                poCliente: '2020DEF',
-                fornecedor: 'Fornecedor XY',
-                cliente: 'Cliente E',
-                aprovacaoDate: '2025-07-03',
-                statusDimpex: 'Saída do Porto de Embarque (ATD)',
-                customsBroker: { name: 'Despachante Zeta', contact: 'contato@zeta.com', phone: '61 9321-0987' },
-                shippingDetails: { containerSize: 'LCL', incoterm: 'DDP', originPort: 'Shenzhen', destinationPort: 'Brasília', eta: '2025-10-01' },
-                documents: [
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-07' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-07' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-07' },
-                    { name: 'Certificado de Inspeção', status: 'Recebido', receivedDate: '2025-07-07' }
-                ],
-                productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 20, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
-                ]
-            },
-            {
-                id: 'PED-024',
-                poCliente: '3030GHI',
-                fornecedor: 'Fornecedor LONCIN',
-                cliente: 'Cliente F',
-                aprovacaoDate: '2025-07-04',
-                statusDimpex: 'Documentação Pendente', // Updated status
-                customsBroker: { name: 'Despachante Eta', contact: 'contato@eta.com', phone: '81 9012-3456' },
-                shippingDetails: { containerSize: '1x20GP', incoterm: 'FCA', originPort: 'Foshan', destinationPort: 'Recife', eta: '2025-10-15' },
-                documents: [
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-10' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-10' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-10' },
-                    { name: 'Declaração de Importação', status: 'Recebido', receivedDate: '2025-07-10' }
-                ],
-                productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 1, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
-                ]
-            },
-            {
                 id: 'PED-025',
                 poCliente: '4040JKL',
                 fornecedor: 'Fornecedor XY',
+                fornecedorLoja: '02',
                 cliente: 'Cliente G',
                 aprovacaoDate: '2025-07-05',
-                statusDimpex: 'Em Trânsito', // New status
+                statusDimpex: 'Em Trânsito',
+                shipmentName: 'EMB-004-CLIG',
+                toyNumber: 'TOY1250004',
+                blNumber: 'BL-HKG-003',
+                blDate: '2025-07-12',
+                paymentDate: '2025-09-20',
+                pol: 'Shanghai',
+                pod: 'Manaus',
+                prevEmbarque: '2025-07-10',
+                dtBooking: '2025-07-08',
+                dtETA: '2025-10-20',
+                dtDesembaraco: '',
+                cargoAgent: 'Ocean Freight',
+                paymentBeforeBL: false,
+                container20: '0',
+                container40: '1',
+                container40HQ: '0',
+                containerLCL: '0',
+                followUp: 'Navio a caminho. Monitorando a ETA.',
+                incoterm: 'FOB',
                 customsBroker: { name: 'Despachante Theta', contact: 'contato@theta.com', phone: '91 9456-7890' },
-                shippingDetails: { containerSize: '1x40GP', incoterm: 'FOB', originPort: 'Shanghai', destinationPort: 'Manaus', eta: '2025-10-20' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-025)', status: 'Recebido', receivedDate: '2025-07-04', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-025)', status: 'Recebido', receivedDate: '2025-07-05', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-12' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-12' },
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-12' }
@@ -777,12 +900,33 @@
                 id: 'PED-026',
                 poCliente: '5050MNO',
                 fornecedor: 'Fornecedor LONCIN',
+                fornecedorLoja: '01',
                 cliente: 'Cliente H',
                 aprovacaoDate: '2025-07-06',
                 statusDimpex: 'Chegada no Porto de Destino (ATA)',
+                shipmentName: 'EMB-005-CLIh',
+                toyNumber: 'TOY1250005',
+                blNumber: 'BL-HKG-004',
+                blDate: '2025-07-15',
+                paymentDate: '2025-10-01',
+                pol: 'Ningbo',
+                pod: 'Salvador',
+                prevEmbarque: '2025-07-13',
+                dtBooking: '2025-07-10',
+                dtETA: '2025-10-25',
+                dtDesembaraco: '',
+                cargoAgent: 'Sea Cargo',
+                paymentBeforeBL: true,
+                container20: '0',
+                container40: '0',
+                container40HQ: '0',
+                containerLCL: '1',
+                followUp: 'Carga chegou ao porto. Aguardando início do desembaraço.',
+                incoterm: 'CFR',
                 customsBroker: { name: 'Despachante Iota', contact: 'contato@iota.com', phone: '71 9678-9012' },
-                shippingDetails: { containerSize: 'LCL', incoterm: 'CFR', originPort: 'Ningbo', destinationPort: 'Salvador', eta: '2025-10-25' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-026)', status: 'Recebido', receivedDate: '2025-07-05', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-026)', status: 'Recebido', receivedDate: '2025-07-06', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-15' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-15' },
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-15' }
@@ -795,12 +939,33 @@
                 id: 'PED-027',
                 poCliente: '6060PQR',
                 fornecedor: 'Fornecedor XY',
+                fornecedorLoja: '02',
                 cliente: 'Cliente I',
                 aprovacaoDate: '2025-07-07',
-                statusDimpex: 'Desembaraço Aduaneiro', // New status
+                statusDimpex: 'Desembaraço Aduaneiro',
+                shipmentName: 'EMB-006-CLII',
+                toyNumber: 'TOY1250006',
+                blNumber: 'BL-HKG-005',
+                blDate: '2025-07-18',
+                paymentDate: '2025-10-05',
+                pol: 'Guangzhou',
+                pod: 'Fortaleza',
+                prevEmbarque: '2025-07-16',
+                dtBooking: '2025-07-14',
+                dtETA: '2025-11-01',
+                dtDesembaraco: '2025-07-25', // Example date
+                cargoAgent: 'Porto Forte',
+                paymentBeforeBL: false,
+                container20: '1',
+                container40: '0',
+                container40HQ: '0',
+                containerLCL: '0',
+                followUp: 'Documentos entregues ao despachante. Desembaraço em andamento.',
+                incoterm: 'DAP',
                 customsBroker: { name: 'Despachante Kappa', contact: 'contato@kappa.com', phone: '85 9123-4567' },
-                shippingDetails: { containerSize: '1x20GP', incoterm: 'DAP', originPort: 'Guangzhou', destinationPort: 'Fortaleza', eta: '2025-11-01' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-027)', status: 'Recebido', receivedDate: '2025-07-06', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-027)', status: 'Recebido', receivedDate: '2025-07-07', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-18' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-18' },
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-18' },
@@ -814,12 +979,33 @@
                 id: 'PED-028',
                 poCliente: '7070STU',
                 fornecedor: 'Fornecedor LONCIN',
+                fornecedorLoja: '01',
                 cliente: 'Cliente J',
                 aprovacaoDate: '2025-07-08',
-                statusDimpex: 'Liberação para Entrega', // New status
+                statusDimpex: 'Liberação para Entrega',
+                shipmentName: 'EMB-007-CLIJ',
+                toyNumber: 'TOY1250007',
+                blNumber: 'BL-HKG-006',
+                blDate: '2025-07-20',
+                paymentDate: '2025-10-10',
+                pol: 'Foshan',
+                pod: 'Goiânia',
+                prevEmbarque: '2025-07-18',
+                dtBooking: '2025-07-16',
+                dtETA: '2025-11-05',
+                dtDesembaraco: '2025-07-28',
+                cargoAgent: 'Carga Rápida',
+                paymentBeforeBL: true,
+                container20: '0',
+                container40: '1',
+                container40HQ: '0',
+                containerLCL: '0',
+                followUp: 'Carga liberada pela alfândega. Aguardando agendamento de transporte final.',
+                incoterm: 'DDP',
                 customsBroker: { name: 'Despachante Lambda', contact: 'contato@lambda.com', phone: '62 9876-5432' },
-                shippingDetails: { containerSize: '1x40HQ', incoterm: 'DDP', originPort: 'Foshan', destinationPort: 'Goiânia', eta: '2025-11-05' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-028)', status: 'Recebido', receivedDate: '2025-07-07', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-028)', status: 'Recebido', receivedDate: '2025-07-08', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-20' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-20' },
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-20' },
@@ -833,12 +1019,33 @@
                 id: 'PED-029',
                 poCliente: '8080VWX',
                 fornecedor: 'Fornecedor XY',
+                fornecedorLoja: '02',
                 cliente: 'Cliente K',
                 aprovacaoDate: '2025-07-09',
-                statusDimpex: 'Entrega ao Cliente', // New status
+                statusDimpex: 'Entrega ao Cliente',
+                shipmentName: 'EMB-008-CLIK',
+                toyNumber: 'TOY1250008',
+                blNumber: 'BL-HKG-007',
+                blDate: '2025-07-22',
+                paymentDate: '2025-10-15',
+                pol: 'Shenzhen',
+                pod: 'São Paulo',
+                prevEmbarque: '2025-07-20',
+                dtBooking: '2025-07-18',
+                dtETA: '2025-11-10',
+                dtDesembaraco: '2025-07-30',
+                cargoAgent: 'Transportadora Expressa',
+                paymentBeforeBL: true,
+                container20: '0',
+                container40: '0',
+                container40HQ: '0',
+                containerLCL: '1',
+                followUp: 'Carga entregue com sucesso ao cliente. Processo finalizado.',
+                incoterm: 'FOB',
                 customsBroker: { name: 'Despachante Mu', contact: 'contato@mu.com', phone: '11 9111-2222' },
-                shippingDetails: { containerSize: 'LCL', incoterm: 'FOB', originPort: 'Shenzhen', destinationPort: 'São Paulo', eta: '2025-11-10' },
                 documents: [
+                    { name: 'Solicitação do Cliente (PED-029)', status: 'Recebido', receivedDate: '2025-07-08', fileLink: '#' },
+                    { name: 'PO Aprovada (PED-029)', status: 'Recebido', receivedDate: '2025-07-09', fileLink: '#' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-22' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-22' },
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-22' },
@@ -911,7 +1118,7 @@
                 document.getElementById('dimpex-detail-page').classList.add('active');
                 renderDimpexOrderDetails(); // Render details for the selected order
             } else {
-                showMessage('Erro', 'Pedido não encontrado.', 'error');
+                showMessage('Erro', 'Embarque não encontrado.', 'error');
             }
         }
 
@@ -926,7 +1133,7 @@
             });
 
             if (filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhum pedido encontrado para o status selecionado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">Nenhum embarque encontrado para o status selecionado.</td></tr>`;
                 return;
             }
 
@@ -943,11 +1150,13 @@
                 }
                 
                 row.innerHTML = `
-                    <td>${order.id}</td>
-                    <td>${order.poCliente}</td>
-                    <td>${order.fornecedor}</td>
-                    <td>${order.cliente}</td>
-                    <td>${order.aprovacaoDate}</td>
+                    <td>${order.aprovacaoDate || 'N/A'}</td>
+                    <td>${order.shipmentName || 'N/A'}</td>
+                    <td>${order.fornecedor || 'N/A'}</td>
+                    <td>${order.blNumber || 'N/A'}</td>
+                    <td>${order.blDate || 'N/A'}</td>
+                    <td>${order.cliente || 'N/A'}</td>
+                    <td>${order.paymentDate || 'N/A'}</td>
                     <td><span class="status-indicator ${statusClass}"></span>${order.statusDimpex}</td>
                 `;
                 tbody.appendChild(row);
@@ -956,20 +1165,36 @@
 
         function renderDimpexOrderDetails() {
             if (!currentDimpexOrder) {
-                showMessage('Erro', 'Nenhum pedido selecionado. Retornando à Central Dimpex.', 'error', () => {
+                showMessage('Erro', 'Nenhum embarque selecionado. Retornando à Central Dimpex.', 'error', () => {
                     showCentralPage();
                 });
                 return;
             }
 
-            // Populate Order Overview
-            document.getElementById('detailOrderId').innerText = currentDimpexOrder.id;
-            document.getElementById('overviewOrderId').innerText = currentDimpexOrder.id;
-            document.getElementById('overviewPoCliente').innerText = currentDimpexOrder.poCliente;
-            document.getElementById('overviewFornecedor').innerText = currentDimpexOrder.fornecedor;
-            document.getElementById('overviewCliente').innerText = currentDimpexOrder.cliente;
-            document.getElementById('overviewAprovacaoDate').innerText = currentDimpexOrder.aprovacaoDate;
-            document.getElementById('overviewStatusDimpex').innerText = currentDimpexOrder.statusDimpex;
+            // Populate Shipment Overview
+            document.getElementById('detailShipmentName').innerText = currentDimpexOrder.shipmentName || 'N/A';
+            document.getElementById('overviewOrderId').innerText = currentDimpexOrder.id || 'N/A';
+            document.getElementById('detailShipmentNameInput').value = currentDimpexOrder.shipmentName || '';
+            document.getElementById('detailShipmentDate').value = currentDimpexOrder.aprovacaoDate || '';
+            document.getElementById('detailFornecedor').value = currentDimpexOrder.fornecedor || '';
+            document.getElementById('detailFornecedorLoja').value = currentDimpexOrder.fornecedorLoja || '';
+            document.getElementById('detailToyNumber').value = currentDimpexOrder.toyNumber || '';
+            document.getElementById('detailIncoterm').value = currentDimpexOrder.incoterm || ''; // Editable
+            document.getElementById('detailPol').value = currentDimpexOrder.pol || ''; // Editable
+            document.getElementById('detailPod').value = currentDimpexOrder.pod || ''; // Editable
+            document.getElementById('detailPrevEmbarque').value = currentDimpexOrder.prevEmbarque || ''; // Editable
+            document.getElementById('detailPagtoAntBL').value = currentDimpexOrder.paymentBeforeBL ? 'Sim' : 'Não'; // Read-only
+            document.getElementById('detailCargoAgent').value = currentDimpexOrder.cargoAgent || ''; // Editable
+            document.getElementById('detailDtBooking').value = currentDimpexOrder.dtBooking || '';
+            document.getElementById('detailBlNumber').value = currentDimpexOrder.blNumber || '';
+            document.getElementById('detailBlDate').value = currentDimpexOrder.blDate || '';
+            document.getElementById('detailDtETA').value = currentDimpexOrder.dtETA || '';
+            document.getElementById('detailDtDesembaraco').value = currentDimpexOrder.dtDesembaraco || '';
+            document.getElementById('detailCont20').value = currentDimpexOrder.container20 || '0';
+            document.getElementById('detailCont40').value = currentDimpexOrder.container40 || '0';
+            document.getElementById('detailCont40HQ').value = currentDimpexOrder.container40HQ || '0';
+            document.getElementById('detailContLCL').value = currentDimpexOrder.containerLCL || '0';
+            document.getElementById('detailFollowUp').value = currentDimpexOrder.followUp || ''; // Editable
 
             // Populate Status Tracking
             renderTracking(currentDimpexOrder.statusDimpex);
@@ -986,23 +1211,8 @@
                 document.getElementById('despachanteTelefone').innerText = 'N/A';
             }
 
-            // Populate Shipping Details
-            if (currentDimpexOrder.shippingDetails) {
-                document.getElementById('shippingContainerSize').innerText = currentDimpexOrder.shippingDetails.containerSize;
-                document.getElementById('shippingIncoterm').innerText = currentDimpexOrder.shippingDetails.incoterm;
-                document.getElementById('shippingOriginPort').innerText = currentDimpexOrder.shippingDetails.originPort;
-                document.getElementById('shippingDestinationPort').innerText = currentDimpexOrder.shippingDetails.destinationPort;
-                document.getElementById('shippingETA').innerText = currentDimpexOrder.shippingDetails.eta;
-            } else {
-                document.getElementById('shippingContainerSize').innerText = 'N/A';
-                document.getElementById('shippingIncoterm').innerText = 'N/A';
-                document.getElementById('shippingOriginPort').innerText = 'N/A';
-                document.getElementById('shippingDestinationPort').innerText = 'N/A';
-                document.getElementById('shippingETA').innerText = 'N/A';
-            }
-
-            // Populate Document Management
-            renderDocumentsTable();
+            // Populate Attached Documents
+            renderAttachedFiles();
 
             // Populate Product Details
             renderProductsTable();
@@ -1052,11 +1262,29 @@
 
         function saveOrderStatus() {
             if (!currentDimpexOrder) {
-                showMessage('Erro', 'Nenhum pedido carregado.', 'error');
+                showMessage('Erro', 'Nenhum embarque carregado.', 'error');
                 return;
             }
 
             const newStatus = document.getElementById('newStatusSelect').value;
+
+            // Update editable fields from the form
+            currentDimpexOrder.shipmentName = document.getElementById('detailShipmentNameInput').value;
+            currentDimpexOrder.incoterm = document.getElementById('detailIncoterm').value;
+            currentDimpexOrder.pol = document.getElementById('detailPol').value;
+            currentDimpexOrder.pod = document.getElementById('detailPod').value;
+            currentDimpexOrder.prevEmbarque = document.getElementById('detailPrevEmbarque').value;
+            currentDimpexOrder.cargoAgent = document.getElementById('detailCargoAgent').value;
+            currentDimpexOrder.dtBooking = document.getElementById('detailDtBooking').value;
+            currentDimpexOrder.blNumber = document.getElementById('detailBlNumber').value;
+            currentDimpexOrder.blDate = document.getElementById('detailBlDate').value;
+            currentDimpexOrder.dtETA = document.getElementById('detailDtETA').value;
+            currentDimpexOrder.dtDesembaraco = document.getElementById('detailDtDesembaraco').value;
+            currentDimpexOrder.container20 = document.getElementById('detailCont20').value;
+            currentDimpexOrder.container40 = document.getElementById('detailCont40').value;
+            currentDimpexOrder.container40HQ = document.getElementById('detailCont40HQ').value;
+            currentDimpexOrder.containerLCL = document.getElementById('detailContLCL').value;
+            currentDimpexOrder.followUp = document.getElementById('detailFollowUp').value;
 
             // Update the status in the currentDimpexOrder object
             currentDimpexOrder.statusDimpex = newStatus;
@@ -1072,17 +1300,57 @@
                 localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
             }
 
-            showMessage('Sucesso', `Status do pedido ${currentDimpexOrder.id} atualizado para "${newStatus}"!`, 'success', () => {
+            showMessage('Sucesso', `Status e detalhes do embarque ${currentDimpexOrder.shipmentName} atualizados para "${newStatus}"!`, 'success', () => {
                 renderDimpexOrderDetails(); // Re-render details to show updated status
             });
         }
+
+        function renderAttachedFiles() {
+            const ul = document.getElementById('attachedFilesList');
+            ul.innerHTML = '';
+
+            if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
+                ul.innerHTML = `<li>Nenhum arquivo anexado.</li>`;
+                return;
+            }
+
+            currentDimpexOrder.documents.filter(doc => doc.content).forEach(doc => { // Filter for documents with content to view
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${doc.name}</span>
+                    <button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Visualizar</button>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function viewAttachedFile(orderId, docName) {
+            const order = dimpexOrders.find(o => o.id === orderId);
+            if (!order) {
+                showMessage('Erro', 'Embarque não encontrado para visualizar o documento.', 'error');
+                return;
+            }
+            const doc = order.documents.find(d => d.name === docName);
+            if (doc && doc.content) {
+                document.getElementById('documentViewerTitle').innerText = doc.name;
+                document.getElementById('documentViewerContent').innerText = doc.content;
+                document.getElementById('documentViewerModal').classList.add('active');
+            } else {
+                showMessage('Erro', `Conteúdo do documento "${docName}" não disponível para visualização.`, 'error');
+            }
+        }
+
+        function closeDocumentViewerModal() {
+            document.getElementById('documentViewerModal').classList.remove('active');
+        }
+
 
         function renderDocumentsTable() {
             const tbody = document.getElementById('documentsTableBody');
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este pedido.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este embarque.</td></tr>`;
                 return;
             }
 
@@ -1126,7 +1394,7 @@
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.productLines || currentDimpexOrder.productLines.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Nenhum produto associado a este pedido.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Nenhum produto associado a este embarque.</td></tr>`;
                 return;
             }
 
