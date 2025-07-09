@@ -41,9 +41,9 @@
             flex-direction: column;
         }
         .container {
-            max-width: 2400px;
+            max-width: 1200px;
             /* Removed min-width to allow more fluid responsiveness */
-            margin: 20px --auto;
+            margin: 20px auto;
             padding: 20px;
             background-color: #fff;
             border-radius: 8px;
@@ -58,6 +58,8 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow);
+            flex-wrap: wrap; /* Allow header content to wrap on smaller screens */
+            gap: 10px; /* Space between header items */
         }
         .header h1 {
             font-size: 20px;
@@ -72,6 +74,8 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            justify-content: flex-end; /* Align buttons to the right */
         }
         .btn-primary {
             background-color: var(--primary-color);
@@ -124,6 +128,9 @@
             font-size: 14px;
             outline: none;
             transition: border-color 0.2s ease-in-out;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            white-space: normal; /* Allow text to wrap within inputs */
+            word-break: break-word; /* Break long words within inputs */
         }
         .input-group input:focus,
         .input-group select:focus,
@@ -266,16 +273,16 @@
         }
         .detail-grid {
             display: grid;
-            /* Adjusted minmax to allow more flexibility and prevent overflow */
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px 20px;
+            /* Default for larger screens: 6 columns */
+            grid-template-columns: repeat(6, 1fr); /* Explicitly set 6 columns */
+            gap: 10px 20px; /* Keep consistent gap */
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            width: 95%; /* Ensure it always tries to take full width */
-            justify-content: start; /* Align items to the start of the grid */
-            align-items: start; /* Align items to the start vertically */
+            width: 100%;
+            justify-content: start;
+            align-items: start;
         }
         .detail-item {
             display: flex;
@@ -289,6 +296,8 @@
             color: #555;
             margin-bottom: 3px;
             font-size: 13px;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words */
         }
         .detail-value {
             font-weight: 600;
@@ -307,6 +316,7 @@
             border-radius: 4px;
             font-size: 14px;
             outline: none;
+            box-sizing: border-box; /* Crucial for preventing overflow */
             white-space: normal; /* Ensure input text wraps */
             word-break: break-word; /* Ensure input text breaks long words */
         }
@@ -480,6 +490,70 @@
         }
         .tab-content.active {
             display: block;
+        }
+
+        /* Media Queries for better responsiveness */
+        @media (max-width: 1200px) { /* Adjust for slightly smaller desktops/large tablets */
+            .detail-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            }
+        }
+
+        @media (max-width: 992px) { /* Adjust for tablets */
+            .detail-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3 columns */
+            }
+        }
+
+        @media (max-width: 768px) { /* Adjust for smaller tablets */
+            .container {
+                padding: 15px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+            }
+            .header-right {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            .detail-grid {
+                gap: 10px; /* Reduce gap on smaller screens */
+                grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            }
+            .tracking-steps {
+                flex-wrap: wrap; /* Allow tracking steps to wrap */
+                justify-content: center; /* Center steps when wrapped */
+                padding: 15px 0;
+            }
+            .tracking-steps::before {
+                display: none; /* Hide the line on very small screens if steps wrap too much */
+            }
+            .tracking-step {
+                min-width: 80px; /* Further reduce min-width for steps */
+                margin-bottom: 15px; /* Add vertical spacing when wrapped */
+            }
+            .tab-button {
+                flex: 1; /* Make tabs take equal width */
+                text-align: center;
+                margin-right: 0;
+                border-radius: 0;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .tabs-container {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .detail-grid {
+                grid-template-columns: 1fr; /* Single column layout on very small screens */
+            }
+            .detail-item.span-all-columns {
+                grid-column: auto; /* Remove span on single column layout */
+            }
         }
     </style>
 </head>
@@ -714,9 +788,16 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Cód Produto</th>
+                                    <th>Filial</th>
+                                    <th>Caixas</th>
                                     <th>Descrição</th>
-                                    <th>Qtd.</th>
+                                    <th>Item</th>
+                                    <th>Nº Série</th>
+                                    <th>Peso Bruto</th>
+                                    <th>Peso Líq.</th>
+                                    <th>Cód Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Volume m3</th>
                                     <th>Preço Unit. Venda</th>
                                     <th>Preço Unit. Compra</th>
                                 </tr>
@@ -930,7 +1011,20 @@
                     { name: 'Certificado de Origem', status: 'Pendente', receivedDate: '' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 5, prcUnit: 152.00, prcUnitFor: 140.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                    {
+                        branch: 'SP', // New field
+                        boxes: 2, // New field
+                        item: 1,
+                        serialNumber: 'SN-MX100-001', // New field
+                        grossWeight: 150.0, // New field
+                        netWeight: 140.0, // New field
+                        productCode: 'PROD001',
+                        description: 'Motor Diesel 10HP',
+                        quantity: 5,
+                        volumeM3: 0.25, // New field
+                        prcUnit: 152.00,
+                        prcUnitFor: 140.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-001',
@@ -995,7 +1089,20 @@
                     { name: 'Licença de Importação', status: 'Pendente', receivedDate: '' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 1, prcUnit: 310.00, prcUnitFor: 280.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                    {
+                        branch: 'RJ', // New field
+                        boxes: 1, // New field
+                        item: 1,
+                        serialNumber: 'SN-GEN5000-001', // New field
+                        grossWeight: 200.0, // New field
+                        netWeight: 180.0, // New field
+                        productCode: 'PROD002',
+                        description: 'Gerador a Gasolina 5kVA',
+                        quantity: 1,
+                        volumeM3: 0.8, // New field
+                        prcUnit: 310.00,
+                        prcUnitFor: 280.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-002',
@@ -1059,7 +1166,20 @@
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-01' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 15, prcUnit: 22.00, prcUnitFor: 20.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
+                    {
+                        branch: 'MG', // New field
+                        boxes: 5, // New field
+                        item: 1,
+                        serialNumber: 'SN-MINIPUMP-001', // New field
+                        grossWeight: 15.0, // New field
+                        netWeight: 12.0, // New field
+                        productCode: 'PROD003',
+                        description: 'Mini Bomba D\'água',
+                        quantity: 15,
+                        volumeM3: 0.1, // New field
+                        prcUnit: 22.00,
+                        prcUnitFor: 20.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-003',
@@ -1123,7 +1243,20 @@
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-12' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 2, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                    {
+                        branch: 'SP', // New field
+                        boxes: 1, // New field
+                        item: 1,
+                        serialNumber: 'SN-GEN5000-002', // New field
+                        grossWeight: 200.0, // New field
+                        netWeight: 180.0, // New field
+                        productCode: 'PROD002',
+                        description: 'Gerador a Gasolina 5kVA',
+                        quantity: 2,
+                        volumeM3: 0.8, // New field
+                        prcUnit: 2500.00,
+                        prcUnitFor: 1200.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-004',
@@ -1187,7 +1320,20 @@
                     { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-15' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 10, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
+                    {
+                        branch: 'BA', // New field
+                        boxes: 3, // New field
+                        item: 1,
+                        serialNumber: 'SN-MINIPUMP-002', // New field
+                        grossWeight: 10.0, // New field
+                        netWeight: 8.0, // New field
+                        productCode: 'PROD003',
+                        description: 'Mini Bomba D\'água',
+                        quantity: 10,
+                        volumeM3: 0.08, // New field
+                        prcUnit: 250.00,
+                        prcUnitFor: 120.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-005',
@@ -1252,7 +1398,20 @@
                     { name: 'Certificado de Conformidade', status: 'Pendente', receivedDate: '' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 3, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                    {
+                        branch: 'CE', // New field
+                        boxes: 1, // New field
+                        item: 1,
+                        serialNumber: 'SN-MX100-003', // New field
+                        grossWeight: 150.0, // New field
+                        netWeight: 140.0, // New field
+                        productCode: 'PROD001',
+                        description: 'Motor Diesel 10HP',
+                        quantity: 3,
+                        volumeM3: 0.25, // New field
+                        prcUnit: 1500.00,
+                        prcUnitFor: 800.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-006',
@@ -1269,7 +1428,7 @@
                 custoExtra: '40.00', // Renamed from custoEntrega
                 tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
                 titFornecedor: '24000.00',
-                pgtoAntecip: '0.00',
+                pgtoAntecip: '00.00',
                 dtPgAntCP: '',
                 pgtoSaldoCP: '24000.00',
                 dtPgSalCP: '2025-09-25',
@@ -1317,7 +1476,20 @@
                     { name: 'Comprovante de Pagamento de Impostos', status: 'Recebido', receivedDate: '2025-07-20' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 1, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                    {
+                        branch: 'GO', // New field
+                        boxes: 1, // New field
+                        item: 1,
+                        serialNumber: 'SN-GEN5000-004', // New field
+                        grossWeight: 200.0, // New field
+                        netWeight: 180.0, // New field
+                        productCode: 'PROD002',
+                        description: 'Gerador a Gasolina 5kVA',
+                        quantity: 1,
+                        volumeM3: 0.8, // New field
+                        prcUnit: 2500.00,
+                        prcUnitFor: 1200.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-007',
@@ -1382,7 +1554,20 @@
                     { name: 'Comprovante de Entrega', status: 'Recebido', receivedDate: '2025-07-22' }
                 ],
                 productLines: [
-                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 5, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
+                    {
+                        branch: 'SP', // New field
+                        boxes: 2, // New field
+                        item: 1,
+                        serialNumber: 'SN-MINIPUMP-003', // New field
+                        grossWeight: 15.0, // New field
+                        netWeight: 12.0, // New field
+                        productCode: 'PROD003',
+                        description: 'Mini Bomba D\'água',
+                        quantity: 5,
+                        volumeM3: 0.1, // New field
+                        prcUnit: 250.00,
+                        prcUnitFor: 120.00
+                    }
                 ],
                 // Document specific fields
                 docsFornecedor: 'INV-2025-008',
@@ -1421,7 +1606,7 @@
             { name: 'Em Produção', class: 'in-production', description: 'Fornecedor iniciou a produção dos itens.' },
             { name: 'Carga Pronta', class: 'ready-cargo', description: 'Mercadoria pronta para embarque na origem.' },
             { name: 'Reserva de Espaço (Booking)', class: 'booking', description: 'Espaço no navio reservado.' },
-            { name: 'Coleta da Carga (Pickup)', class: 'pickup', description: 'Carga coletada do fornecedor.' },
+            { name: 'Coleta da Carga (Pickup)', class: 'pickup', fun: 'collectCargo', description: 'Carga coletada do fornecedor.' },
             { name: 'Saída do Porto de Embarque (ATD)', class: 'atd', description: 'Carga embarcada e saiu do porto de origem.' },
             { name: 'Documentação Pendente', class: 'pending-doc', description: 'Aguardando recebimento e conferência de documentos do despachante.' },
             { name: 'Documentação OK', class: 'doc-ok', description: 'Todos os documentos recebidos e validados.' },
@@ -1518,6 +1703,12 @@
             });
         }
 
+        // Helper function to safely get element value
+        const safeGetValue = (id) => {
+            const element = document.getElementById(id);
+            return element ? element.value : ''; // Return empty string if element is null
+        };
+
         function renderDimpexOrderDetails() {
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado. Retornando à Central Dimpex.', 'error', () => {
@@ -1598,7 +1789,6 @@
             safeSetValue('serialNum', currentDimpexOrder.serialNum);
             safeSetValue('numeroCI', currentDimpexOrder.numeroCI);
             safeSetValue('numeroBLDoc', currentDimpexOrder.numeroBLDoc);
-            // safeSetValue('taxaRemessa', currentDimpexOrder.taxaRemessa); // Removed
             safeSetValue('certOrigem', currentDimpexOrder.certOrigem);
             safeSetValue('remarksDoc', currentDimpexOrder.remarksDoc);
             safeSetValue('emDocConf', currentDimpexOrder.emDocConf);
@@ -1701,24 +1891,24 @@
                 return;
             }
 
-            // Update editable fields from the form
-            currentDimpexOrder.shipmentName = document.getElementById('detailShipmentNameInput').value;
-            currentDimpexOrder.incoterm = document.getElementById('detailIncoterm').value;
-            currentDimpexOrder.pol = document.getElementById('detailPol').value;
-            currentDimpexOrder.pod = document.getElementById('detailPod').value;
-            currentDimpexOrder.prevEmbarque = document.getElementById('detailPrevEmbarque').value;
-            currentDimpexOrder.cargoAgent = document.getElementById('detailCargoAgent').value;
-            currentDimpexOrder.dtBooking = document.getElementById('detailDtBooking').value;
-            currentDimpexOrder.blNumber = document.getElementById('detailBlNumber').value;
-            currentDimpexOrder.blDate = document.getElementById('detailBlDate').value;
-            currentDimpexOrder.dtETA = document.getElementById('detailDtETA').value;
-            currentDimpexOrder.dtDesembaraco = document.getElementById('detailDtDesembaraco').value;
-            currentDimpexOrder.dtFinalizado = document.getElementById('detailDtFinalizado').value;
-            currentDimpexOrder.container20 = document.getElementById('detailCont20').value;
-            currentDimpexOrder.container40 = document.getElementById('detailCont40').value;
-            currentDimpexOrder.container40HQ = document.getElementById('detailCont40HQ').value;
-            currentDimpexOrder.containerLCL = document.getElementById('detailContLCL').value;
-            currentDimpexOrder.followUp = document.getElementById('detailFollowUp').value;
+            // Update editable fields from the form using safeGetValue
+            currentDimpexOrder.shipmentName = safeGetValue('detailShipmentNameInput');
+            currentDimpexOrder.incoterm = safeGetValue('detailIncoterm');
+            currentDimpexOrder.pol = safeGetValue('detailPol');
+            currentDimpexOrder.pod = safeGetValue('detailPod');
+            currentDimpexOrder.prevEmbarque = safeGetValue('detailPrevEmbarque');
+            currentDimpexOrder.cargoAgent = safeGetValue('detailCargoAgent');
+            currentDimpexOrder.dtBooking = safeGetValue('detailDtBooking');
+            currentDimpexOrder.blNumber = safeGetValue('detailBlNumber');
+            currentDimpexOrder.blDate = safeGetValue('detailBlDate');
+            currentDimpexOrder.dtETA = safeGetValue('detailDtETA');
+            currentDimpexOrder.dtDesembaraco = safeGetValue('detailDtDesembaraco');
+            currentDimpexOrder.dtFinalizado = safeGetValue('detailDtFinalizado');
+            currentDimpexOrder.container20 = safeGetValue('detailCont20');
+            currentDimpexOrder.container40 = safeGetValue('detailCont40');
+            currentDimpexOrder.container40HQ = safeGetValue('detailCont40HQ');
+            currentDimpexOrder.containerLCL = safeGetValue('detailContLCL');
+            currentDimpexOrder.followUp = safeGetValue('detailFollowUp');
 
             // Update localStorage to reflect the change for persistence
             let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
@@ -1894,18 +2084,25 @@
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.productLines || currentDimpexOrder.productLines.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Nenhum produto associado a este embarque.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 15px;">Nenhum produto associado a este embarque.</td></tr>`;
                 return;
             }
 
             currentDimpexOrder.productLines.forEach(product => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${product.productCode}</td>
-                    <td>${product.description}</td>
-                    <td>${product.quantity} ${product.unitMeasure}</td>
-                    <td>R$ ${product.prcUnit.toFixed(2).replace('.', ',')}</td>
-                    <td>R$ ${product.prcUnitFor.toFixed(2).replace('.', ',')}</td>
+                    <td>${product.branch || 'N/A'}</td>
+                    <td>${product.boxes || 'N/A'}</td>
+                    <td>${product.description || 'N/A'}</td>
+                    <td>${product.item || 'N/A'}</td>
+                    <td>${product.serialNumber || 'N/A'}</td>
+                    <td>${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                    <td>${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                    <td>${product.productCode || 'N/A'}</td>
+                    <td>${product.quantity || 'N/A'} ${product.unitMeasure || ''}</td>
+                    <td>${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
+                    <td>R$ ${(product.prcUnit !== undefined && product.prcUnit !== null) ? product.prcUnit.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                    <td>R$ ${(product.prcUnitFor !== undefined && product.prcUnitFor !== null) ? product.prcUnitFor.toFixed(2).replace('.', ',') : 'N/A'}</td>
                 `;
                 tbody.appendChild(row);
             });
