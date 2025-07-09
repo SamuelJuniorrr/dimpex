@@ -415,7 +415,7 @@
         .tracking-step.in-transit .circle { background-color: #008CBA; border-color: #008CBA; } /* Dark Blue */
         .tracking-step.customs-clearance .circle { background-color: #f44336; border-color: #f44336; } /* Red */
         .tracking-step.released-delivery .circle { background-color: #8A2BE2; border-color: #8A2BE2; } /* Blue Violet */
-        .tracking-step.delivered .background-color: var(--green-success); border-color: var(--green-success); } /* Green Success */
+        .tracking-step.delivered .circle { background-color: var(--green-success); border-color: var(--green-success); } /* Green Success */
 
         .attached-files-list {
             list-style: none;
@@ -1723,11 +1723,23 @@
                 return;
             }
 
-            currentDimpexOrder.documents.filter(doc => doc.content).forEach(doc => { // Filter for documents with content to view
+            currentDimpexOrder.documents.forEach(doc => {
                 const li = document.createElement('li');
+                let buttonsHtml = '';
+
+                // Add "Visualizar" button if content exists
+                if (doc.content) {
+                    buttonsHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Visualizar</button>`;
+                }
+
+                // Add "Extrair" button if status is 'Recebido' AND content exists
+                if (doc.status === 'Recebido' && doc.content) {
+                    buttonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="extractAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Extrair</button>`;
+                }
+
                 li.innerHTML = `
                     <span>${doc.name}</span>
-                    <button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Visualizar</button>
+                    <div>${buttonsHtml}</div>
                 `;
                 ul.appendChild(li);
             });
@@ -1746,6 +1758,36 @@
                 document.getElementById('documentViewerModal').classList.add('active');
             } else {
                 showMessage('Erro', `Conteúdo do documento "${docName}" não disponível para visualização.`, 'error');
+            }
+        }
+
+        function extractAttachedFile(orderId, docName) {
+            const order = dimpexOrders.find(o => o.id === orderId);
+            if (!order) {
+                showMessage('Erro', 'Embarque não encontrado para extrair o documento.', 'error');
+                return;
+            }
+            const doc = order.documents.find(d => d.name === docName);
+            if (doc && doc.content && doc.status === 'Recebido') {
+                try {
+                    const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    // Sanitize filename for download
+                    const fileName = doc.name.replace(/[^a-z0-9\s-]/gi, '').replace(/\s+/g, '-').toLowerCase() + '.txt';
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showMessage('Sucesso', `Documento "${docName}" extraído com sucesso!`, 'success');
+                } catch (e) {
+                    console.error('Erro ao extrair documento:', e);
+                    showMessage('Erro', `Não foi possível extrair o documento "${docName}".`, 'error');
+                }
+            } else {
+                showMessage('Erro', `O documento "${docName}" não pode ser extraído. Verifique se ele foi recebido e possui conteúdo.`, 'error');
             }
         }
 
@@ -1795,6 +1837,7 @@
 
             showMessage('Sucesso', `Documento "${docName}" recebido com sucesso!`, 'success', () => {
                 renderDocumentsTable(); // Re-render documents table
+                renderAttachedFiles(); // Re-render attached files to show "Extrair" button
             });
         }
 
