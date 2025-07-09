@@ -42,6 +42,7 @@
         }
         .container {
             max-width: 1200px;
+            min-width: 800px; /* Added min-width for consistent layout */
             margin: 20px auto;
             padding: 20px;
             background-color: #fff;
@@ -265,12 +266,14 @@
         }
         .detail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr); /* Force 3 columns for consistency */
             gap: 10px 20px;
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            width: 100%; /* Ensure it always tries to take full width */
+            min-width: 760px; /* Explicit minimum width to match container's general content area */
         }
         .detail-item {
             display: flex;
@@ -303,6 +306,10 @@
         .detail-item textarea:read-only {
             background-color: #e9ecef;
             cursor: not-allowed;
+        }
+        /* Style for items that span all columns in a 3-column grid */
+        .detail-item.span-all-columns {
+            grid-column: 1 / -1; /* Span from the first to the last column line */
         }
 
 
@@ -404,11 +411,11 @@
 
         /* Specific colors for new steps - ensure these are distinct */
         .tracking-step.booking .circle { background-color: #ff8c00; border-color: #ff8c00; } /* Dark Orange */
-        .tracking-step.pickup .circle { background-color: #20c997; border-color: #20c997; } /* Teal Green */
+        .tracking-step.pickup .circle { background-color: #4CAF50; border-color: #4CAF50; } /* Green */
         .tracking-step.in-transit .circle { background-color: #008CBA; border-color: #008CBA; } /* Dark Blue */
-        .tracking-step.customs-clearance .circle { background-color: #f44336; border-color: #f44336; } /* Red Alert */
-        .tracking-step.released-delivery .circle { background-color: #6f42c1; border-color: #6f42c1; } /* Purple */
-        .tracking-step.delivered .circle { background-color: #28a745; border-color: #28a745; } /* Green Success */
+        .tracking-step.customs-clearance .circle { background-color: #f44336; border-color: #f44336; } /* Red */
+        .tracking-step.released-delivery .circle { background-color: #8A2BE2; border-color: #8A2BE2; } /* Blue Violet */
+        .tracking-step.delivered .background-color: var(--green-success); border-color: var(--green-success); } /* Green Success */
 
         .attached-files-list {
             list-style: none;
@@ -431,6 +438,40 @@
         }
         .attached-files-list li a:hover {
             text-decoration: underline;
+        }
+
+        /* Tabs styling */
+        .tabs-container {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            background-color: #f0f0f0;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-right: 5px;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        .tab-button:hover:not(.active) {
+            background-color: #e9ecef;
+        }
+        .tab-content {
+            display: none;
+            padding-top: 10px;
+        }
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -474,12 +515,12 @@
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Nome Embarque</th>
+                            <th>Embarque</th>
                             <th>Nome Fornecedor</th>
                             <th>Número BL</th>
                             <th>Data BL</th>
-                            <th>Nome Cliente</th>
-                            <th>Data de Pagamento</th>
+                            <th>Loja Fornecedor</th>
+                            <th>Pagto Ant BL</th>
                             <th>Status Dimpex</th>
                         </tr>
                     </thead>
@@ -504,200 +545,306 @@
         </header>
 
         <div class="container">
-            <!-- Shipment Overview Section -->
-            <div class="form-section">
-                <h2 class="section-title">Visão Geral do Embarque</h2>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Nº Pedido (Interno):</div>
-                        <div class="detail-value" id="overviewOrderId"></div>
+            <!-- Tabs Navigation -->
+            <div class="tabs-container">
+                <button class="tab-button active" onclick="openTab(event, 'tabGeral')">Geral</button>
+                <button class="tab-button" onclick="openTab(event, 'tabDocumentos')">Documentos</button>
+                <button class="tab-button" onclick="openTab(event, 'tabFinanceiro')">Financeiro</button>
+            </div>
+
+            <!-- Tab Content: Geral -->
+            <div id="tabGeral" class="tab-content active">
+                <!-- Shipment Overview Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Visão Geral do Embarque</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Nº Pedido (Interno):</div>
+                            <div class="detail-value" id="overviewOrderId"></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Embarque:</div>
+                            <input type="text" id="detailShipmentNameInput" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Data:</div>
+                            <input type="date" id="detailShipmentDate" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Fornecedor:</div>
+                            <input type="text" id="detailFornecedor" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Loja:</div>
+                            <input type="text" id="detailFornecedorLoja" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">TOY Number:</div>
+                            <input type="text" id="detailToyNumber" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">INCOTERM:</div>
+                            <input type="text" id="detailIncoterm">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">POL (Porto Origem):</div>
+                            <input type="text" id="detailPol">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">POD:</div>
+                            <input type="text" id="detailPod">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Prev Embarq.:</div>
+                            <input type="date" id="detailPrevEmbarque">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pgto.Ant.BL:</div>
+                            <input type="text" id="detailPagtoAntBL" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Agente Carga:</div>
+                            <input type="text" id="detailCargoAgent">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt Booking:</div>
+                            <input type="date" id="detailDtBooking">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Numero BL:</div>
+                            <input type="text" id="detailBlNumber">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Data BL:</div>
+                            <input type="date" id="detailBlDate">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt ETA:</div>
+                            <input type="date" id="detailDtETA">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt Finalizad:</div>
+                            <input type="date" id="detailDtFinalizado">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Contain. 20':</div>
+                            <input type="text" id="detailCont20">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Contain. 40':</div>
+                            <input type="text" id="detailCont40">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Cont. 40' HQ:</div>
+                            <input type="text" id="detailCont40HQ">
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Contain. LCL:</div>
+                            <input type="text" id="detailContLCL">
+                        </div>
+                        <div class="detail-item span-all-columns"> <!-- Added span-all-columns class -->
+                            <div class="detail-label">Follow Up:</div>
+                            <textarea id="detailFollowUp" rows="3"></textarea>
+                        </div>
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Nome Embarque:</div>
-                        <input type="text" id="detailShipmentNameInput" readonly>
+                </div>
+
+                <!-- Status Tracking Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Status de Rastreamento Dimpex</h2>
+                    <div id="dimpexTrackingSection" class="relative flex justify-between items-center my-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+                        <!-- Tracking steps will be rendered here -->
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Data:</div>
-                        <input type="date" id="detailShipmentDate" readonly>
+                    <div class="input-group" style="margin-top: 20px;">
+                        <label for="newStatusSelect">Atualizar Status:</label>
+                        <select id="newStatusSelect">
+                            <option value="Aprovado">Aprovado</option>
+                            <option value="Em Produção">Em Produção</option>
+                            <option value="Carga Pronta">Carga Pronta</option>
+                            <option value="Reserva de Espaço (Booking)">Reserva de Espaço (Booking)</option>
+                            <option value="Coleta da Carga (Pickup)">Coleta da Carga (Pickup)</option>
+                            <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
+                            <option value="Documentação Pendente">Documentação Pendente</option>
+                            <option value="Documentação OK">Documentação OK</option>
+                            <option value="Em Trânsito">Em Trânsito</option>
+                            <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
+                            <option value="Desembaraço Aduaneiro">Desembaraço Aduaneiro</option>
+                            <option value="Liberação para Entrega">Liberação para Entrega</option>
+                            <option value="Entrega ao Cliente">Entrega ao Cliente</option>
+                        </select>
+                        <button class="btn-primary" style="margin-top: 10px;" onclick="saveOrderStatus()">Salvar Novo Status</button>
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Fornecedor:</div>
-                        <input type="text" id="detailFornecedor" readonly>
+                </div>
+
+                <!-- Customs Broker Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Informações do Despachante</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Nome:</div>
+                            <div class="detail-value" id="despachanteNome"></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Contato:</div>
+                            <div class="detail-value" id="despachanteContato"></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Telefone:</div>
+                            <div class="detail-value" id="despachanteTelefone"></div>
+                        </div>
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Loja Fornecedor:</div>
-                        <input type="text" id="detailFornecedorLoja" readonly>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">TOY Number:</div>
-                        <input type="text" id="detailToyNumber" readonly>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">INCOTERM:</div>
-                        <input type="text" id="detailIncoterm">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">POL (Porto Origem):</div>
-                        <input type="text" id="detailPol">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">POD (Porto Destino):</div>
-                        <input type="text" id="detailPod">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Previsão Embarque:</div>
-                        <input type="date" id="detailPrevEmbarque">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Pagto Ant BL:</div>
-                        <input type="text" id="detailPagtoAntBL" readonly>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Agente de Carga:</div>
-                        <input type="text" id="detailCargoAgent">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Data Booking:</div>
-                        <input type="date" id="detailDtBooking">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Número BL:</div>
-                        <input type="text" id="detailBlNumber">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Data BL:</div>
-                        <input type="date" id="detailBlDate">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Data ETA:</div>
-                        <input type="date" id="detailDtETA">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Data Desembaraço:</div>
-                        <input type="date" id="detailDtDesembaraco">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Containers 20':</div>
-                        <input type="text" id="detailCont20">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Containers 40':</div>
-                        <input type="text" id="detailCont40">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Containers 40HQ:</div>
-                        <input type="text" id="detailCont40HQ">
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Containers LCL:</div>
-                        <input type="text" id="detailContLCL">
-                    </div>
-                    <div class="detail-item" style="grid-column: 1 / -1;">
-                        <div class="detail-label">Follow Up:</div>
-                        <textarea id="detailFollowUp" rows="3"></textarea>
+                </div>
+
+                <!-- Product Details Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Produtos do Pedido</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cód Produto</th>
+                                    <th>Descrição</th>
+                                    <th>Qtd.</th>
+                                    <th>Preço Unit. Venda</th>
+                                    <th>Preço Unit. Compra</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- Products will be rendered here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Status Tracking Section -->
-            <div class="form-section">
-                <h2 class="section-title">Status de Rastreamento Dimpex</h2>
-                <div id="dimpexTrackingSection" class="relative flex justify-between items-center my-8 p-4 bg-gray-50 rounded-lg shadow-inner">
-                    <!-- Tracking steps will be rendered here -->
+            <!-- Tab Content: Documentos -->
+            <div id="tabDocumentos" class="tab-content">
+                <div class="form-section">
+                    <h2 class="section-title">Documentos do Processo</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Docs Fornece:</div>
+                            <input type="text" id="docsFornecedor" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Serial Num.:</div>
+                            <input type="text" id="serialNum" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Numero CI:</div>
+                            <input type="text" id="numeroCI" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Numero BL:</div>
+                            <input type="text" id="numeroBLDoc" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Taxa Remessa:</div>
+                            <input type="text" id="taxaRemessa" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Cert.Origem:</div>
+                            <input type="text" id="certOrigem" readonly>
+                        </div>
+                        <div class="detail-item span-all-columns"> <!-- Added span-all-columns class -->
+                            <div class="detail-label">Remarks:</div>
+                            <textarea id="remarksDoc" rows="3" readonly></textarea>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Env.Doc.Cont:</div>
+                            <input type="date" id="emDocConf" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Telex Releas:</div>
+                            <input type="text" id="telexRelease" readonly>
+                        </div>
+                    </div>
+                    <div class="table-container" style="margin-top: 20px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Documento</th>
+                                    <th>Status</th>
+                                    <th>Data Recebimento</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="documentsTableBody">
+                                <!-- Documents will be rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="input-group" style="margin-top: 20px;">
-                    <label for="newStatusSelect">Atualizar Status:</label>
-                    <select id="newStatusSelect">
-                        <option value="Aprovado">Aprovado</option>
-                        <option value="Em Produção">Em Produção</option>
-                        <option value="Carga Pronta">Carga Pronta</option>
-                        <option value="Reserva de Espaço (Booking)">Reserva de Espaço (Booking)</option>
-                        <option value="Coleta da Carga (Pickup)">Coleta da Carga (Pickup)</option>
-                        <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
-                        <option value="Documentação Pendente">Documentação Pendente</option>
-                        <option value="Documentação OK">Documentação OK</option>
-                        <option value="Em Trânsito">Em Trânsito</option>
-                        <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
-                        <option value="Desembaraço Aduaneiro">Desembaraço Aduaneiro</option>
-                        <option value="Liberação para Entrega">Liberação para Entrega</option>
-                        <option value="Entrega ao Cliente">Entrega ao Cliente</option>
-                    </select>
-                    <button class="btn-primary" style="margin-top: 10px;" onclick="saveOrderStatus()">Salvar Novo Status</button>
-                </div>
-            </div>
-
-            <!-- Attached Documents Section -->
-            <div class="form-section">
-                <h2 class="section-title">Arquivos Anexados</h2>
-                <ul id="attachedFilesList" class="attached-files-list">
-                    <!-- Attached files will be rendered here -->
-                </ul>
-            </div>
-
-            <!-- Customs Broker Section -->
-            <div class="form-section">
-                <h2 class="section-title">Informações do Despachante</h2>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Nome:</div>
-                        <div class="detail-value" id="despachanteNome"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Contato:</div>
-                        <div class="detail-value" id="despachanteContato"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Telefone:</div>
-                        <div class="detail-value" id="despachanteTelefone"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Shipping Details Section (redundant with new fields, but kept for now) -->
-            <div class="form-section" style="display: none;">
-                <h2 class="section-title">Detalhes do Transporte (Antigo)</h2>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Tamanho Container:</div>
-                        <div class="detail-value" id="shippingContainerSize"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">INCOTERM:</div>
-                        <div class="detail-value" id="shippingIncoterm"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Porto de Origem:</div>
-                        <div class="detail-value" id="shippingOriginPort"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Porto de Destino:</div>
-                        <div class="detail-value" id="shippingDestinationPort"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">ETA (Previsão Chegada):</div>
-                        <div class="detail-value" id="shippingETA"></div>
-                    </div>
+                <div class="form-section">
+                    <h2 class="section-title">Arquivos Anexados</h2>
+                    <ul id="attachedFilesList" class="attached-files-list">
+                        <!-- Attached files will be rendered here -->
+                    </ul>
                 </div>
             </div>
 
-            <!-- Product Details Section -->
-            <div class="form-section">
-                <h2 class="section-title">Produtos do Pedido</h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Cód Produto</th>
-                                <th>Descrição</th>
-                                <th>Qtd.</th>
-                                <th>Preço Unit. Venda</th>
-                                <th>Preço Unit. Compra</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsTableBody">
-                            <!-- Products will be rendered here -->
-                        </tbody>
-                    </table>
+            <!-- Tab Content: Financeiro -->
+            <div id="tabFinanceiro" class="tab-content">
+                <div class="form-section">
+                    <h2 class="section-title">Informações Financeiras</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Desconto:</div>
+                            <input type="text" id="financeDesconto" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tipo Descont:</div>
+                            <input type="text" id="financeTipoDesconto" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Custo Extra:</div>
+                            <input type="text" id="financeCustoExtra" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tp Cust Extr:</div>
+                            <input type="text" id="financeTpCustExtr" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">T/T Forneced:</div>
+                            <input type="text" id="financeTitFornecedor" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pgto Antecip:</div>
+                            <input type="text" id="financePgtoAntecip" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt.Pg.Ant.CP:</div>
+                            <input type="date" id="financeDtPgAntCP" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pgto Sald CP:</div>
+                            <input type="text" id="financePgtoSaldoCP" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt Pg Sal CP:</div>
+                            <input type="date" id="financeDtPgSalCP" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">T/T Cliente:</div>
+                            <input type="text" id="financeTitCliente" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pg Antec CR:</div>
+                            <input type="text" id="financePgAntecipCR" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt Pg Ant CR:</div>
+                            <input type="date" id="financeDtPgAntCR" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pg Saldo CR:</div>
+                            <input type="text" id="financePgSaldoCR" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dt Pg Sal CR:</div>
+                            <input type="date" id="financeDtPgSalCR" readonly>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -776,7 +923,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 5, prcUnit: 152.00, prcUnitFor: 140.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-001',
+                serialNum: 'SN-001-XYZ',
+                numeroCI: 'CI-98765',
+                numeroBLDoc: 'BL-HKG-001',
+                taxaRemessa: '1.5%',
+                certOrigem: 'CO-ABC-123',
+                remarksDoc: 'Documentos iniciais recebidos e conferidos. Aguardando BL original.',
+                emDocConf: '2025-07-01',
+                telexRelease: 'Sim', // New field
+                // Finance specific fields
+                desconto: '100.00',
+                tipoDesconto: 'Volume',
+                custoExtra: '50.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Normal', // Renamed from tpQualEntrega
+                titFornecedor: '23600.00',
+                pgtoAntecip: '7098.00',
+                dtPgAntCP: '2025-06-20',
+                pgtoSaldoCP: '16502.00',
+                dtPgSalCP: '2025-08-10',
+                titCliente: '30256.00',
+                pgAntecipCR: '9061.00',
+                dtPgAntCR: '2025-07-01',
+                pgSaldoCR: '20000.00',
+                dtPgSalCR: '2025-09-01',
+                dtFinalizado: '2025-08-25' // New field
             },
             {
                 id: 'PED-019',
@@ -816,7 +989,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 1, prcUnit: 310.00, prcUnitFor: 280.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-002',
+                serialNum: 'SN-002-ABC',
+                numeroCI: 'CI-12345',
+                numeroBLDoc: '',
+                taxaRemessa: '1.2%',
+                certOrigem: 'CO-DEF-456',
+                remarksDoc: 'Aguardando coleta e emissão de BL.',
+                emDocConf: '2025-07-02',
+                telexRelease: 'Não', // New field
+                // Finance specific fields
+                desconto: '50.00',
+                tipoDesconto: 'Promocional',
+                custoExtra: '75.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Expresso', // Renamed from tpQualEntrega
+                titFornecedor: '15000.00',
+                pgtoAntecip: '3000.00',
+                dtPgAntCP: '2025-06-25',
+                pgtoSaldoCP: '12000.00',
+                dtPgSalCP: '2025-08-20',
+                titCliente: '18000.00',
+                pgAntecipCR: '5000.00',
+                dtPgAntCR: '2025-06-30',
+                pgSaldoCR: '13000.00',
+                dtPgSalCR: '2025-09-15',
+                dtFinalizado: '' // New field
             },
             {
                 id: 'PED-020',
@@ -855,7 +1054,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 15, prcUnit: 22.00, prcUnitFor: 20.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-003',
+                serialNum: 'SN-003-DEF',
+                numeroCI: 'CI-67890',
+                numeroBLDoc: 'BL-HKG-002',
+                taxaRemessa: '1.0%',
+                certOrigem: 'CO-GHI-789',
+                remarksDoc: 'Todos os documentos de embarque recebidos.',
+                emDocConf: '2025-07-05',
+                telexRelease: 'Sim', // New field
+                // Finance specific fields
+                desconto: '20.00',
+                tipoDesconto: 'Quantidade',
+                custoExtra: '30.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                titFornecedor: '5000.00',
+                pgtoAntecip: '1000.00',
+                dtPgAntCP: '2025-06-20',
+                pgtoSaldoCP: '4000.00',
+                dtPgSalCP: '2025-08-01',
+                titCliente: '6000.00',
+                pgAntecipCR: '2000.00',
+                dtPgAntCR: '2025-06-25',
+                pgSaldoCR: '4000.00',
+                dtPgSalCR: '2025-08-15',
+                dtFinalizado: '' // New field
             },
             {
                 id: 'PED-025',
@@ -894,7 +1119,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 2, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-004',
+                serialNum: 'SN-004-GHI',
+                numeroCI: 'CI-11223',
+                numeroBLDoc: 'BL-HKG-003',
+                taxaRemessa: '1.8%',
+                certOrigem: 'CO-JKL-012',
+                remarksDoc: 'Em trânsito. Acompanhando a localização do navio.',
+                emDocConf: '2025-07-12',
+                telexRelease: 'Não', // New field
+                // Finance specific fields
+                desconto: '0.00',
+                tipoDesconto: 'Nenhum',
+                custoExtra: '100.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Normal', // Renamed from tpQualEntrega
+                titFornecedor: '24000.00',
+                pgtoAntecip: '0.00',
+                dtPgAntCP: '',
+                pgtoSaldoCP: '24000.00',
+                dtPgSalCP: '2025-09-10',
+                titCliente: '30000.00',
+                pgAntecipCR: '0.00',
+                dtPgAntCR: '',
+                pgSaldoCR: '30000.00',
+                dtPgSalCR: '2025-10-05',
+                dtFinalizado: '' // New field
             },
             {
                 id: 'PED-026',
@@ -933,7 +1184,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 10, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-005',
+                serialNum: 'SN-005-MNO',
+                numeroCI: 'CI-44556',
+                numeroBLDoc: 'BL-HKG-004',
+                taxaRemessa: '0.9%',
+                certOrigem: 'CO-PQR-345',
+                remarksDoc: 'Carga no porto de destino. Preparando documentação para alfândega.',
+                emDocConf: '2025-07-15',
+                telexRelease: 'Sim', // New field
+                // Finance specific fields
+                desconto: '15.00',
+                tipoDesconto: 'Fidelidade',
+                custoExtra: '20.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                titFornecedor: '12000.00',
+                pgtoAntecip: '2500.00',
+                dtPgAntCP: '2025-07-01',
+                pgtoSaldoCP: '9500.00',
+                dtPgSalCP: '2025-09-20',
+                titCliente: '14000.00',
+                pgAntecipCR: '4000.00',
+                dtPgAntCR: '2025-07-06',
+                pgSaldoCR: '10000.00',
+                dtPgSalCR: '2025-10-10',
+                dtFinalizado: '' // New field
             },
             {
                 id: 'PED-027',
@@ -973,7 +1250,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 3, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-006',
+                serialNum: 'SN-006-STU',
+                numeroCI: 'CI-77889',
+                numeroBLDoc: 'BL-HKG-005',
+                taxaRemessa: '1.1%',
+                certOrigem: 'CO-VWX-678',
+                remarksDoc: 'Desembaraço aduaneiro em fase final. Aguardando liberação.',
+                emDocConf: '2025-07-20',
+                telexRelease: 'Não', // New field
+                // Finance specific fields
+                desconto: '0.00',
+                tipoDesconto: 'Nenhum',
+                custoExtra: '40.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                titFornecedor: '24000.00',
+                pgtoAntecip: '0.00',
+                dtPgAntCP: '',
+                pgtoSaldoCP: '24000.00',
+                dtPgSalCP: '2025-09-25',
+                titCliente: '28000.00',
+                pgAntecipCR: '0.00',
+                dtPgAntCR: '',
+                pgSaldoCR: '28000.00',
+                dtPgSalCR: '2025-10-20',
+                dtFinalizado: '' // New field
             },
             {
                 id: 'PED-028',
@@ -1013,7 +1316,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 1, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-007',
+                serialNum: 'SN-007-ABC',
+                numeroCI: 'CI-99887',
+                numeroBLDoc: 'BL-HKG-006',
+                taxaRemessa: '1.3%',
+                certOrigem: 'CO-DEF-901',
+                remarksDoc: 'Carga liberada. Coordenando transporte terrestre.',
+                emDocConf: '2025-07-28',
+                telexRelease: 'Sim', // New field
+                // Finance specific fields
+                desconto: '0.00',
+                tipoDesconto: 'Nenhum',
+                custoExtra: '60.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Expresso', // Renamed from tpQualEntrega
+                titFornecedor: '12000.00',
+                pgtoAntecip: '0.00',
+                dtPgAntCP: '',
+                pgtoSaldoCP: '12000.00',
+                dtPgSalCP: '2025-10-01',
+                titCliente: '15000.00',
+                pgAntecipCR: '0.00',
+                dtPgAntCR: '',
+                pgSaldoCR: '15000.00',
+                dtPgSalCR: '2025-11-01',
+                dtFinalizado: '' // New field
             },
             {
                 id: 'PED-029',
@@ -1053,7 +1382,33 @@
                 ],
                 productLines: [
                     { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 5, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
-                ]
+                ],
+                // Document specific fields
+                docsFornecedor: 'INV-2025-008',
+                serialNum: 'SN-008-CDE',
+                numeroCI: 'CI-11334',
+                numeroBLDoc: 'BL-HKG-007',
+                taxaRemessa: '1.0%',
+                certOrigem: 'CO-FGH-234',
+                remarksDoc: 'Entrega finalizada. Processo concluído.',
+                emDocConf: '2025-07-30',
+                telexRelease: 'Sim', // New field
+                // Finance specific fields
+                desconto: '25.00',
+                tipoDesconto: 'Liquidação',
+                custoExtra: '15.00', // Renamed from custoEntrega
+                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                titFornecedor: '6000.00',
+                pgtoAntecip: '1500.00',
+                dtPgAntCP: '2025-07-05',
+                pgtoSaldoCP: '4500.00',
+                dtPgSalCP: '2025-10-01',
+                titCliente: '7500.00',
+                pgAntecipCR: '2000.00',
+                dtPgAntCR: '2025-07-10',
+                pgSaldoCR: '5500.00',
+                dtPgSalCR: '2025-11-05',
+                dtFinalizado: '2025-07-31' // New field
             }
         ];
 
@@ -1155,8 +1510,8 @@
                     <td>${order.fornecedor || 'N/A'}</td>
                     <td>${order.blNumber || 'N/A'}</td>
                     <td>${order.blDate || 'N/A'}</td>
-                    <td>${order.cliente || 'N/A'}</td>
-                    <td>${order.paymentDate || 'N/A'}</td>
+                    <td>${order.fornecedorLoja || 'N/A'}</td>
+                    <td>${order.paymentBeforeBL ? 'Sim' : 'Não'}</td>
                     <td><span class="status-indicator ${statusClass}"></span>${order.statusDimpex}</td>
                 `;
                 tbody.appendChild(row);
@@ -1171,51 +1526,104 @@
                 return;
             }
 
-            // Populate Shipment Overview
-            document.getElementById('detailShipmentName').innerText = currentDimpexOrder.shipmentName || 'N/A';
-            document.getElementById('overviewOrderId').innerText = currentDimpexOrder.id || 'N/A';
-            document.getElementById('detailShipmentNameInput').value = currentDimpexOrder.shipmentName || '';
-            document.getElementById('detailShipmentDate').value = currentDimpexOrder.aprovacaoDate || '';
-            document.getElementById('detailFornecedor').value = currentDimpexOrder.fornecedor || '';
-            document.getElementById('detailFornecedorLoja').value = currentDimpexOrder.fornecedorLoja || '';
-            document.getElementById('detailToyNumber').value = currentDimpexOrder.toyNumber || '';
-            document.getElementById('detailIncoterm').value = currentDimpexOrder.incoterm || ''; // Editable
-            document.getElementById('detailPol').value = currentDimpexOrder.pol || ''; // Editable
-            document.getElementById('detailPod').value = currentDimpexOrder.pod || ''; // Editable
-            document.getElementById('detailPrevEmbarque').value = currentDimpexOrder.prevEmbarque || ''; // Editable
-            document.getElementById('detailPagtoAntBL').value = currentDimpexOrder.paymentBeforeBL ? 'Sim' : 'Não'; // Read-only
-            document.getElementById('detailCargoAgent').value = currentDimpexOrder.cargoAgent || ''; // Editable
-            document.getElementById('detailDtBooking').value = currentDimpexOrder.dtBooking || '';
-            document.getElementById('detailBlNumber').value = currentDimpexOrder.blNumber || '';
-            document.getElementById('detailBlDate').value = currentDimpexOrder.blDate || '';
-            document.getElementById('detailDtETA').value = currentDimpexOrder.dtETA || '';
-            document.getElementById('detailDtDesembaraco').value = currentDimpexOrder.dtDesembaraco || '';
-            document.getElementById('detailCont20').value = currentDimpexOrder.container20 || '0';
-            document.getElementById('detailCont40').value = currentDimpexOrder.container40 || '0';
-            document.getElementById('detailCont40HQ').value = currentDimpexOrder.container40HQ || '0';
-            document.getElementById('detailContLCL').value = currentDimpexOrder.containerLCL || '0';
-            document.getElementById('detailFollowUp').value = currentDimpexOrder.followUp || ''; // Editable
+            // Helper function to safely set element value
+            const safeSetValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value || '';
+                } else {
+                    console.warn(`Element with ID '${id}' not found. Cannot set its value.`);
+                }
+            };
 
-            // Populate Status Tracking
+            // Helper function to safely set element innerText
+            const safeSetText = (id, text) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerText = text || 'N/A';
+                } else {
+                    console.warn(`Element with ID '${id}' not found. Cannot set its text.`);
+                }
+            };
+
+            // Populate Shipment Overview (Geral Tab)
+            safeSetText('detailShipmentName', currentDimpexOrder.shipmentName);
+            safeSetText('overviewOrderId', currentDimpexOrder.id);
+            safeSetValue('detailShipmentNameInput', currentDimpexOrder.shipmentName);
+            safeSetValue('detailShipmentDate', currentDimpexOrder.aprovacaoDate);
+            safeSetValue('detailFornecedor', currentDimpexOrder.fornecedor);
+            safeSetValue('detailFornecedorLoja', currentDimpexOrder.fornecedorLoja);
+            safeSetValue('detailToyNumber', currentDimpexOrder.toyNumber);
+            safeSetValue('detailIncoterm', currentDimpexOrder.incoterm); // Editable
+            safeSetValue('detailPol', currentDimpexOrder.pol); // Editable
+            safeSetValue('detailPod', currentDimpexOrder.pod); // Editable
+            safeSetValue('detailPrevEmbarque', currentDimpexOrder.prevEmbarque); // Editable
+            safeSetValue('detailPagtoAntBL', currentDimpexOrder.paymentBeforeBL ? 'Sim' : 'Não'); // Read-only
+            safeSetValue('detailCargoAgent', currentDimpexOrder.cargoAgent); // Editable
+            safeSetValue('detailDtBooking', currentDimpexOrder.dtBooking);
+            safeSetValue('detailBlNumber', currentDimpexOrder.blNumber);
+            safeSetValue('detailBlDate', currentDimpexOrder.blDate);
+            safeSetValue('detailDtETA', currentDimpexOrder.dtETA);
+            safeSetValue('detailDtDesembaraco', currentDimpexOrder.dtDesembaraco);
+            safeSetValue('detailDtFinalizado', currentDimpexOrder.dtFinalizado); // New field
+
+            // Ensure container values are strings, even if they are numbers in data
+            safeSetValue('detailCont20', String(currentDimpexOrder.container20 || ''));
+            safeSetValue('detailCont40', String(currentDimpexOrder.container40 || ''));
+            safeSetValue('detailCont40HQ', String(currentDimpexOrder.container40HQ || ''));
+            safeSetValue('detailContLCL', String(currentDimpexOrder.containerLCL || ''));
+
+            safeSetValue('detailFollowUp', currentDimpexOrder.followUp); // Editable
+
+            // Populate Status Tracking (Geral Tab)
             renderTracking(currentDimpexOrder.statusDimpex);
-            document.getElementById('newStatusSelect').value = currentDimpexOrder.statusDimpex; // Set current status in dropdown
+            safeSetValue('newStatusSelect', currentDimpexOrder.statusDimpex); // Set current status in dropdown
 
-            // Populate Customs Broker Info
+            // Populate Customs Broker Info (Geral Tab)
             if (currentDimpexOrder.customsBroker) {
-                document.getElementById('despachanteNome').innerText = currentDimpexOrder.customsBroker.name;
-                document.getElementById('despachanteContato').innerText = currentDimpexOrder.customsBroker.contact;
-                document.getElementById('despachanteTelefone').innerText = currentDimpexOrder.customsBroker.phone;
+                safeSetText('despachanteNome', currentDimpexOrder.customsBroker.name);
+                safeSetText('despachanteContato', currentDimpexOrder.customsBroker.contact);
+                safeSetText('despachanteTelefone', currentDimpexOrder.customsBroker.phone);
             } else {
-                document.getElementById('despachanteNome').innerText = 'N/A';
-                document.getElementById('despachanteContato').innerText = 'N/A';
-                document.getElementById('despachanteTelefone').innerText = 'N/A';
+                safeSetText('despachanteNome', 'N/A');
+                safeSetText('despachanteContato', 'N/A');
+                safeSetText('despachanteTelefone', 'N/A');
             }
 
-            // Populate Attached Documents
-            renderAttachedFiles();
-
-            // Populate Product Details
+            // Populate Product Details (Geral Tab)
             renderProductsTable();
+
+            // Populate Document Tab fields
+            safeSetValue('docsFornecedor', currentDimpexOrder.docsFornecedor);
+            safeSetValue('serialNum', currentDimpexOrder.serialNum);
+            safeSetValue('numeroCI', currentDimpexOrder.numeroCI);
+            safeSetValue('numeroBLDoc', currentDimpexOrder.numeroBLDoc);
+            safeSetValue('taxaRemessa', currentDimpexOrder.taxaRemessa);
+            safeSetValue('certOrigem', currentDimpexOrder.certOrigem);
+            safeSetValue('remarksDoc', currentDimpexOrder.remarksDoc);
+            safeSetValue('emDocConf', currentDimpexOrder.emDocConf);
+            safeSetValue('telexRelease', currentDimpexOrder.telexRelease); // New field
+            renderDocumentsTable(); // Render the dynamic documents table
+            renderAttachedFiles(); // Render the attached files list
+
+            // Populate Finance Tab fields
+            safeSetValue('financeDesconto', currentDimpexOrder.desconto);
+            safeSetValue('financeTipoDesconto', currentDimpexOrder.tipoDesconto);
+            safeSetValue('financeCustoExtra', currentDimpexOrder.custoExtra); // Renamed
+            safeSetValue('financeTpCustExtr', currentDimpexOrder.tpQualEntrega); // Renamed
+            safeSetValue('financeTitFornecedor', currentDimpexOrder.titFornecedor);
+            safeSetValue('financePgtoAntecip', currentDimpexOrder.pgtoAntecip);
+            safeSetValue('financeDtPgAntCP', currentDimpexOrder.dtPgAntCP);
+            safeSetValue('financePgtoSaldoCP', currentDimpexOrder.pgtoSaldoCP);
+            safeSetValue('financeDtPgSalCP', currentDimpexOrder.dtPgSalCP);
+            safeSetValue('financeTitCliente', currentDimpexOrder.titCliente);
+            safeSetValue('financePgAntecipCR', currentDimpexOrder.pgAntecipCR);
+            safeSetValue('financeDtPgAntCR', currentDimpexOrder.dtPgAntCR);
+            safeSetValue('financePgSaldoCR', currentDimpexOrder.pgSaldoCR);
+            safeSetValue('financeDtPgSalCR', currentDimpexOrder.dtPgSalCR);
+
+            // Ensure the "Geral" tab is active by default when opening details
+            openTab(null, 'tabGeral');
         }
 
         function renderTracking(currentStatus) {
@@ -1280,6 +1688,7 @@
             currentDimpexOrder.blDate = document.getElementById('detailBlDate').value;
             currentDimpexOrder.dtETA = document.getElementById('detailDtETA').value;
             currentDimpexOrder.dtDesembaraco = document.getElementById('detailDtDesembaraco').value;
+            currentDimpexOrder.dtFinalizado = document.getElementById('detailDtFinalizado').value; // New field
             currentDimpexOrder.container20 = document.getElementById('detailCont20').value;
             currentDimpexOrder.container40 = document.getElementById('detailCont40').value;
             currentDimpexOrder.container40HQ = document.getElementById('detailCont40HQ').value;
@@ -1410,6 +1819,33 @@
                 tbody.appendChild(row);
             });
         }
+
+        // Function to handle tab switching
+        function openTab(evt, tabName) {
+            let i, tabcontent, tabbuttons;
+
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+
+            tabbuttons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].classList.remove("active");
+            }
+
+            document.getElementById(tabName).classList.add("active");
+            if (evt) {
+                evt.currentTarget.classList.add("active");
+            } else {
+                // If called without an event (e.g., on initial load), activate the corresponding button
+                const activeButton = Array.from(tabbuttons).find(button => button.innerText.includes(tabName === 'tabGeral' ? 'Geral' : tabName === 'tabDocumentos' ? 'Documentos' : 'Financeiro'));
+                if (activeButton) {
+                    activeButton.classList.add('active');
+                }
+            }
+        }
+
 
         // Initial load when the page is opened
         document.addEventListener('DOMContentLoaded', () => {
