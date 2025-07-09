@@ -42,7 +42,7 @@
         }
         .container {
             max-width: 1200px;
-            min-width: 800px; /* Added min-width for consistent layout */
+            /* Removed min-width to allow more fluid responsiveness */
             margin: 20px auto;
             padding: 20px;
             background-color: #fff;
@@ -266,19 +266,23 @@
         }
         .detail-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Force 3 columns for consistency */
+            /* Adjusted minmax to allow more flexibility and prevent overflow */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px 20px;
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             width: 100%; /* Ensure it always tries to take full width */
-            min-width: 760px; /* Explicit minimum width to match container's general content area */
+            justify-content: start; /* Align items to the start of the grid */
+            align-items: start; /* Align items to the start vertically */
         }
         .detail-item {
             display: flex;
             flex-direction: column;
             padding: 5px 0;
+            /* Ensure content within item wraps */
+            overflow: hidden; /* Hide overflowing content */
         }
         .detail-label {
             font-weight: 500;
@@ -290,6 +294,8 @@
             font-weight: 600;
             color: #333;
             font-size: 14px;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words */
         }
         .detail-item input[type="text"],
         .detail-item input[type="date"],
@@ -301,6 +307,8 @@
             border-radius: 4px;
             font-size: 14px;
             outline: none;
+            white-space: normal; /* Ensure input text wraps */
+            word-break: break-word; /* Ensure input text breaks long words */
         }
         .detail-item input:read-only,
         .detail-item textarea:read-only {
@@ -647,6 +655,10 @@
                             <textarea id="detailFollowUp" rows="3"></textarea>
                         </div>
                     </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn-primary" onclick="saveShipmentDetails()">Salvar Alterações</button>
+                        <button class="btn-secondary" onclick="revertToPurchase()">Estornar para Compras</button>
+                    </div>
                 </div>
 
                 <!-- Status Tracking Section -->
@@ -739,12 +751,12 @@
                             <input type="text" id="numeroBLDoc" readonly>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Taxa Remessa:</div>
-                            <input type="text" id="taxaRemessa" readonly>
-                        </div>
-                        <div class="detail-item">
                             <div class="detail-label">Cert.Origem:</div>
                             <input type="text" id="certOrigem" readonly>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Telex Releas:</div> <!-- Changed from Taxa Remessa -->
+                            <input type="text" id="telexRelease" readonly>
                         </div>
                         <div class="detail-item span-all-columns"> <!-- Added span-all-columns class -->
                             <div class="detail-label">Remarks:</div>
@@ -753,10 +765,6 @@
                         <div class="detail-item">
                             <div class="detail-label">Env.Doc.Cont:</div>
                             <input type="date" id="emDocConf" readonly>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Telex Releas:</div>
-                            <input type="text" id="telexRelease" readonly>
                         </div>
                     </div>
                     <div class="table-container" style="margin-top: 20px;">
@@ -929,7 +937,6 @@
                 serialNum: 'SN-001-XYZ',
                 numeroCI: 'CI-98765',
                 numeroBLDoc: 'BL-HKG-001',
-                taxaRemessa: '1.5%',
                 certOrigem: 'CO-ABC-123',
                 remarksDoc: 'Documentos iniciais recebidos e conferidos. Aguardando BL original.',
                 emDocConf: '2025-07-01',
@@ -995,7 +1002,6 @@
                 serialNum: 'SN-002-ABC',
                 numeroCI: 'CI-12345',
                 numeroBLDoc: '',
-                taxaRemessa: '1.2%',
                 certOrigem: 'CO-DEF-456',
                 remarksDoc: 'Aguardando coleta e emissão de BL.',
                 emDocConf: '2025-07-02',
@@ -1060,7 +1066,6 @@
                 serialNum: 'SN-003-DEF',
                 numeroCI: 'CI-67890',
                 numeroBLDoc: 'BL-HKG-002',
-                taxaRemessa: '1.0%',
                 certOrigem: 'CO-GHI-789',
                 remarksDoc: 'Todos os documentos de embarque recebidos.',
                 emDocConf: '2025-07-05',
@@ -1125,7 +1130,6 @@
                 serialNum: 'SN-004-GHI',
                 numeroCI: 'CI-11223',
                 numeroBLDoc: 'BL-HKG-003',
-                taxaRemessa: '1.8%',
                 certOrigem: 'CO-JKL-012',
                 remarksDoc: 'Em trânsito. Acompanhando a localização do navio.',
                 emDocConf: '2025-07-12',
@@ -1190,7 +1194,6 @@
                 serialNum: 'SN-005-MNO',
                 numeroCI: 'CI-44556',
                 numeroBLDoc: 'BL-HKG-004',
-                taxaRemessa: '0.9%',
                 certOrigem: 'CO-PQR-345',
                 remarksDoc: 'Carga no porto de destino. Preparando documentação para alfândega.',
                 emDocConf: '2025-07-15',
@@ -1256,7 +1259,6 @@
                 serialNum: 'SN-006-STU',
                 numeroCI: 'CI-77889',
                 numeroBLDoc: 'BL-HKG-005',
-                taxaRemessa: '1.1%',
                 certOrigem: 'CO-VWX-678',
                 remarksDoc: 'Desembaraço aduaneiro em fase final. Aguardando liberação.',
                 emDocConf: '2025-07-20',
@@ -1322,7 +1324,6 @@
                 serialNum: 'SN-007-ABC',
                 numeroCI: 'CI-99887',
                 numeroBLDoc: 'BL-HKG-006',
-                taxaRemessa: '1.3%',
                 certOrigem: 'CO-DEF-901',
                 remarksDoc: 'Carga liberada. Coordenando transporte terrestre.',
                 emDocConf: '2025-07-28',
@@ -1388,7 +1389,6 @@
                 serialNum: 'SN-008-CDE',
                 numeroCI: 'CI-11334',
                 numeroBLDoc: 'BL-HKG-007',
-                taxaRemessa: '1.0%',
                 certOrigem: 'CO-FGH-234',
                 remarksDoc: 'Entrega finalizada. Processo concluído.',
                 emDocConf: '2025-07-30',
@@ -1598,7 +1598,7 @@
             safeSetValue('serialNum', currentDimpexOrder.serialNum);
             safeSetValue('numeroCI', currentDimpexOrder.numeroCI);
             safeSetValue('numeroBLDoc', currentDimpexOrder.numeroBLDoc);
-            safeSetValue('taxaRemessa', currentDimpexOrder.taxaRemessa);
+            // safeSetValue('taxaRemessa', currentDimpexOrder.taxaRemessa); // Removed
             safeSetValue('certOrigem', currentDimpexOrder.certOrigem);
             safeSetValue('remarksDoc', currentDimpexOrder.remarksDoc);
             safeSetValue('emDocConf', currentDimpexOrder.emDocConf);
@@ -1676,25 +1676,6 @@
 
             const newStatus = document.getElementById('newStatusSelect').value;
 
-            // Update editable fields from the form
-            currentDimpexOrder.shipmentName = document.getElementById('detailShipmentNameInput').value;
-            currentDimpexOrder.incoterm = document.getElementById('detailIncoterm').value;
-            currentDimpexOrder.pol = document.getElementById('detailPol').value;
-            currentDimpexOrder.pod = document.getElementById('detailPod').value;
-            currentDimpexOrder.prevEmbarque = document.getElementById('detailPrevEmbarque').value;
-            currentDimpexOrder.cargoAgent = document.getElementById('detailCargoAgent').value;
-            currentDimpexOrder.dtBooking = document.getElementById('detailDtBooking').value;
-            currentDimpexOrder.blNumber = document.getElementById('detailBlNumber').value;
-            currentDimpexOrder.blDate = document.getElementById('detailBlDate').value;
-            currentDimpexOrder.dtETA = document.getElementById('detailDtETA').value;
-            currentDimpexOrder.dtDesembaraco = document.getElementById('detailDtDesembaraco').value;
-            currentDimpexOrder.dtFinalizado = document.getElementById('detailDtFinalizado').value; // New field
-            currentDimpexOrder.container20 = document.getElementById('detailCont20').value;
-            currentDimpexOrder.container40 = document.getElementById('detailCont40').value;
-            currentDimpexOrder.container40HQ = document.getElementById('detailCont40HQ').value;
-            currentDimpexOrder.containerLCL = document.getElementById('detailContLCL').value;
-            currentDimpexOrder.followUp = document.getElementById('detailFollowUp').value;
-
             // Update the status in the currentDimpexOrder object
             currentDimpexOrder.statusDimpex = newStatus;
 
@@ -1709,9 +1690,76 @@
                 localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
             }
 
-            showMessage('Sucesso', `Status e detalhes do embarque ${currentDimpexOrder.shipmentName} atualizados para "${newStatus}"!`, 'success', () => {
+            showMessage('Sucesso', `Status do embarque ${currentDimpexOrder.shipmentName} atualizado para "${newStatus}"!`, 'success', () => {
                 renderDimpexOrderDetails(); // Re-render details to show updated status
             });
+        }
+
+        function saveShipmentDetails() {
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum embarque carregado para salvar os detalhes.', 'error');
+                return;
+            }
+
+            // Update editable fields from the form
+            currentDimpexOrder.shipmentName = document.getElementById('detailShipmentNameInput').value;
+            currentDimpexOrder.incoterm = document.getElementById('detailIncoterm').value;
+            currentDimpexOrder.pol = document.getElementById('detailPol').value;
+            currentDimpexOrder.pod = document.getElementById('detailPod').value;
+            currentDimpexOrder.prevEmbarque = document.getElementById('detailPrevEmbarque').value;
+            currentDimpexOrder.cargoAgent = document.getElementById('detailCargoAgent').value;
+            currentDimpexOrder.dtBooking = document.getElementById('detailDtBooking').value;
+            currentDimpexOrder.blNumber = document.getElementById('detailBlNumber').value;
+            currentDimpexOrder.blDate = document.getElementById('detailBlDate').value;
+            currentDimpexOrder.dtETA = document.getElementById('detailDtETA').value;
+            currentDimpexOrder.dtDesembaraco = document.getElementById('detailDtDesembaraco').value;
+            currentDimpexOrder.dtFinalizado = document.getElementById('detailDtFinalizado').value;
+            currentDimpexOrder.container20 = document.getElementById('detailCont20').value;
+            currentDimpexOrder.container40 = document.getElementById('detailCont40').value;
+            currentDimpexOrder.container40HQ = document.getElementById('detailCont40HQ').value;
+            currentDimpexOrder.containerLCL = document.getElementById('detailContLCL').value;
+            currentDimpexOrder.followUp = document.getElementById('detailFollowUp').value;
+
+            // Update localStorage to reflect the change for persistence
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
+            if (orderIndex !== -1) {
+                allDimpexOrders[orderIndex] = currentDimpexOrder;
+                localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+            }
+
+            showMessage('Sucesso', `Detalhes do embarque ${currentDimpexOrder.shipmentName} salvos com sucesso!`, 'success', () => {
+                renderDimpexOrderDetails(); // Re-render details to show updated values
+            });
+        }
+
+        function revertToPurchase() {
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum embarque carregado para estornar.', 'error');
+                return;
+            }
+
+            showMessage(
+                'Confirmação',
+                `Tem certeza que deseja estornar o embarque ${currentDimpexOrder.shipmentName} para o status "Aprovado" (Compras)?`,
+                'warning',
+                () => {
+                    currentDimpexOrder.statusDimpex = 'Aprovado'; // Set status back to "Aprovado"
+                    // Update localStorage
+                    let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+                    const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
+                    if (orderIndex !== -1) {
+                        allDimpexOrders[orderIndex] = currentDimpexOrder;
+                        localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+                    }
+                    showMessage('Sucesso', `Embarque ${currentDimpexOrder.shipmentName} estornado para "Aprovado" com sucesso!`, 'success', () => {
+                        showCentralPage(); // Go back to central page after reverting
+                    });
+                },
+                () => {
+                    // User cancelled, do nothing
+                }
+            );
         }
 
         function renderAttachedFiles() {
