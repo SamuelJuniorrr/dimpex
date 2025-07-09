@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Fluig - Central Dimpex de Pedidos</title>
+    <style>
+        /* Re-use common styles */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --text-color: #333;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --header-bg: #fff;
+            --table-header-bg: #e9ecef;
+            --shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --red-alert: #dc3545;
+            --green-success: #28a745;
+            --orange-warning: #ffc107;
+            --blue-info: #17a2b8;
+            --purple-status: #6f42c1;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gray);
+            line-height: 1.6;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .page {
+            display: none;
+            width: 100%;
+            flex-grow: 1;
+        }
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            flex-grow: 1;
+        }
+        .header {
+            background-color: var(--header-bg);
+            padding: 15px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 13px;
+            color: #666;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+        }
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        .filter-group {
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            background-color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table thead th {
+            background-color: var(--table-header-bg);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: #555;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        table tbody td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        table tbody tr:hover {
+            background-color: #f5f5f5;
+            cursor: pointer; /* Indicate clickable rows */
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        /* Status colors */
+        .status-indicator.approved { background-color: var(--green-success); }
+        .status-indicator.in-production { background-color: var(--primary-color); } /* Blue */
+        .status-indicator.ready-cargo { background-color: var(--orange-warning); }
+        .status-indicator.atd { background-color: var(--blue-info); }
+        .status-indicator.pending-doc { background-color: var(--red-alert); }
+        .status-indicator.doc-ok { background-color: var(--green-success); }
+        .status-indicator.ata { background-color: var(--purple-status); }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+        .modal-content .input-group {
+            margin-bottom: 20px;
+        }
+        .modal-content .modal-actions {
+            margin-top: 25px;
+            text-align: right;
+        }
+
+        /* Detail Screen Specific Styles */
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 10px 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            padding: 5px 0;
+        }
+        .detail-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* Tracking Flow Styles */
+        .tracking-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 0;
+            position: relative;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            white-space: nowrap;
+            min-height: 120px;
+        }
+
+        .tracking-steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 1;
+        }
+
+        .tracking-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 100px;
+            position: relative;
+            z-index: 2;
+            padding: 0 10px;
+        }
+
+        .tracking-step .circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .tracking-step span {
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        /* Status-specific styles for tracking steps */
+        .tracking-step.completed .circle {
+            background-color: var(--green-success);
+            color: #fff;
+        }
+        .tracking-step.active .circle {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+        }
+        .tracking-step.pending .circle {
+            background-color: var(--orange-warning);
+            color: #fff;
+        }
+        .tracking-step.rejected .circle,
+        .tracking-step.cancelled .circle {
+            background-color: var(--red-alert);
+            color: #fff;
+        }
+        .tracking-step.approved .circle,
+        .tracking-step.production .circle,
+        .tracking-step.ready-cargo .circle,
+        .tracking-step.atd .circle,
+        .tracking-step.pending-doc .circle,
+        .tracking-step.doc-ok .circle,
+        .tracking-step.ata .circle,
+        .tracking-step.finished .circle {
+            background-color: var(--green-success);
+            color: #fff;
+        }
+        .tracking-step.negotiation .circle,
+        .tracking-step.waiting-approval .circle {
+            background-color: var(--orange-warning);
+            color: #fff;
+        }
+        .tracking-step.separation .circle,
+        .tracking-step.conference .circle,
+        .tracking-step.in-transit .circle,
+        .tracking-step.delivered .circle {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .tracking-step.completed span {
+            color: #333;
+            font-weight: 500;
+        }
+        .tracking-step.active span {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .tracking-step.rejected span,
+        .tracking-step.cancelled span {
+            color: var(--red-alert);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="dimpex-central-page" class="page active">
+        <header class="header">
+            <div class="header-left">
+                <h1>Central Dimpex de Pedidos</h1>
+                <p>Gerencie e acompanhe os pedidos de importação de Hong Kong.</p>
+            </div>
+            <div class="header-right">
+                <button class="btn-secondary" onclick="showMessage('Navegação', 'Esta ação levaria de volta à Central de Pedidos principal. (Funcionalidade de navegação simulada)')">Voltar para Central de Pedidos</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="statusFilter">Filtrar por Status:</label>
+                    <select id="statusFilter" onchange="renderDimpexOrdersTable()">
+                        <option value="Todos">Todos</option>
+                        <option value="Aprovado">Aprovado</option>
+                        <option value="Em Produção">Em Produção</option>
+                        <option value="Carga Pronta">Carga Pronta</option>
+                        <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
+                        <option value="Documentação Pendente">Documentação Pendente</option>
+                        <option value="Documentação OK">Documentação OK</option>
+                        <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nº Pedido</th>
+                            <th>PO Cliente</th>
+                            <th>Fornecedor</th>
+                            <th>Cliente</th>
+                            <th>Data Aprovação</th>
+                            <th>Status Dimpex</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dimpexOrdersTableBody">
+                        <!-- Dimpex orders will be rendered here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalhes do Pedido Dimpex - Agora na mesma página -->
+    <div id="dimpex-detail-page" class="page">
+        <header class="header">
+            <div class="header-left">
+                <h1>Detalhes do Pedido Dimpex: <span id="detailOrderId"></span></h1>
+                <p>Informações completas e acompanhamento do processo de importação.</p>
+            </div>
+            <div class="header-right">
+                <button class="btn-secondary" onclick="showCentralPage()">Voltar para Central Dimpex</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Order Overview Section -->
+            <div class="form-section">
+                <h2 class="section-title">Visão Geral do Pedido</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Nº Pedido:</div>
+                        <div class="detail-value" id="overviewOrderId"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">PO Cliente:</div>
+                        <div class="detail-value" id="overviewPoCliente"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fornecedor:</div>
+                        <div class="detail-value" id="overviewFornecedor"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Cliente:</div>
+                        <div class="detail-value" id="overviewCliente"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data Aprovação:</div>
+                        <div class="detail-value" id="overviewAprovacaoDate"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status Dimpex Atual:</div>
+                        <div class="detail-value" id="overviewStatusDimpex"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Tracking Section -->
+            <div class="form-section">
+                <h2 class="section-title">Status de Rastreamento Dimpex</h2>
+                <div id="dimpexTrackingSection" class="relative flex justify-between items-center my-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+                    <!-- Tracking steps will be rendered here -->
+                </div>
+                <div class="input-group" style="margin-top: 20px;">
+                    <label for="newStatusSelect">Atualizar Status:</label>
+                    <select id="newStatusSelect">
+                        <option value="Aprovado">Aprovado</option>
+                        <option value="Em Produção">Em Produção</option>
+                        <option value="Carga Pronta">Carga Pronta</option>
+                        <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
+                        <option value="Documentação Pendente">Documentação Pendente</option>
+                        <option value="Documentação OK">Documentação OK</option>
+                        <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
+                    </select>
+                    <button class="btn-primary" style="margin-top: 10px;" onclick="saveOrderStatus()">Salvar Novo Status</button>
+                </div>
+            </div>
+
+            <!-- Customs Broker Section -->
+            <div class="form-section">
+                <h2 class="section-title">Informações do Despachante</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Nome:</div>
+                        <div class="detail-value" id="despachanteNome"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Contato:</div>
+                        <div class="detail-value" id="despachanteContato"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Telefone:</div>
+                        <div class="detail-value" id="despachanteTelefone"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Details Section -->
+            <div class="form-section">
+                <h2 class="section-title">Detalhes do Transporte</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Tamanho Container:</div>
+                        <div class="detail-value" id="shippingContainerSize"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">INCOTERM:</div>
+                        <div class="detail-value" id="shippingIncoterm"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Porto de Origem:</div>
+                        <div class="detail-value" id="shippingOriginPort"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Porto de Destino:</div>
+                        <div class="detail-value" id="shippingDestinationPort"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ETA (Previsão Chegada):</div>
+                        <div class="detail-value" id="shippingETA"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Management Section -->
+            <div class="form-section">
+                <h2 class="section-title">Documentos do Processo</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Documento</th>
+                                <th>Status</th>
+                                <th>Data Recebimento</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="documentsTableBody">
+                            <!-- Documents will be rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="form-section">
+                <h2 class="section-title">Produtos do Pedido</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cód Produto</th>
+                                <th>Descrição</th>
+                                <th>Qtd.</th>
+                                <th>Preço Unit. Venda</th>
+                                <th>Preço Unit. Compra</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <!-- Products will be rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Mensagens (re-used from previous immersives) -->
+    <div id="messageModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="messageModalCloseBtn">&times;</button>
+            <h3 id="messageModalTitle"></h3>
+            <div id="messageModalContent"></div>
+            <div class="modal-actions">
+                <button class="btn-primary" id="messageModalConfirmBtn">OK</button>
+                <button class="btn-secondary" id="messageModalCancelBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDimpexOrder = null; // Global variable to hold the currently viewed order
+
+        // Simulated data for Dimpex orders (already approved by manager)
+        // This data will be stored in localStorage
+        const initialDimpexOrders = [
+            {
+                id: 'PED-015',
+                poCliente: '1127TYCH',
+                fornecedor: 'Fornecedor LONCIN',
+                cliente: 'Cliente A',
+                aprovacaoDate: '2025-06-29',
+                statusDimpex: 'Aprovado',
+                customsBroker: { name: 'Despachante Alfa', contact: 'contato@alfa.com', phone: '11 9876-5432' },
+                shippingDetails: { containerSize: '1x20GP', incoterm: 'FOB', originPort: 'Shanghai', destinationPort: 'Santos', eta: '2025-08-18' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
+                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '' },
+                    { name: 'Certificado de Origem', status: 'Pendente', receivedDate: '' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 5, prcUnit: 152.00, prcUnitFor: 140.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                ]
+            },
+            {
+                id: 'PED-019',
+                poCliente: '8795MX',
+                fornecedor: 'Fornecedor XY',
+                cliente: 'Cliente B',
+                aprovacaoDate: '2025-06-30',
+                statusDimpex: 'Em Produção',
+                customsBroker: { name: 'Despachante Beta', contact: 'contato@beta.com', phone: '21 9987-6543' },
+                shippingDetails: { containerSize: '1x40HQ', incoterm: 'CIF', originPort: 'Guangzhou', destinationPort: 'Paranaguá', eta: '2025-09-05' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
+                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '' },
+                    { name: 'Licença de Importação', status: 'Pendente', receivedDate: '' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 1, prcUnit: 310.00, prcUnitFor: 280.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                ]
+            },
+            {
+                id: 'PED-020',
+                poCliente: '0129VO',
+                fornecedor: 'Fornecedor LONCIN',
+                cliente: 'Toyama Chile',
+                aprovacaoDate: '2025-06-25',
+                statusDimpex: 'Carga Pronta',
+                customsBroker: { name: 'Despachante Gama', contact: 'contato@gama.com', phone: '51 9765-4321' },
+                shippingDetails: { containerSize: 'LCL', incoterm: 'EXW', originPort: 'Ningbo', destinationPort: 'Valparaíso', eta: '2025-08-20' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-01' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-01' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-01' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 15, prcUnit: 22.00, prcUnitFor: 20.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
+                ]
+            },
+            {
+                id: 'PED-021',
+                poCliente: '9999XYZ',
+                fornecedor: 'Fornecedor XY',
+                cliente: 'Cliente C',
+                aprovacaoDate: '2025-07-01',
+                statusDimpex: 'Saída do Porto de Embarque (ATD)',
+                customsBroker: { name: 'Despachante Delta', contact: 'contato@delta.com', phone: '31 9123-4567' },
+                shippingDetails: { containerSize: '1x20GP', incoterm: 'FOB', originPort: 'Xiamen', destinationPort: 'Rio de Janeiro', eta: '2025-09-10' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-05' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-05' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-05' },
+                    { name: 'Certificado Sanitário', status: 'Pendente', receivedDate: '' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 2, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                ]
+            },
+            {
+                id: 'PED-022',
+                poCliente: '1010ABC',
+                fornecedor: 'Fornecedor LONCIN',
+                cliente: 'Cliente D',
+                aprovacaoDate: '2025-07-02',
+                statusDimpex: 'Documentação Pendente',
+                customsBroker: { name: 'Despachante Epsilon', contact: 'contato@epsilon.com', phone: '41 9543-2109' },
+                shippingDetails: { containerSize: '1x40HQ', incoterm: 'CFR', originPort: 'Qingdao', destinationPort: 'Itajaí', eta: '2025-09-25' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
+                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD002', model: 'GEN-5000', description: 'Gerador a Gasolina 5kVA', unitMeasure: 'UN', quantity: 3, prcUnit: 2500.00, prcUnitFor: 1200.00, markup: 0.25, cont20: 0.10, cont40: 0.05, cont40HQ: 0.03 }
+                ]
+            },
+            {
+                id: 'PED-023',
+                poCliente: '2020DEF',
+                fornecedor: 'Fornecedor XY',
+                cliente: 'Cliente E',
+                aprovacaoDate: '2025-07-03',
+                statusDimpex: 'Documentação OK',
+                customsBroker: { name: 'Despachante Zeta', contact: 'contato@zeta.com', phone: '61 9321-0987' },
+                shippingDetails: { containerSize: 'LCL', incoterm: 'DDP', originPort: 'Shenzhen', destinationPort: 'Brasília', eta: '2025-10-01' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-07' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-07' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-07' },
+                    { name: 'Certificado de Inspeção', status: 'Recebido', receivedDate: '2025-07-07' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD003', model: 'MINI-PUMP', description: 'Mini Bomba D\'água', unitMeasure: 'PC', quantity: 20, prcUnit: 250.00, prcUnitFor: 120.00, markup: 0.30, cont20: 0.005, cont40: 0.002, cont40HQ: 0.001 }
+                ]
+            },
+            {
+                id: 'PED-024',
+                poCliente: '3030GHI',
+                fornecedor: 'Fornecedor LONCIN',
+                cliente: 'Cliente F',
+                aprovacaoDate: '2025-07-04',
+                statusDimpex: 'Chegada no Porto de Destino (ATA)',
+                customsBroker: { name: 'Despachante Eta', contact: 'contato@eta.com', phone: '81 9012-3456' },
+                shippingDetails: { containerSize: '1x20GP', incoterm: 'FCA', originPort: 'Foshan', destinationPort: 'Recife', eta: '2025-10-15' },
+                documents: [
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-10' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-10' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-10' },
+                    { name: 'Declaração de Importação', status: 'Recebido', receivedDate: '2025-07-10' }
+                ],
+                productLines: [
+                    { leg: 'Aberto', item: 1, productCode: 'PROD001', model: 'MX-100', description: 'Motor Diesel 10HP', unitMeasure: 'UN', quantity: 1, prcUnit: 1500.00, prcUnitFor: 800.00, markup: 0.20, cont20: 0.05, cont40: 0.02, cont40HQ: 0.01 }
+                ]
+            }
+        ];
+
+        // This variable will hold the actual data for Dimpex orders, loaded from localStorage
+        let dimpexOrders = [];
+
+        // Define the Dimpex tracking flow explicitly
+        const dimpexTrackingFlow = [
+            { name: 'Aprovado', class: 'approved', description: 'Pedido aprovado pela Gerência, aguardando início do processo Dimpex.' },
+            { name: 'Em Produção', class: 'in-production', description: 'Fornecedor iniciou a produção dos itens.' },
+            { name: 'Carga Pronta', class: 'ready-cargo', description: 'Mercadoria pronta para embarque na origem.' },
+            { name: 'Saída do Porto de Embarque (ATD)', class: 'atd', description: 'Carga embarcada e saiu do porto de origem.' },
+            { name: 'Documentação Pendente', class: 'pending-doc', description: 'Aguardando recebimento e conferência de documentos do despachante.' },
+            { name: 'Documentação OK', class: 'doc-ok', description: 'Todos os documentos recebidos e validados.' },
+            { name: 'Chegada no Porto de Destino (ATA)', class: 'ata', description: 'Navio chegou ao porto de destino.' }
+            // More steps can be added here as needed, e.g., "Desembaraço Aduaneiro", "Liberação para Entrega", "Entregue"
+        ];
+
+        function showMessage(title, content, type = 'info', onConfirm = null, onCancel = null) {
+            const modal = document.getElementById('messageModal');
+            document.getElementById('messageModalTitle').innerText = title;
+            document.getElementById('messageModalContent').innerHTML = content;
+            const confirmBtn = document.getElementById('messageModalConfirmBtn');
+            const cancelBtn = document.getElementById('messageModalCancelBtn');
+            const closeBtn = document.getElementById('messageModalCloseBtn');
+
+            confirmBtn.onclick = () => { if (onConfirm) onConfirm(); modal.classList.remove('active'); };
+            cancelBtn.onclick = () => { if (onCancel) onCancel(); modal.classList.remove('active'); };
+            closeBtn.onclick = () => modal.classList.remove('active');
+
+            confirmBtn.classList.add('hidden');
+            cancelBtn.classList.add('hidden');
+            closeBtn.classList.remove('hidden');
+
+            if (onConfirm || onCancel) {
+                closeBtn.classList.add('hidden');
+                confirmBtn.classList.remove('hidden');
+                if (onCancel) {
+                    cancelBtn.classList.remove('hidden');
+                }
+            }
+            modal.classList.add('active');
+        }
+
+        // Functions to control page visibility
+        function showCentralPage() {
+            document.getElementById('dimpex-detail-page').classList.remove('active');
+            document.getElementById('dimpex-central-page').classList.add('active');
+            renderDimpexOrdersTable(); // Re-render table when returning to central view
+        }
+
+        function showDetailPage(orderId) {
+            const order = dimpexOrders.find(o => o.id === orderId);
+            if (order) {
+                currentDimpexOrder = order;
+                document.getElementById('dimpex-central-page').classList.remove('active');
+                document.getElementById('dimpex-detail-page').classList.add('active');
+                renderDimpexOrderDetails(); // Render details for the selected order
+            } else {
+                showMessage('Erro', 'Pedido não encontrado.', 'error');
+            }
+        }
+
+        function renderDimpexOrdersTable() {
+            const tbody = document.getElementById('dimpexOrdersTableBody');
+            tbody.innerHTML = '';
+
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredOrders = dimpexOrders.filter(order => {
+                return statusFilter === 'Todos' || order.statusDimpex === statusFilter;
+            });
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhum pedido encontrado para o status selecionado.</td></tr>`;
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                const row = document.createElement('tr');
+                // Call showDetailPage directly with the order ID
+                row.onclick = () => showDetailPage(order.id);
+
+                let statusClass = '';
+                switch (order.statusDimpex) {
+                    case 'Aprovado': statusClass = 'approved'; break;
+                    case 'Em Produção': statusClass = 'in-production'; break;
+                    case 'Carga Pronta': statusClass = 'ready-cargo'; break;
+                    case 'Saída do Porto de Embarque (ATD)': statusClass = 'atd'; break;
+                    case 'Documentação Pendente': statusClass = 'pending-doc'; break;
+                    case 'Documentação OK': statusClass = 'doc-ok'; break;
+                    case 'Chegada no Porto de Destino (ATA)': statusClass = 'ata'; break;
+                    default: statusClass = '';
+                }
+
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.poCliente}</td>
+                    <td>${order.fornecedor}</td>
+                    <td>${order.cliente}</td>
+                    <td>${order.aprovacaoDate}</td>
+                    <td><span class="status-indicator ${statusClass}"></span>${order.statusDimpex}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderDimpexOrderDetails() {
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum pedido selecionado. Retornando à Central Dimpex.', 'error', () => {
+                    showCentralPage();
+                });
+                return;
+            }
+
+            // Populate Order Overview
+            document.getElementById('detailOrderId').innerText = currentDimpexOrder.id;
+            document.getElementById('overviewOrderId').innerText = currentDimpexOrder.id;
+            document.getElementById('overviewPoCliente').innerText = currentDimpexOrder.poCliente;
+            document.getElementById('overviewFornecedor').innerText = currentDimpexOrder.fornecedor;
+            document.getElementById('overviewCliente').innerText = currentDimpexOrder.cliente;
+            document.getElementById('overviewAprovacaoDate').innerText = currentDimpexOrder.aprovacaoDate;
+            document.getElementById('overviewStatusDimpex').innerText = currentDimpexOrder.statusDimpex;
+
+            // Populate Status Tracking
+            renderTracking(currentDimpexOrder.statusDimpex);
+            document.getElementById('newStatusSelect').value = currentDimpexOrder.statusDimpex; // Set current status in dropdown
+
+            // Populate Customs Broker Info
+            if (currentDimpexOrder.customsBroker) {
+                document.getElementById('despachanteNome').innerText = currentDimpexOrder.customsBroker.name;
+                document.getElementById('despachanteContato').innerText = currentDimpexOrder.customsBroker.contact;
+                document.getElementById('despachanteTelefone').innerText = currentDimpexOrder.customsBroker.phone;
+            } else {
+                document.getElementById('despachanteNome').innerText = 'N/A';
+                document.getElementById('despachanteContato').innerText = 'N/A';
+                document.getElementById('despachanteTelefone').innerText = 'N/A';
+            }
+
+            // Populate Shipping Details
+            if (currentDimpexOrder.shippingDetails) {
+                document.getElementById('shippingContainerSize').innerText = currentDimpexOrder.shippingDetails.containerSize;
+                document.getElementById('shippingIncoterm').innerText = currentDimpexOrder.shippingDetails.incoterm;
+                document.getElementById('shippingOriginPort').innerText = currentDimpexOrder.shippingDetails.originPort;
+                document.getElementById('shippingDestinationPort').innerText = currentDimpexOrder.shippingDetails.destinationPort;
+                document.getElementById('shippingETA').innerText = currentDimpexOrder.shippingDetails.eta;
+            } else {
+                document.getElementById('shippingContainerSize').innerText = 'N/A';
+                document.getElementById('shippingIncoterm').innerText = 'N/A';
+                document.getElementById('shippingOriginPort').innerText = 'N/A';
+                document.getElementById('shippingDestinationPort').innerText = 'N/A';
+                document.getElementById('shippingETA').innerText = 'N/A';
+            }
+
+            // Populate Document Management
+            renderDocumentsTable();
+
+            // Populate Product Details
+            renderProductsTable();
+        }
+
+        function renderTracking(currentStatus) {
+            const trackingSection = document.getElementById('dimpexTrackingSection');
+            trackingSection.innerHTML = '';
+
+            let currentStatusIndex = dimpexTrackingFlow.findIndex(step => step.name === currentStatus);
+
+            let trackingHtml = '<div class="tracking-steps">';
+
+            dimpexTrackingFlow.forEach((step, index) => {
+                let stepClass = '';
+                let circleContent = '';
+
+                if (index < currentStatusIndex) {
+                    stepClass = 'completed';
+                } else if (index === currentStatusIndex) {
+                    stepClass = 'active';
+                } else {
+                    stepClass = 'future';
+                }
+                
+                if (stepClass === 'completed' || stepClass === 'active') {
+                    if (step.class) {
+                        stepClass += ` ${step.class}`;
+                    }
+                }
+
+                if (stepClass.includes('completed')) {
+                    circleContent = '&#10003;'; // Checkmark
+                } else if (stepClass.includes('active')) {
+                    circleContent = (index + 1).toString();
+                }
+
+                trackingHtml += `
+                    <div class="tracking-step ${stepClass}">
+                        <div class="circle">${circleContent}</div>
+                        <span>${step.name}</span>
+                    </div>
+                `;
+            });
+            trackingHtml += '</div>';
+            trackingSection.innerHTML = trackingHtml;
+        }
+
+        function saveOrderStatus() {
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum pedido carregado.', 'error');
+                return;
+            }
+
+            const newStatus = document.getElementById('newStatusSelect').value;
+
+            // Update the status in the currentDimpexOrder object
+            currentDimpexOrder.statusDimpex = newStatus;
+
+            // Update localStorage to reflect the change for persistence across pages
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
+            if (orderIndex !== -1) {
+                allDimpexOrders[orderIndex] = currentDimpexOrder;
+                localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+            } else {
+                allDimpexOrders.push(currentDimpexOrder);
+                localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+            }
+
+            showMessage('Sucesso', `Status do pedido ${currentDimpexOrder.id} atualizado para "${newStatus}"!`, 'success', () => {
+                renderDimpexOrderDetails(); // Re-render details to show updated status
+            });
+        }
+
+        function renderDocumentsTable() {
+            const tbody = document.getElementById('documentsTableBody');
+            tbody.innerHTML = '';
+
+            if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este pedido.</td></tr>`;
+                return;
+            }
+
+            currentDimpexOrder.documents.forEach((doc, index) => {
+                const row = document.createElement('tr');
+                const actionButton = doc.status === 'Pendente' ?
+                    `<button class="btn-primary" onclick="receiveDocument('${doc.name}', ${index})">Receber Documento</button>` :
+                    `<button class="btn-secondary" disabled>Recebido</button>`;
+
+                row.innerHTML = `
+                    <td>${doc.name}</td>
+                    <td><span class="status-indicator ${doc.status === 'Pendente' ? 'pending-doc' : 'doc-ok'}"></span>${doc.status}</td>
+                    <td>${doc.receivedDate || 'N/A'}</td>
+                    <td>${actionButton}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function receiveDocument(docName, index) {
+            if (!currentDimpexOrder || !currentDimpexOrder.documents) return;
+
+            currentDimpexOrder.documents[index].status = 'Recebido';
+            currentDimpexOrder.documents[index].receivedDate = new Date().toISOString().slice(0, 10);
+
+            // Update localStorage
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
+            if (orderIndex !== -1) {
+                allDimpexOrders[orderIndex] = currentDimpexOrder;
+                localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+            }
+
+            showMessage('Sucesso', `Documento "${docName}" recebido com sucesso!`, 'success', () => {
+                renderDocumentsTable(); // Re-render documents table
+            });
+        }
+
+        function renderProductsTable() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+
+            if (!currentDimpexOrder || !currentDimpexOrder.productLines || currentDimpexOrder.productLines.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Nenhum produto associado a este pedido.</td></tr>`;
+                return;
+            }
+
+            currentDimpexOrder.productLines.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.productCode}</td>
+                    <td>${product.description}</td>
+                    <td>${product.quantity} ${product.unitMeasure}</td>
+                    <td>R$ ${product.prcUnit.toFixed(2).replace('.', ',')}</td>
+                    <td>R$ ${product.prcUnitFor.toFixed(2).replace('.', ',')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initial load when the page is opened
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load all dimpex orders from localStorage, or use initial data if not found
+            const storedAllOrders = localStorage.getItem('dimpexOrders');
+            if (storedAllOrders) {
+                dimpexOrders = JSON.parse(storedAllOrders);
+            } else {
+                dimpexOrders = initialDimpexOrders;
+                localStorage.setItem('dimpexOrders', JSON.stringify(initialDimpexOrders));
+            }
+            showCentralPage(); // Start by showing the central page
+        });
+    </script>
+</body>
+</html>
