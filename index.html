@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Fluig - Central Dimpex de Embarques</title>
-    <!-- Incluindo html2pdf.js via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Re-use common styles */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
         :root {
             --primary-color: #007bff;
@@ -123,7 +121,6 @@
         .btn-danger:hover {
             background-color: #c82333;
         }
-        /* Style for icon buttons */
         .icon-button {
             background: none;
             border: 1px solid var(--border-color);
@@ -257,7 +254,6 @@
             border-radius: 50%;
             margin-right: 5px;
         }
-        /* Status colors */
         .status-indicator.approved { background-color: var(--green-success); }
         .status-indicator.in-production { background-color: var(--primary-color); }
         .status-indicator.ready-cargo { background-color: var(--orange-warning); }
@@ -265,17 +261,15 @@
         .status-indicator.pending-doc { background-color: var(--red-alert); }
         .status-indicator.doc-ok { background-color: var(--green-success); }
         .status-indicator.ata { background-color: var(--purple-status); }
-        
-        /* New status colors */
         .status-indicator.booking { background-color: #ff8c00; }
         .status-indicator.pickup { background-color: #4CAF50; }
         .status-indicator.in-transit { background-color: #008CBA; }
         .status-indicator.customs-clearance { background-color: #f44336; }
         .status-indicator.released-delivery { background-color: #8A2BE2; }
         .status-indicator.delivered { background-color: var(--green-success); border-color: var(--green-success); }
-        .status-indicator.accepted { background-color: var(--green-success); } /* Dimpex Accepted */
-        .status-indicator.rejected { background-color: var(--red-alert); }   /* Dimpex Rejected */
-        .status-indicator.pending-approval { background-color: var(--orange-warning); } /* Dimpex Pending Approval */
+        .status-indicator.accepted { background-color: var(--green-success); }
+        .status-indicator.rejected { background-color: var(--red-alert); }
+        .status-indicator.pending-approval { background-color: var(--orange-warning); }
 
 
         .modal-overlay {
@@ -293,7 +287,6 @@
         .modal-overlay.active {
             display: flex;
         }
-        /* Adjusted z-index for messageModal to ensure it appears on top */
         #messageModal {
             z-index: 1001; 
         }
@@ -329,7 +322,6 @@
             text-align: right;
         }
 
-        /* Detail Screen Specific Styles */
         .form-section {
             margin-bottom: 25px;
             padding-bottom: 15px;
@@ -400,12 +392,11 @@
             grid-column: 1 / -1;
         }
 
-        /* Follow Up section with button */
         .followup-section {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            grid-column: 1 / -1; /* This item will span all columns */
+            grid-column: 1 / -1;
         }
         .followup-header {
             display: flex;
@@ -414,14 +405,12 @@
             width: 100%;
         }
         .followup-header .detail-label {
-            margin-bottom: 0; /* Remove bottom margin from label in flex container */
+            margin-bottom: 0;
         }
         .followup-textarea-wrapper {
             width: 100%;
         }
 
-
-        /* Tracking Flow Styles */
         .tracking-steps {
             display: flex;
             justify-content: space-between;
@@ -538,7 +527,6 @@
             text-decoration: underline;
         }
 
-        /* Tabs styling */
         .tabs-container {
             display: flex;
             border-bottom: 2px solid var(--border-color);
@@ -572,7 +560,6 @@
             display: block;
         }
 
-        /* Dashboard Specific Styles - Compacted */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -612,13 +599,12 @@
             margin-bottom: 10px;
         }
 
-        /* Styles for the PDF generation content (hidden by default) */
         #pdfContentContainer {
-            display: none; /* Hidden by default */
-            width: 190mm; /* A4 width */
-            min-height: 270mm; /* A4 height */
+            display: none;
+            width: 190mm;
+            min-height: 270mm;
             background-color: #fff;
-            padding: 10mm; /* Adjusted padding to give more space */
+            padding: 10mm;
             box-sizing: border-box;
             font-family: 'Arial', sans-serif;
             font-size: 10pt;
@@ -647,7 +633,7 @@
         }
         #pdfContentContainer .header-right {
             text-align: right;
-            font-size: 14pt; /* Reduced font size to prevent cutting off */
+            font-size: 14pt;
             font-weight: bold;
             color: #000;
             flex: 1;
@@ -656,8 +642,7 @@
             border: 1px solid #000;
             margin-bottom: 15px;
             padding: 5px;
-            /* Ensure content inside can expand vertically */
-            overflow: visible; /* Added to ensure content is not hidden */
+            overflow: visible;
         }
         #pdfContentContainer .section-title {
             background-color: #e0e0e0;
@@ -678,13 +663,12 @@
         #pdfContentContainer .section-content.single-col {
             grid-template-columns: 1fr;
         }
-        /* Ensure text in single-column sections wraps */
         #pdfContentContainer .section-content.single-col .item-value,
         #pdfContentContainer .section-content.single-col .item-row {
             white-space: normal;
             word-break: break-word;
-            height: auto; /* Ensure height adjusts to content */
-            min-height: 20px; /* Minimum height for better rendering */
+            height: auto;
+            min-height: 20px;
         }
 
         #pdfContentContainer .item-label {
@@ -764,8 +748,6 @@
             white-space: nowrap;
         }
 
-
-        /* Media Queries for better responsiveness */
         @media (max-width: 1200px) {
             .detail-grid {
                 grid-template-columns: repeat(4, 1fr);
@@ -798,6 +780,9 @@
             .detail-grid {
                 gap: 10px;
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .detail-item.span-all-columns {
+                grid-column: auto;
             }
             .tracking-steps {
                 flex-wrap: wrap;
@@ -905,14 +890,12 @@
                         </tr>
                     </thead>
                     <tbody id="dimpexOrdersTableBody">
-                        <!-- Dimpex orders will be rendered here -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Detalhes do Pedido Dimpex -->
     <div id="dimpex-detail-page" class="page">
         <header class="header">
             <div class="header-left">
@@ -925,16 +908,13 @@
         </header>
 
         <div class="container">
-            <!-- Tabs Navigation for Detail Page -->
             <div class="tabs-container">
                 <button class="tab-button active" onclick="openTab(event, 'tabGeral')">Geral</button>
                 <button class="tab-button" onclick="openTab(event, 'tabDocumentos')">Documentos</button>
                 <button class="tab-button" onclick="openTab(event, 'tabFinanceiro')">Financeiro</button>
             </div>
 
-            <!-- Tab Content: Geral -->
             <div id="tabGeral" class="tab-content active">
-                <!-- Shipment Overview Section -->
                 <div class="form-section">
                     <h2 class="section-title">Visão Geral do Embarque</h2>
                     <div class="detail-grid">
@@ -1023,7 +1003,6 @@
                             <input type="text" id="detailContLCL">
                         </div>
                         
-                        <!-- Follow Up Section with PDF Button -->
                         <div class="followup-section">
                             <div class="followup-header">
                                 <div class="detail-label">Follow Up:</div>
@@ -1041,11 +1020,9 @@
                     </div>
                 </div>
 
-                <!-- Status Tracking Section -->
                 <div class="form-section">
                     <h2 class="section-title">Status de Rastreamento Dimpex</h2>
                     <div id="dimpexTrackingSection" class="relative flex justify-between items-center my-8 p-4 bg-gray-50 rounded-lg shadow-inner">
-                        <!-- Tracking steps will be rendered here -->
                     </div>
                     <div class="input-group" style="margin-top: 20px;">
                         <label for="newStatusSelect">Atualizar Status:</label>
@@ -1065,26 +1042,6 @@
                     </div>
                 </div>
 
-                <!-- Customs Broker Section -->
-                <div class="form-section">
-                    <h2 class="section-title">Informações do Despachante</h2>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <div class="detail-label">Nome:</div>
-                            <div class="detail-value" id="despachanteNome"></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Contato:</div>
-                            <div class="detail-value" id="despachanteContato"></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Telefone:</div>
-                            <div class="detail-value" id="despachanteTelefone"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product Details Section -->
                 <div class="form-section">
                     <h2 class="section-title">Produtos do Pedido</h2>
                     <div class="table-container">
@@ -1106,14 +1063,12 @@
                                 </tr>
                             </thead>
                             <tbody id="productsTableBody">
-                                <!-- Products will be rendered here -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab Content: Documentos -->
             <div id="tabDocumentos" class="tab-content">
                 <div class="form-section">
                     <h2 class="section-title">Documentos do Processo</h2>
@@ -1157,20 +1112,18 @@
                                 <tr>
                                     <th>Documento</th>
                                     <th>Status</th>
-                                    <th>Receber</th> <!-- Changed from "Ação" -->
-                                    <th>Visualizar</th> <!-- Changed from "Anexos" -->
-                                    <th>Aprovação Dimpex</th>
+                                    <th>Receber</th>
+                                    <th>Visualizar</th>
+                                    <th>Aprovação Doc</th> <!-- Alterado de "Aprovação Dimpex" para "Aprovação Doc" -->
                                 </tr>
                             </thead>
                             <tbody id="documentsTableBody">
-                                <!-- Documents will be rendered here -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab Content: Financeiro -->
             <div id="tabFinanceiro" class="tab-content">
                 <div class="form-section">
                     <h2 class="section-title">Informações Financeiras</h2>
@@ -1240,7 +1193,6 @@
         </div>
     </div>
 
-    <!-- Modal de Mensagens (re-used from previous immersives) -->
     <div id="messageModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close-btn" id="messageModalCloseBtn">&times;</button>
@@ -1253,7 +1205,6 @@
         </div>
     </div>
 
-    <!-- Modal para Visualização de Documentos de Texto (Improved Styling) -->
     <div id="documentViewerModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 800px; width: 90%;">
             <button class="modal-close-btn" onclick="closeDocumentViewerModal()">&times;</button>
@@ -1265,12 +1216,11 @@
         </div>
     </div>
 
-    <!-- NOVO Modal para Visualização de PDF -->
     <div id="pdfViewerModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 90%; width: 90%; height: 90%; padding: 0;">
             <button class="modal-close-btn" onclick="closePdfViewerModal()">&times;</button>
             <h3 style="padding: 15px 30px; margin-bottom: 0;">Visualizador de PDF</h3>
-            <iframe id="pdfFrame" style="width: 100%; height: calc(100% - 110px); border: none;"></iframe> <!-- Adjusted height for new button -->
+            <iframe id="pdfFrame" style="width: 100%; height: calc(100% - 110px); border: none;"></iframe>
             <div class="modal-actions" style="padding: 15px 30px; text-align: center;">
                 <button class="btn-primary" onclick="sendPdfByEmail()">Enviar PDF</button>
                 <button class="btn-secondary" onclick="closePdfViewerModal()">Fechar</button>
@@ -1278,11 +1228,9 @@
         </div>
     </div>
 
-    <!-- Hidden container for PDF generation content -->
     <div id="pdfContentContainer">
         <div class="header-section">
             <div class="header-left">
-                <!-- Updated image source to the requested URL with onerror fallback -->
                 <img src="https://iili.io/FEsYhyG.png" alt="Logo da Toyama Hong Kong Ltd." onerror="this.onerror=null;this.src='https://placehold.co/150x50/ff0000/ffffff?text=Erro+ao+carregar+Logo';">
                 <div class="company-info">
                     <strong>TOYAMA HONG KONG Ltd.</strong><br>
@@ -1439,7 +1387,6 @@
                     </tr>
                 </thead>
                 <tbody id="pdfProductsTableBodyDoc">
-                    <!-- Product rows will be inserted here by JavaScript -->
                 </tbody>
             </table>
             <div style="font-size: 8pt; margin-top: 5px;">Puxar todas essas informações conforme estão no embarque!</div>
@@ -1451,11 +1398,8 @@
     </div>
 
     <script>
-        console.log('Script loaded. Starting initialization...');
-        let currentDimpexOrder = null; // Global variable to hold the currently viewed order
+        let currentDimpexOrder = null;
 
-        // Simulated data for Dimpex orders (already approved by manager)
-        // This data will be stored in localStorage
         const initialDimpexOrders = [
             {
                 id: 'PED-015',
@@ -1464,27 +1408,26 @@
                 fornecedorLoja: '01',
                 cliente: 'Cliente A',
                 aprovacaoDate: '2025-06-29',
-                statusDimpex: 'Reserva de Espaço (Booking)', // Starting point for Dimpex
-                shipmentName: 'EMB-001-CLIA', // New field
-                toyNumber: 'TOY1250001', // Example TOY number
-                blNumber: 'BL-HKG-001', // Example BL
-                blDate: '2025-07-10', // Example BL Date
-                paymentDate: '2025-08-15', // Example Payment Date (Finance)
-                pol: 'Shanghai', // Port of Loading
-                pod: 'Santos', // Port of Discharge
-                prevEmbarque: '2025-07-05', // Editable
+                statusDimpex: 'Reserva de Espaço (Booking)',
+                shipmentName: 'EMB-001-CLIA',
+                toyNumber: 'TOY1250001',
+                blNumber: 'BL-HKG-001',
+                blDate: '2025-07-10',
+                paymentDate: '2025-08-15',
+                pol: 'Shanghai',
+                pod: 'Santos',
+                prevEmbarque: '2025-07-05',
                 dtBooking: '2025-07-01',
                 dtETA: '2025-08-18',
-                dtDesembaraco: '', // Will be updated
-                cargoAgent: 'Agente Marítimo X', // Editable
-                paymentBeforeBL: true, // Finance field (read-only)
+                dtDesembaraco: '',
+                cargoAgent: 'Agente Marítimo X',
+                paymentBeforeBL: true,
                 container20: '1',
                 container40: '0',
                 container40HQ: '0',
                 containerLCL: '0',
                 followUp: 'Primeira reserva de espaço confirmada. Aguardando coleta da carga.',
-                incoterm: 'FOB', // Editable
-                customsBroker: { name: 'Despachante Alfa', contact: 'contato@alfa.com', phone: '11 9876-5432' },
+                incoterm: 'FOB',
                 documents: [
                     { name: 'Solicitação do Cliente (PED-015)', status: 'Recebido', receivedDate: '2025-06-28', dimpexApprovalStatus: 'Pendente',
                       content: '--- Solicitação do Cliente (PED-015) ---\n\nCliente: Cliente A\nData da Solicitação: 2025-06-28\n\nItens Solicitados:\n- Motor Diesel 10HP (Modelo MX-100): 5 unidades\n\nDetalhes Adicionais:\n- Uso: Novo projeto de expansão.\n- Prioridade: Alta.\n- Observações: Necessário entrega até 2025-08-20.\n\nAtenciosamente,\nEquipe de Compras Cliente A'
@@ -1499,21 +1442,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'SP', // New field
-                        boxes: 2, // New field
+                        branch: 'SP',
+                        boxes: 2,
                         item: 1,
-                        serialNumber: 'SN-MX100-001', // New field
-                        grossWeight: 150.0, // New field
-                        netWeight: 140.0, // New field
+                        serialNumber: 'SN-MX100-001',
+                        grossWeight: 150.0,
+                        netWeight: 140.0,
                         productCode: 'PROD001',
                         description: 'Motor Diesel 10HP',
                         quantity: 5,
-                        volumeM3: 0.25, // New field
+                        volumeM3: 0.25,
                         prcUnit: 152.00,
                         prcUnitFor: 140.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-001',
                 serialNum: 'SN-001-XYZ',
                 numeroCI: 'CI-98765',
@@ -1521,12 +1463,11 @@
                 certOrigem: 'CO-ABC-123',
                 remarksDoc: 'Documentos iniciais recebidos e conferidos. Aguardando BL original.',
                 emDocConf: '2025-07-01',
-                telexRelease: 'Sim', // New field
-                // Finance specific fields
+                telexRelease: 'Sim',
                 desconto: '100.00',
                 tipoDesconto: 'Volume',
-                custoExtra: '50.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Normal', // Renamed from tpQualEntrega
+                custoExtra: '50.00',
+                tpQualEntrega: 'Normal',
                 titFornecedor: '23600.00',
                 pgtoAntecip: '7098.00',
                 dtPgAntCP: '2025-06-20',
@@ -1537,7 +1478,7 @@
                 dtPgAntCR: '2025-07-01',
                 pgSaldoCR: '20000.00',
                 dtPgSalCR: '2025-09-01',
-                dtFinalizado: '2025-08-25' // New field
+                dtFinalizado: '2025-08-25'
             },
             {
                 id: 'PED-019',
@@ -1566,7 +1507,6 @@
                 containerLCL: '0',
                 followUp: 'Coleta agendada para amanhã. Documentos iniciais recebidos.',
                 incoterm: 'CIF',
-                customsBroker: { name: 'Despachante Beta', contact: 'contato@beta.com', phone: '21 9987-6543' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-019)', status: 'Recebido', receivedDate: '2025-06-29', dimpexApprovalStatus: 'Pendente',
                       content: '--- Solicitação do Cliente (PED-019) ---\n\nDetalhes da Solicitação para Cliente B.\n\nConteúdo de exemplo para visualização.'
@@ -1646,7 +1586,6 @@
                 containerLCL: '1',
                 followUp: 'Carga embarcada com sucesso. BL e documentos principais recebidos.',
                 incoterm: 'EXW',
-                customsBroker: { name: 'Despachante Gama', contact: 'contato@gama.com', phone: '51 9765-4321' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-020)', status: 'Recebido', receivedDate: '2025-06-24', dimpexApprovalStatus: 'Pendente', content: '--- Solicitação do Cliente (PED-020) ---\n\nDetalhes da Solicitação para Toyama Chile.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'PO Aprovada (PED-020)', status: 'Recebido', receivedDate: '2025-06-25', dimpexApprovalStatus: 'Pendente', content: '--- Ordem de Compra Aprovada (PED-020) ---\n\nDetalhes da PO aprovada para Toyama Chile.\n\nConteúdo de exemplo para visualização.' },
@@ -1721,13 +1660,12 @@
                 containerLCL: '0',
                 followUp: 'Navio a caminho. Monitorando a ETA.',
                 incoterm: 'FOB',
-                customsBroker: { name: 'Despachante Theta', contact: 'contato@theta.com', phone: '91 9456-7890' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-025)', status: 'Recebido', receivedDate: '2025-07-04', dimpexApprovalStatus: 'Aceito', content: '--- Solicitação do Cliente (PED-025) ---\n\nDetalhes da Solicitação para Cliente G.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'PO Aprovada (PED-025)', status: 'Recebido', receivedDate: '2025-07-05', dimpexApprovalStatus: 'Aceito', content: '--- Ordem de Compra Aprovada (PED-025) ---\n\nDetalhes da PO aprovada para Cliente G.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
                 ],
                 productLines: [
                     {
@@ -1796,13 +1734,12 @@
                 containerLCL: '1',
                 followUp: 'Carga chegou ao porto. Aguardando início do desembaraço.',
                 incoterm: 'CFR',
-                customsBroker: { name: 'Despachante Iota', contact: 'contato@iota.com', phone: '71 9678-9012' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-026)', status: 'Recebido', receivedDate: '2025-07-05', dimpexApprovalStatus: 'Pendente', content: '--- Solicitação do Cliente (PED-026) ---\n\nDetalhes da Solicitação para Cliente H.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'PO Aprovada (PED-026)', status: 'Recebido', receivedDate: '2025-07-06', dimpexApprovalStatus: 'Pendente', content: '--- Ordem de Compra Aprovada (PED-026) ---\n\nDetalhes da PO aprovada para Cliente H.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
                     { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
                 ],
                 productLines: [
                     {
@@ -1871,7 +1808,6 @@
                 containerLCL: '0',
                 followUp: 'Documentos entregues ao despachante. Desembaraço em andamento.',
                 incoterm: 'DAP',
-                customsBroker: { name: 'Despachante Kappa', contact: 'contato@kappa.com', phone: '85 9123-4567' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-027)', status: 'Recebido', receivedDate: '2025-07-06', dimpexApprovalStatus: 'Aceito', content: '--- Solicitação do Cliente (PED-027) ---\n\nDetalhes da Solicitação para Cliente I.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'PO Aprovada (PED-027)', status: 'Recebido', receivedDate: '2025-07-07', dimpexApprovalStatus: 'Aceito', content: '--- Ordem de Compra Aprovada (PED-027) ---\n\nDetalhes da PO aprovada para Cliente I.\n\nConteúdo de exemplo para visualização.' },
@@ -1947,7 +1883,6 @@
                 containerLCL: '0',
                 followUp: 'Carga liberada pela alfândega. Aguardando agendamento de transporte final.',
                 incoterm: 'DDP',
-                customsBroker: { name: 'Despachante Lambda', contact: 'contato@lambda.com', phone: '62 9876-5432' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-028)', status: 'Recebido', receivedDate: '2025-07-07', dimpexApprovalStatus: 'Aceito', content: '--- Solicitação do Cliente (PED-028) ---\n\nDetalhes da Solicitação para Cliente J.\n\nConteúdo de exemplo para visualização.' },
                     { name: 'PO Aprovada (PED-028)', status: 'Recebido', receivedDate: '2025-07-08', dimpexApprovalStatus: 'Aceito', content: '--- Ordem de Compra Aprovada (PED-028) ---\n\nDetalhes da PO aprovada para Cliente J.\n\nConteúdo de exemplo para visualização.' },
@@ -2023,7 +1958,6 @@
                 containerLCL: '1',
                 followUp: 'Carga entregue com sucesso ao cliente. Processo finalizado.',
                 incoterm: 'FOB',
-                customsBroker: { name: 'Despachante Mu', contact: 'contato@mu.com', phone: '11 9111-2222' },
                 documents: [
                     { name: 'Solicitação do Cliente (PED-029)', status: 'Recebido', receivedDate: '2025-07-08', dimpexApprovalStatus: 'Aceito' },
                     { name: 'PO Aprovada (PED-029)', status: 'Recebido', receivedDate: '2025-07-09', dimpexApprovalStatus: 'Aceito' },
@@ -2099,18 +2033,12 @@
         }
 
         function showMessage(title, content, type = 'info', onConfirm = null, onCancel = null) {
-            console.log(`Showing message: ${title} - ${content}`);
             const modal = document.getElementById('messageModal');
             const modalTitle = document.getElementById('messageModalTitle');
             const modalContent = document.getElementById('messageModalContent');
             const confirmBtn = document.getElementById('messageModalConfirmBtn');
             const cancelBtn = document.getElementById('messageModalCancelBtn');
             const closeBtn = document.getElementById('messageModalCloseBtn');
-
-            if (!modal || !modalTitle || !modalContent || !confirmBtn || !cancelBtn || !closeBtn) {
-                console.error('One or more modal elements not found.');
-                return;
-            }
 
             modalTitle.innerText = title;
             modalContent.innerHTML = content;
@@ -2131,22 +2059,18 @@
                 }
             }
             modal.classList.add('active');
-            console.log('Message modal displayed.');
         }
 
         function showCentralPage() {
-            console.log('Showing central page...');
             const detailPage = document.getElementById('dimpex-detail-page');
             const centralPage = document.getElementById('dimpex-central-page');
             if (detailPage) detailPage.classList.remove('active');
             if (centralPage) centralPage.classList.add('active');
             renderDashboardKPIs();
             renderDimpexOrdersTable();
-            console.log('Central page shown.');
         }
 
         function showDetailPage(orderId) {
-            console.log(`Showing detail page for order ID: ${orderId}`);
             const order = dimpexOrders.find(o => o.id === orderId);
             if (order) {
                 currentDimpexOrder = order;
@@ -2156,19 +2080,13 @@
                 if (detailPage) detailPage.classList.add('active');
                 renderDimpexOrderDetails();
                 openTab(null, 'tabGeral');
-                console.log('Detail page shown.');
             } else {
                 showMessage('Erro', 'Embarque não encontrado.', 'error');
             }
         }
 
         function renderDimpexOrdersTable() {
-            console.log('Rendering Dimpex orders table...');
             const tbody = document.getElementById('dimpexOrdersTableBody');
-            if (!tbody) {
-                console.error('dimpexOrdersTableBody not found.');
-                return;
-            }
             tbody.innerHTML = '';
 
             const statusFilterElement = document.getElementById('statusFilter');
@@ -2205,7 +2123,6 @@
                 `;
                 tbody.appendChild(row);
             });
-            console.log('Dimpex orders table rendered.');
         }
 
         const safeGetValue = (id) => {
@@ -2214,7 +2131,6 @@
         };
 
         function renderDimpexOrderDetails() {
-            console.log('Rendering Dimpex order details...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado. Retornando à Central Dimpex.', 'error', () => {
                     showCentralPage();
@@ -2226,8 +2142,6 @@
                 const element = document.getElementById(id);
                 if (element) {
                     element.value = value !== undefined && value !== null ? value : '';
-                } else {
-                    console.warn(`Element with ID '${id}' not found. Cannot set its value.`);
                 }
             };
 
@@ -2235,8 +2149,6 @@
                 const element = document.getElementById(id);
                 if (element) {
                     element.innerText = text !== undefined && text !== null ? text : 'N/A';
-                } else {
-                    console.warn(`Element with ID '${id}' not found. Cannot set its text.`);
                 }
             };
 
@@ -2270,16 +2182,6 @@
             renderTracking(currentDimpexOrder.statusDimpex);
             safeSetValue('newStatusSelect', currentDimpexOrder.statusDimpex);
 
-            if (currentDimpexOrder.customsBroker) {
-                safeSetText('despachanteNome', currentDimpexOrder.customsBroker.name);
-                safeSetText('despachanteContato', currentDimpexOrder.customsBroker.contact);
-                safeSetText('despachanteTelefone', currentDimpexOrder.customsBroker.phone);
-            } else {
-                safeSetText('despachanteNome', 'N/A');
-                safeSetText('despachanteContato', 'N/A');
-                safeSetText('despachanteTelefone', 'N/A');
-            }
-
             renderProductsTable();
 
             safeSetValue('docsFornecedor', currentDimpexOrder.docsFornecedor);
@@ -2306,16 +2208,10 @@
             safeSetValue('financeDtPgAntCR', currentDimpexOrder.dtPgAntCR);
             safeSetValue('financePgSaldoCR', currentDimpexOrder.pgSaldoCR);
             safeSetValue('financeDtPgSalCR', currentDimpexOrder.dtPgSalCR);
-            console.log('Dimpex order details rendered.');
         }
 
         function renderTracking(currentStatus) {
-            console.log(`Rendering tracking for status: ${currentStatus}`);
             const trackingSection = document.getElementById('dimpexTrackingSection');
-            if (!trackingSection) {
-                console.error('dimpexTrackingSection not found.');
-                return;
-            }
             trackingSection.innerHTML = '';
 
             let currentStatusIndex = dimpexTrackingFlow.findIndex(step => step.name === currentStatus);
@@ -2353,32 +2249,20 @@
             });
             trackingHtml += '</div>';
             trackingSection.innerHTML = trackingHtml;
-            console.log('Tracking rendered.');
         }
 
         function saveOrderStatus() {
-            console.log('Saving order status...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque carregado.', 'error');
                 return;
             }
 
             const newStatusSelect = document.getElementById('newStatusSelect');
-            if (!newStatusSelect) {
-                console.error('newStatusSelect not found.');
-                return;
-            }
             const newStatus = newStatusSelect.value;
 
             currentDimpexOrder.statusDimpex = newStatus;
 
-            let allDimpexOrders = [];
-            try {
-                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
-            } catch (e) {
-                console.error('Error parsing dimpexOrders from localStorage:', e);
-                allDimpexOrders = [];
-            }
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
             
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -2392,11 +2276,9 @@
             showMessage('Sucesso', `Status do embarque ${currentDimpexOrder.shipmentName} atualizado para "${newStatus}"!`, 'success', () => {
                 renderDimpexOrderDetails();
             });
-            console.log('Order status saved.');
         }
 
         function saveShipmentDetails() {
-            console.log('Saving shipment details...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque carregado para salvar os detalhes.', 'error');
                 return;
@@ -2420,13 +2302,7 @@
             currentDimpexOrder.containerLCL = safeGetValue('detailContLCL');
             currentDimpexOrder.followUp = safeGetValue('detailFollowUp');
 
-            let allDimpexOrders = [];
-            try {
-                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
-            } catch (e) {
-                console.error('Error parsing dimpexOrders from localStorage:', e);
-                allDimpexOrders = [];
-            }
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
 
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -2437,11 +2313,9 @@
             showMessage('Sucesso', `Detalhes do embarque ${currentDimpexOrder.shipmentName} salvos com sucesso!`, 'success', () => {
                 renderDimpexOrderDetails();
             });
-            console.log('Shipment details saved.');
         }
 
         function revertToPurchase() {
-            console.log('Reverting to purchase status...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque carregado para estornar.', 'error');
                 return;
@@ -2453,13 +2327,7 @@
                 'warning',
                 () => {
                     currentDimpexOrder.statusDimpex = 'Aprovado';
-                    let allDimpexOrders = [];
-                    try {
-                        allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
-                    } catch (e) {
-                        console.error('Error parsing dimpexOrders from localStorage:', e);
-                        allDimpexOrders = [];
-                    }
+                    let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
                     const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
                     if (orderIndex !== -1) {
                         allDimpexOrders[orderIndex] = currentDimpexOrder;
@@ -2468,16 +2336,11 @@
                     showMessage('Sucesso', `Embarque ${currentDimpexOrder.shipmentName} estornado para "Aprovado" com sucesso!`, 'success', () => {
                         showCentralPage();
                     });
-                },
-                () => {
-                    // User cancelled, do nothing
-                    console.log('Revert to purchase cancelled by user.');
                 }
             );
         }
 
         function viewAttachedFile(orderId, docName) {
-            console.log(`Viewing attached file: ${docName} for order ID: ${orderId}`);
             const order = dimpexOrders.find(o => o.id === orderId);
             if (!order) {
                 showMessage('Erro', 'Embarque não encontrado para visualizar o documento.', 'error');
@@ -2488,31 +2351,24 @@
             const documentViewerContent = document.getElementById('documentViewerContent');
             const documentViewerModal = document.getElementById('documentViewerModal');
 
-            if (!documentViewerTitle || !documentViewerContent || !documentViewerModal) {
-                console.error('One or more document viewer modal elements not found.');
-                return;
-            }
-
             if (doc && doc.content) {
                 documentViewerTitle.innerText = doc.name;
-                documentViewerContent.innerHTML = ''; // Clear previous content
+                documentViewerContent.innerHTML = '';
 
                 const lines = doc.content.split('\n');
-                let currentList = null; // To hold the current <ul> element for list items
+                let currentList = null;
 
                 lines.forEach(line => {
                     line = line.trim();
                     if (line.startsWith('---') && line.endsWith('---')) {
-                        // This is a section title
                         const title = line.replace(/---/g, '').trim();
                         const h4 = document.createElement('h4');
                         h4.style.cssText = 'font-size: 16px; font-weight: 600; color: var(--primary-color); margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
                         h4.innerText = title;
                         documentViewerContent.appendChild(h4);
-                        currentList = null; // Reset current list for new section
-                    } else if (line.includes(':') && !line.startsWith('-')) { // Avoid parsing list items as key-value
-                        // This is a key-value pair
-                        const parts = line.split(':', 2); // Split only on the first colon
+                        currentList = null;
+                    } else if (line.includes(':') && !line.startsWith('-')) {
+                        const parts = line.split(':', 2);
                         const label = parts[0].trim();
                         const value = parts[1] ? parts[1].trim() : '';
 
@@ -2520,7 +2376,7 @@
                         itemDiv.style.cssText = 'display: flex; margin-bottom: 5px;';
                         
                         const labelSpan = document.createElement('span');
-                        labelSpan.style.cssText = 'font-weight: 500; color: #555; min-width: 120px;'; // Fixed width for labels
+                        labelSpan.style.cssText = 'font-weight: 500; color: #555; min-width: 120px;';
                         labelSpan.innerText = `${label}:`;
                         
                         const valueSpan = document.createElement('span');
@@ -2530,9 +2386,8 @@
                         itemDiv.appendChild(labelSpan);
                         itemDiv.appendChild(valueSpan);
                         documentViewerContent.appendChild(itemDiv);
-                        currentList = null; // Reset current list
+                        currentList = null;
                     } else if (line.startsWith('-')) {
-                        // This is a list item
                         if (!currentList) {
                             currentList = document.createElement('ul');
                             currentList.style.cssText = 'list-style: disc inside; margin-left: 20px; margin-bottom: 10px;';
@@ -2544,12 +2399,11 @@
                         currentList.appendChild(listItem);
                     }
                     else if (line) {
-                        // Regular paragraph text
                         const p = document.createElement('p');
                         p.style.cssText = 'margin-bottom: 10px; color: #444;';
                         p.innerText = line;
                         documentViewerContent.appendChild(p);
-                        currentList = null; // Reset current list
+                        currentList = null;
                     }
                 });
 
@@ -2560,33 +2414,19 @@
         }
 
         function closeDocumentViewerModal() {
-            console.log('Closing document viewer modal.');
             const documentViewerModal = document.getElementById('documentViewerModal');
             if (documentViewerModal) {
                 documentViewerModal.classList.remove('active');
-            } else {
-                console.warn('documentViewerModal not found when trying to close.');
             }
         }
 
         function renderDocumentsTable() {
-            console.log('Rendering documents table...');
             const tbody = document.getElementById('documentsTableBody');
-            if (!tbody) {
-                console.error('documentsTableBody not found.');
-                return;
-            }
             tbody.innerHTML = '';
 
-            // Re-load dimpexOrders from localStorage to ensure latest data
             const storedAllOrders = localStorage.getItem('dimpexOrders');
             if (storedAllOrders) {
-                try {
-                    dimpexOrders = JSON.parse(storedAllOrders);
-                } catch (e) {
-                    console.error('Error parsing dimpexOrders from localStorage in renderDocumentsTable:', e);
-                    // Fallback to current in-memory data if parse fails, but log the error
-                }
+                dimpexOrders = JSON.parse(storedAllOrders);
             }
 
             if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
@@ -2594,15 +2434,8 @@
                 return;
             }
 
-            // Find the current order again from the freshly loaded dimpexOrders
             const updatedCurrentOrder = dimpexOrders.find(o => o.id === currentDimpexOrder.id);
-            if (!updatedCurrentOrder) {
-                console.error('Current order not found after re-loading dimpexOrders in renderDocumentsTable.');
-                return;
-            }
-            // Update currentDimpexOrder to the latest version
             currentDimpexOrder = updatedCurrentOrder;
-
 
             currentDimpexOrder.documents.forEach((doc, index) => {
                 const row = document.createElement('tr');
@@ -2610,7 +2443,6 @@
                 let viewAttachmentButtonHtml = '';
                 let dimpexApprovalHtml = '';
 
-                // Receive Document Button (checkmark icon)
                 if (doc.status === 'Pendente') {
                     receiveButtonHtml = `<button class="icon-button primary" onclick="receiveDocument('${doc.name.replace(/'/g, "\\'")}', ${index})" title="Receber Documento">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
@@ -2621,19 +2453,16 @@
                                         </button>`;
                 }
 
-                // View Attached File Button (eye icon)
-                // The button is now enabled if doc.content exists, regardless of 'Recebido' status
-                if (doc.content) {
+                if (doc.status === 'Recebido' && doc.content) {
                     viewAttachmentButtonHtml = `<button class="icon-button" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')" title="Visualizar Anexo">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
                                                 </button>`;
                 } else {
-                    viewAttachmentButtonHtml = `<button class="icon-button" disabled title="Sem Anexo">
+                    viewAttachmentButtonHtml = `<button class="icon-button" disabled title="Sem Anexo ou Pendente">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
                                                 </button>`;
                 }
 
-                // Dimpex Approval Buttons/Status (checkmark for accept, cross for reject)
                 if (doc.status === 'Recebido') {
                     if (doc.dimpexApprovalStatus === 'Pendente') {
                         dimpexApprovalHtml += `<button class="icon-button primary" style="margin-right: 5px;" onclick="acceptDocument('${doc.name.replace(/'/g, "\\'")}', ${index})" title="Aceitar Documento">
@@ -2651,7 +2480,6 @@
                     dimpexApprovalHtml += `<span class="status-indicator pending-approval"></span>Aguardando Recebimento`;
                 }
 
-
                 row.innerHTML = `
                     <td>${doc.name}</td>
                     <td><span class="status-indicator ${doc.status === 'Pendente' ? 'pending-doc' : 'doc-ok'}"></span>${doc.status}</td>
@@ -2661,32 +2489,22 @@
                 `;
                 tbody.appendChild(row);
             });
-            console.log('Documents table rendered.');
         }
 
         function receiveDocument(docName, index) {
-            console.log(`Receiving document: ${docName} at index: ${index}`);
             if (!currentDimpexOrder || !currentDimpexOrder.documents) {
-                console.error('currentDimpexOrder or documents array is null/undefined.');
                 return;
             }
 
             if (index < 0 || index >= currentDimpexOrder.documents.length) {
-                console.error('Invalid document index:', index);
                 return;
             }
 
             currentDimpexOrder.documents[index].status = 'Recebido';
             currentDimpexOrder.documents[index].receivedDate = new Date().toISOString().slice(0, 10);
-            currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Pendente'; // Set to pending approval once received
+            currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Pendente';
 
-            let allDimpexOrders = [];
-            try {
-                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
-            } catch (e) {
-                console.error('Error parsing dimpexOrders from localStorage:', e);
-                allDimpexOrders = [];
-            }
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
             
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -2697,30 +2515,20 @@
             showMessage('Sucesso', `Documento "${docName}" recebido com sucesso!`, 'success', () => {
                 renderDocumentsTable();
             });
-            console.log('Document received and saved.');
         }
 
         function acceptDocument(docName, index) {
-            console.log(`Accepting document: ${docName} at index: ${index}`);
             if (!currentDimpexOrder || !currentDimpexOrder.documents) {
-                console.error('currentDimpexOrder or documents array is null/undefined.');
                 return;
             }
 
             if (index < 0 || index >= currentDimpexOrder.documents.length) {
-                console.error('Invalid document index:', index);
                 return;
             }
 
             currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Aceito';
 
-            let allDimpexOrders = [];
-            try {
-                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
-            } catch (e) {
-                console.error('Error parsing dimpexOrders from localStorage:', e);
-                allDimpexOrders = [];
-            }
+            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
             
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -2731,18 +2539,14 @@
             showMessage('Sucesso', `Documento "${docName}" aceito pelo Dimpex!`, 'success', () => {
                 renderDocumentsTable();
             });
-            console.log('Document accepted and saved.');
         }
 
         function rejectDocument(docName, index) {
-            console.log(`Rejecting document: ${docName} at index: ${index}`);
             if (!currentDimpexOrder || !currentDimpexOrder.documents) {
-                console.error('currentDimpexOrder or documents array is null/undefined.');
                 return;
             }
 
             if (index < 0 || index >= currentDimpexOrder.documents.length) {
-                console.error('Invalid document index:', index);
                 return;
             }
 
@@ -2753,13 +2557,7 @@
                 () => {
                     currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Recusado';
 
-                    let allDimpexOrders = [];
-                    try {
-                        allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
-                    } catch (e) {
-                        console.error('Error parsing dimpexOrders from localStorage:', e);
-                        allDimpexOrders = [];
-                    }
+                    let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
                     
                     const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
                     if (orderIndex !== -1) {
@@ -2768,23 +2566,14 @@
                     }
 
                     showMessage('Sucesso', `Documento "${docName}" recusado pelo Dimpex!`, 'success', () => {
-                        renderDocumentsTable();
+                        renderDocumentsTable(); // Re-render the table to reflect the change immediately
                     });
-                    console.log('Document rejected and saved.');
-                },
-                () => {
-                    console.log('Rejection cancelled by user.');
                 }
             );
         }
 
         function renderProductsTable() {
-            console.log('Rendering products table...');
             const tbody = document.getElementById('productsTableBody');
-            if (!tbody) {
-                console.error('productsTableBody not found.');
-                return;
-            }
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.productLines || currentDimpexOrder.productLines.length === 0) {
@@ -2810,11 +2599,9 @@
                 `;
                 tbody.appendChild(row);
             });
-            console.log('Products table rendered.');
         }
 
         function openTab(evt, tabName) {
-            console.log(`Opening tab: ${tabName}`);
             let i, tabcontent, tabbuttons;
 
             tabcontent = document.querySelectorAll("#dimpex-detail-page .tab-content");
@@ -2826,8 +2613,6 @@
             const targetTab = document.getElementById(tabName);
             if (targetTab) {
                 targetTab.classList.add("active");
-            } else {
-                console.error(`Tab content with ID '${tabName}' not found.`);
             }
             
             if (evt) {
@@ -2841,60 +2626,36 @@
                 const activeButton = Array.from(tabbuttons).find(button => button.innerText.includes(buttonText[tabName]));
                 if (activeButton) {
                     activeButton.classList.add('active');
-                } else {
-                    console.warn(`No active tab button found for tabName: ${tabName}`);
                 }
             }
-            console.log('Tab opened.');
         }
 
         function renderDashboardKPIs() {
-            console.log('Rendering dashboard KPIs...');
             const totalShipmentsKPI = document.getElementById('totalShipmentsKPI');
             const inTransitShipmentsKPI = document.getElementById('inTransitShipmentsKPI');
             const customsClearanceShipmentsKPI = document.getElementById('customsClearanceShipmentsKPI');
             const deliveredShipmentsKPI = document.getElementById('deliveredShipmentsKPI');
 
-            if (!totalShipmentsKPI || !inTransitShipmentsKPI || !customsClearanceShipmentsKPI || !deliveredShipmentsKPI) {
-                console.error('One or more KPI elements not found.');
-                return;
-            }
-
             const storedAllOrders = localStorage.getItem('dimpexOrders');
             if (storedAllOrders) {
-                try {
-                    dimpexOrders = JSON.parse(storedAllOrders);
-                    console.log('Dimpex orders loaded from localStorage.');
-                } catch (e) {
-                    console.error('Error parsing dimpexOrders from localStorage:', e);
-                    dimpexOrders = initialDimpexOrders; // Fallback to initial data on parse error
-                }
+                dimpexOrders = JSON.parse(storedAllOrders);
             } else {
                 dimpexOrders = initialDimpexOrders;
                 localStorage.setItem('dimpexOrders', JSON.stringify(initialDimpexOrders));
-                console.log('Initial Dimpex orders set and saved to localStorage.');
             }
 
             const totalShipments = dimpexOrders.length;
             const inTransitShipments = dimpexOrders.filter(order => order.statusDimpex === 'Em Trânsito').length;
-            const customsClearanceShipments = dimpexOrders.filter(order => order.statusDimpex === 'Chegada no Porto de Destino (ATA)').length; /* Changed to ATA as per flow */
+            const customsClearanceShipments = dimpexOrders.filter(order => order.statusDimpex === 'Chegada no Porto de Destino (ATA)').length;
             const deliveredShipments = dimpexOrders.filter(order => order.statusDimpex === 'Entrega ao Cliente').length;
 
             totalShipmentsKPI.innerText = totalShipments;
             inTransitShipmentsKPI.innerText = inTransitShipments;
             customsClearanceShipmentsKPI.innerText = customsClearanceShipments;
             deliveredShipmentsKPI.innerText = deliveredShipments;
-            console.log('Dashboard KPIs rendered.');
         }
 
-        /**
-         * Generates a PDF of the Customer Follow Up document for the current shipment.
-         * This function is asynchronous as it uses html2pdf.js for PDF generation.
-         * It populates a hidden HTML container with shipment details and then converts it to PDF.
-         * The generated PDF is displayed in an iframe within a modal.
-         */
         async function generatePdfFollowUp() {
-            console.log('Attempting to generate PDF...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado para gerar o documento.', 'error');
                 return;
@@ -2904,31 +2665,15 @@
             const pdfViewerModal = document.getElementById('pdfViewerModal');
             const pdfFrame = document.getElementById('pdfFrame');
 
-            if (!pdfContentContainer || !pdfViewerModal || !pdfFrame) {
-                console.error('One or more PDF related elements not found (pdfContentContainer, pdfViewerModal, or pdfFrame).');
-                showMessage('Erro', 'Erro interno: Elementos do visualizador de PDF não encontrados.', 'error');
-                return;
-            }
-            
-            // Show the modal immediately
             pdfViewerModal.classList.add('active');
-            console.log('PDF viewer modal activated.');
-
-            // Temporarily make the container visible for html2canvas
             pdfContentContainer.style.display = 'block';
-            console.log('pdfContentContainer set to display: block.');
 
-            // Populate the hidden PDF content container
             const setText = (id, value) => {
                 const element = pdfContentContainer.querySelector(`#${id}`);
                 if (element) {
                     element.innerText = value !== undefined && value !== null ? value : 'N/A';
-                } else {
-                    console.warn(`Element with ID '${id}' not found in PDF container.`);
                 }
             };
-
-            console.log("Populating PDF content for order:", currentDimpexOrder.id);
 
             setText('pdfDocReadyDate', formatDate(currentDimpexOrder.prevEmbarque));
             setText('pdfDocTerms', currentDimpexOrder.incoterm);
@@ -2981,51 +2726,38 @@
                 } else {
                     productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Nenhum produto cadastrado para este embarque.</td></tr>`;
                 }
-            } else {
-                console.warn('pdfProductsTableBodyDoc not found in PDF container.');
             }
 
-            // Options for PDF generation
             const options = {
-                margin: 10, // Keep a reasonable margin
+                margin: 10,
                 filename: `documento_acompanhamento_${currentDimpexOrder.id}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 1, logging: true, dpi: 192, letterRendering: true, useCORS: true, allowTaint: true }, // Scale set to 1
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', hotfixes: ['px_scaling'] }, // Added hotfixes
-                pagebreak: { mode: 'avoid-all' } // Avoid page breaks within elements
+                html2canvas: { scale: 1, logging: false, dpi: 192, letterRendering: true, useCORS: true, allowTaint: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', hotfixes: ['px_scaling'] },
+                pagebreak: { mode: 'avoid-all' }
             };
 
-            // Generate PDF and open in new tab
             try {
-                console.log('Calling html2pdf()...');
                 const pdfDataUri = await html2pdf().set(options).from(pdfContentContainer).outputPdf('datauristring');
-                console.log('PDF data URI string generated. Setting iframe src...');
-                
-                pdfFrame.src = pdfDataUri; // Set the data URI to the iframe's src
-                // Removed: showMessage('Sucesso', 'PDF gerado e aberto no visualizador!', 'success');
+                pdfFrame.src = pdfDataUri;
             } catch (error) {
-                console.error('Erro ao gerar PDF:', error);
                 showMessage('Erro', 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.', 'error');
             } finally {
-                // Hide the container again after PDF generation
                 pdfContentContainer.style.display = 'none';
-                console.log('pdfContentContainer set back to display: none.');
             }
         }
 
         function closePdfViewerModal() {
-            console.log('Closing PDF viewer modal.');
             const pdfViewerModal = document.getElementById('pdfViewerModal');
             const pdfFrame = document.getElementById('pdfFrame');
             if (pdfViewerModal) {
                 pdfViewerModal.classList.remove('active');
             }
             if (pdfFrame) {
-                pdfFrame.src = ''; // Clear the iframe src to prevent memory leaks
+                pdfFrame.src = '';
             }
         }
 
-        // Function to simulate sending PDF by email
         function sendPdfByEmail() {
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado para enviar o PDF.', 'error');
@@ -3036,20 +2768,12 @@
             });
         }
 
-        /**
-         * Simulates sending the current shipment's financial data to Protheus.
-         * Displays a success message upon simulation.
-         */
         function sendToProtheus() {
-            console.log('Attempting to send financial data to Protheus...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado para enviar ao Protheus.', 'error');
                 return;
             }
 
-            // In a real application, you would gather the financial data from currentDimpexOrder
-            // and send it via an API call to the Protheus system.
-            // For this simulation, we'll just show a success message.
             const financialData = {
                 shipmentId: currentDimpexOrder.id,
                 desconto: currentDimpexOrder.desconto,
@@ -3068,40 +2792,28 @@
                 dtPgSalCR: currentDimpexOrder.dtPgSalCR
             };
 
-            console.log('Simulating sending the following financial data to Protheus:', financialData);
             showMessage('Sucesso', `Dados financeiros do embarque ${currentDimpexOrder.shipmentName} simulados como enviados ao Protheus!`, 'success');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOMContentLoaded event fired. Initializing app...');
             const storedAllOrders = localStorage.getItem('dimpexOrders');
             if (storedAllOrders) {
-                try {
-                    dimpexOrders = JSON.parse(storedAllOrders);
-                    // Ensure dimpexApprovalStatus is initialized for existing documents
-                    dimpexOrders.forEach(order => {
-                        order.documents.forEach(doc => {
-                            if (doc.dimpexApprovalStatus === undefined) {
-                                doc.dimpexApprovalStatus = doc.status === 'Recebido' ? 'Pendente' : 'N/A';
-                            }
-                            // Ensure content exists for received documents to enable view button
-                            if (doc.status === 'Recebido' && !doc.content) {
-                                doc.content = `--- Documento ${doc.name} ---\n\nConteúdo de exemplo para o documento ${doc.name}.\n\nEste é um placeholder para visualização.`;
-                            }
-                        });
+                dimpexOrders = JSON.parse(storedAllOrders);
+                dimpexOrders.forEach(order => {
+                    order.documents.forEach(doc => {
+                        if (doc.dimpexApprovalStatus === undefined) {
+                            doc.dimpexApprovalStatus = doc.status === 'Recebido' ? 'Pendente' : 'N/A';
+                        }
+                        if (doc.status === 'Recebido' && !doc.content) {
+                            doc.content = `--- Documento ${doc.name} ---\n\nConteúdo de exemplo para o documento ${doc.name}.\n\nEste é um placeholder para visualização.`;
+                        }
                     });
-                    console.log('Dimpex orders loaded from localStorage.');
-                } catch (e) {
-                    console.error('Error parsing dimpexOrders from localStorage on DOMContentLoaded:', e);
-                    dimpexOrders = initialDimpexOrders; // Fallback to initial data on parse error
-                }
+                });
             } else {
                 dimpexOrders = initialDimpexOrders;
                 localStorage.setItem('dimpexOrders', JSON.stringify(initialDimpexOrders));
-                console.log('Initial Dimpex orders set and saved to localStorage.');
             }
             showCentralPage();
-            console.log('App initialization complete.');
         });
     </script>
 </body>
