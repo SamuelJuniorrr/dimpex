@@ -543,8 +543,8 @@
         /* Styles for the PDF generation content (hidden by default) */
         #pdfContentContainer {
             display: none; /* Hidden by default */
-            width: 210mm; /* A4 width */
-            min-height: 297mm; /* A4 height */
+            width: 190mm; /* A4 width */
+            min-height: 270mm; /* A4 height */
             background-color: #fff;
             padding: 10mm; /* Adjusted padding to give more space */
             box-sizing: border-box;
@@ -584,6 +584,8 @@
             border: 1px solid #000;
             margin-bottom: 15px;
             padding: 5px;
+            /* Ensure content inside can expand vertically */
+            overflow: visible; /* Added to ensure content is not hidden */
         }
         #pdfContentContainer .section-title {
             background-color: #e0e0e0;
@@ -604,6 +606,15 @@
         #pdfContentContainer .section-content.single-col {
             grid-template-columns: 1fr;
         }
+        /* Ensure text in single-column sections wraps */
+        #pdfContentContainer .section-content.single-col .item-value,
+        #pdfContentContainer .section-content.single-col .item-row {
+            white-space: normal;
+            word-break: break-word;
+            height: auto; /* Ensure height adjusts to content */
+            min-height: 20px; /* Minimum height for better rendering */
+        }
+
         #pdfContentContainer .item-label {
             font-weight: bold;
             font-size: 8pt;
@@ -1189,9 +1200,10 @@
         <div class="modal-content" style="max-width: 90%; width: 90%; height: 90%; padding: 0;">
             <button class="modal-close-btn" onclick="closePdfViewerModal()">&times;</button>
             <h3 style="padding: 15px 30px; margin-bottom: 0;">Visualizador de PDF</h3>
-            <iframe id="pdfFrame" style="width: 100%; height: calc(100% - 60px); border: none;"></iframe>
+            <iframe id="pdfFrame" style="width: 100%; height: calc(100% - 110px); border: none;"></iframe> <!-- Adjusted height for new button -->
             <div class="modal-actions" style="padding: 15px 30px; text-align: center;">
-                <button class="btn-primary" onclick="closePdfViewerModal()">Fechar</button>
+                <button class="btn-primary" onclick="sendPdfByEmail()">Enviar PDF</button>
+                <button class="btn-secondary" onclick="closePdfViewerModal()">Fechar</button>
             </div>
         </div>
     </div>
@@ -1200,7 +1212,8 @@
     <div id="pdfContentContainer">
         <div class="header-section">
             <div class="header-left">
-                <img src="https://placehold.co/150x50/cccccc/333333?text=TOYAMA+LOGO" alt="Toyama Hong Kong Ltd. Logo">
+                <!-- Updated image source to the requested URL with onerror fallback -->
+                <img src="https://toyama.com.br/wp-content/uploads/2020/07/logo.png" alt="Toyama Hong Kong Ltd. Logo" onerror="this.onerror=null;this.src='https://placehold.co/150x50/cccccc/333333?text=LOGO';">
                 <div class="company-info">
                     <strong>TOYAMA HONG KONG Ltd.</strong><br>
                     Suite 01-02A, 9/F, Tower 5, China Hong Kong City<br>
@@ -2044,6 +2057,7 @@
                 }
             }
             modal.classList.add('active');
+            console.log('Message modal displayed.');
         }
 
         function showCentralPage() {
@@ -2054,6 +2068,7 @@
             if (centralPage) centralPage.classList.add('active');
             renderDashboardKPIs();
             renderDimpexOrdersTable();
+            console.log('Central page shown.');
         }
 
         function showDetailPage(orderId) {
@@ -2067,6 +2082,7 @@
                 if (detailPage) detailPage.classList.add('active');
                 renderDimpexOrderDetails();
                 openTab(null, 'tabGeral');
+                console.log('Detail page shown.');
             } else {
                 showMessage('Erro', 'Embarque não encontrado.', 'error');
             }
@@ -2135,7 +2151,7 @@
             const safeSetValue = (id, value) => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.value = value || '';
+                    element.value = value !== undefined && value !== null ? value : '';
                 } else {
                     console.warn(`Element with ID '${id}' not found. Cannot set its value.`);
                 }
@@ -2144,7 +2160,7 @@
             const safeSetText = (id, text) => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.innerText = text || 'N/A';
+                    element.innerText = text !== undefined && text !== null ? text : 'N/A';
                 } else {
                     console.warn(`Element with ID '${id}' not found. Cannot set its text.`);
                 }
@@ -2577,13 +2593,13 @@
                     <td>${product.description || 'N/A'}</td>
                     <td>${product.item || 'N/A'}</td>
                     <td>${product.serialNumber || 'N/A'}</td>
-                    <td>${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                    <td>${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                    <td>${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', '.', ',') : 'N/A'}</td>
+                    <td>${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', '.', ',') : 'N/A'}</td>
                     <td>${(product.productCode || 'N/A')}</td>
                     <td>${product.quantity || 'N/A'} ${product.unitMeasure || ''}</td>
-                    <td>${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
-                    <td>R$ ${(product.prcUnit !== undefined && product.prcUnit !== null) ? product.prcUnit.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                    <td>R$ ${(product.prcUnitFor !== undefined && product.prcUnitFor !== null) ? product.prcUnitFor.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                    <td>${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', '.', ',') : 'N/A'}</td>
+                    <td>R$ ${(product.prcUnit !== undefined && product.prcUnit !== null) ? product.prcUnit.toFixed(2).replace('.', '.', ',') : 'N/A'}</td>
+                    <td>R$ ${(product.prcUnitFor !== undefined && product.prcUnitFor !== null) ? product.prcUnitFor.toFixed(2).replace('.', '.', ',') : 'N/A'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2654,7 +2670,7 @@
 
             const totalShipments = dimpexOrders.length;
             const inTransitShipments = dimpexOrders.filter(order => order.statusDimpex === 'Em Trânsito').length;
-            const customsClearanceShipments = dimpexOrders.filter(order => order.statusDimpex === 'Desembaraço Aduaneiro').length;
+            const customsClearanceShipments = dimpexOrders.filter(order => order.statusDimpex === 'Chegada no Porto de Destino (ATA)').length; /* Changed to ATA as per flow */
             const deliveredShipments = dimpexOrders.filter(order => order.statusDimpex === 'Entrega ao Cliente').length;
 
             totalShipmentsKPI.innerText = totalShipments;
@@ -2706,10 +2722,10 @@
             setText('pdfDocPiC', currentDimpexOrder.numeroCI);
             setText('pdfDocPod', currentDimpexOrder.pod);
             setText('pdfDocFollowUp', currentDimpexOrder.followUp);
-            setText('pdfDocTtAmount', `R$ ${parseFloat(currentDimpexOrder.titCliente || 0).toFixed(2).replace('.', ',')}`);
-            setText('pdfDocDownPayment', `R$ ${parseFloat(currentDimpexOrder.pgAntecipCR || 0).toFixed(2).replace('.', ',')}`);
+            setText('pdfDocTtAmount', `R$ ${parseFloat(currentDimpexOrder.titCliente || 0).toFixed(2).replace('.', ',', '.')}`);
+            setText('pdfDocDownPayment', `R$ ${parseFloat(currentDimpexOrder.pgAntecipCR || 0).toFixed(2).replace('.', ',', '.')}`);
             setText('pdfDocDownPaymentDate', formatDate(currentDimpexOrder.dtPgAntCR));
-            setText('pdfDocBalancePayment', `R$ ${parseFloat(currentDimpexOrder.pgSaldoCR || 0).toFixed(2).replace('.', ',')}`);
+            setText('pdfDocBalancePayment', `R$ ${parseFloat(currentDimpexOrder.pgSaldoCR || 0).toFixed(2).replace('.', ',', '.')}`);
             setText('pdfDocBalancePaymentDate', formatDate(currentDimpexOrder.dtPgSalCR));
             setText('pdfDocCi', currentDimpexOrder.numeroCI);
             
@@ -2740,9 +2756,9 @@
                             <td>${product.description || 'N/A'}</td>
                             <td class="qty">${product.quantity || 'N/A'}</td>
                             <td class="pkgs">${product.boxes || 'N/A'}</td>
-                            <td class="nw">${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                            <td class="gw">${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                            <td class="cbm">${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
+                            <td class="nw">${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',', '.') : 'N/A'}</td>
+                            <td class="gw">${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',', '.') : 'N/A'}</td>
+                            <td class="cbm">${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',', '.') : 'N/A'}</td>
                         `;
                         productsTableBody.appendChild(row);
                     });
@@ -2771,7 +2787,7 @@
                 
                 pdfFrame.src = pdfDataUri; // Set the data URI to the iframe's src
                 pdfViewerModal.classList.add('active'); // Show the modal
-                showMessage('Sucesso', 'PDF gerado e aberto no visualizador!', 'success');
+                // Removed: showMessage('Sucesso', 'PDF gerado e aberto no visualizador!', 'success');
             } catch (error) {
                 console.error('Erro ao gerar PDF:', error);
                 showMessage('Erro', 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.', 'error');
@@ -2792,6 +2808,17 @@
             if (pdfFrame) {
                 pdfFrame.src = ''; // Clear the iframe src to prevent memory leaks
             }
+        }
+
+        // Function to simulate sending PDF by email
+        function sendPdfByEmail() {
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum embarque selecionado para enviar o PDF.', 'error');
+                return;
+            }
+            showMessage('Sucesso', `PDF do embarque ${currentDimpexOrder.shipmentName} simulado como enviado por e-mail!`, 'success', () => {
+                closePdfViewerModal();
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
