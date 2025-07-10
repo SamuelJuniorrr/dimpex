@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Fluig - Central Dimpex de Embarques</title>
+    <!-- Incluindo html2pdf.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* Re-use common styles */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -42,7 +44,6 @@
         }
         .container {
             max-width: 1200px;
-            /* Removed min-width to allow more fluid responsiveness */
             margin: 20px auto;
             padding: 20px;
             background-color: #fff;
@@ -58,8 +59,8 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow);
-            flex-wrap: wrap; /* Allow header content to wrap on smaller screens */
-            gap: 10px; /* Space between header items */
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .header h1 {
             font-size: 20px;
@@ -74,8 +75,8 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            flex-wrap: wrap; /* Allow buttons to wrap */
-            justify-content: flex-end; /* Align buttons to the right */
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .btn-primary {
             background-color: var(--primary-color);
@@ -128,9 +129,9 @@
             font-size: 14px;
             outline: none;
             transition: border-color 0.2s ease-in-out;
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
-            white-space: normal; /* Allow text to wrap within inputs */
-            word-break: break-word; /* Break long words within inputs */
+            box-sizing: border-box;
+            white-space: normal;
+            word-break: break-word;
         }
         .input-group input:focus,
         .input-group select:focus,
@@ -183,7 +184,7 @@
         }
         table tbody tr:hover {
             background-color: #f5f5f5;
-            cursor: pointer; /* Indicate clickable rows */
+            cursor: pointer;
         }
         .status-indicator {
             display: inline-block;
@@ -194,7 +195,7 @@
         }
         /* Status colors */
         .status-indicator.approved { background-color: var(--green-success); }
-        .status-indicator.in-production { background-color: var(--primary-color); } /* Blue */
+        .status-indicator.in-production { background-color: var(--primary-color); }
         .status-indicator.ready-cargo { background-color: var(--orange-warning); }
         .status-indicator.atd { background-color: var(--blue-info); }
         .status-indicator.pending-doc { background-color: var(--red-alert); }
@@ -202,12 +203,12 @@
         .status-indicator.ata { background-color: var(--purple-status); }
         
         /* New status colors */
-        .status-indicator.booking { background-color: #ff8c00; } /* Dark Orange */
-        .status-indicator.pickup { background-color: #4CAF50; } /* Green */
-        .status-indicator.in-transit { background-color: #008CBA; } /* Dark Blue */
-        .status-indicator.customs-clearance { background-color: #f44336; } /* Red */
-        .status-indicator.released-delivery { background-color: #8A2BE2; } /* Blue Violet */
-        .status-indicator.delivered { background-color: var(--green-success); } /* Green Success */
+        .status-indicator.booking { background-color: #ff8c00; }
+        .status-indicator.pickup { background-color: #4CAF50; }
+        .status-indicator.in-transit { background-color: #008CBA; }
+        .status-indicator.customs-clearance { background-color: #f44336; }
+        .status-indicator.released-delivery { background-color: #8A2BE2; }
+        .status-indicator.delivered { background-color: var(--green-success); border-color: var(--green-success); }
 
         .modal-overlay {
             display: none;
@@ -273,11 +274,10 @@
         }
         .detail-grid {
             display: grid;
-            /* Default for larger screens: 6 columns */
-            grid-template-columns: repeat(6, 1fr); /* Explicitly set 6 columns */
-            gap: 10px 20px; /* Keep consistent gap */
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px 20px;
             background-color: #f8f9fa;
-            padding: 2px; /* Changed from 15px to 2px */
+            padding: 2px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             width: 100%;
@@ -288,23 +288,22 @@
             display: flex;
             flex-direction: column;
             padding: 5px 0;
-            /* Ensure content within item wraps */
-            overflow: hidden; /* Hide overflowing content */
+            overflow: hidden;
         }
         .detail-label {
             font-weight: 500;
             color: #555;
             margin-bottom: 3px;
             font-size: 13px;
-            white-space: normal; /* Allow text to wrap */
-            word-break: break-word; /* Break long words */
+            white-space: normal;
+            word-break: break-word;
         }
         .detail-value {
             font-weight: 600;
             color: #333;
             font-size: 14px;
-            white-space: normal; /* Allow text to wrap */
-            word-break: break-word; /* Break long words */
+            white-space: normal;
+            word-break: break-word;
         }
         .detail-item input[type="text"],
         .detail-item input[type="date"],
@@ -316,18 +315,37 @@
             border-radius: 4px;
             font-size: 14px;
             outline: none;
-            box-sizing: border-box; /* Crucial for preventing overflow */
-            white-space: normal; /* Ensure input text wraps */
-            word-break: break-word; /* Ensure input text breaks long words */
+            box-sizing: border-box;
+            white-space: normal;
+            word-break: break-word;
         }
         .detail-item input:read-only,
         .detail-item textarea:read-only {
             background-color: #e9ecef;
             cursor: not-allowed;
         }
-        /* Style for items that span all columns in a 3-column grid */
         .detail-item.span-all-columns {
-            grid-column: 1 / -1; /* Span from the first to the last column line */
+            grid-column: 1 / -1;
+        }
+
+        /* Follow Up section with button */
+        .followup-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            grid-column: 1 / -1; /* This item will span all columns */
+        }
+        .followup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .followup-header .detail-label {
+            margin-bottom: 0; /* Remove bottom margin from label in flex container */
+        }
+        .followup-textarea-wrapper {
+            width: 100%;
         }
 
 
@@ -344,7 +362,7 @@
             overflow-x: auto;
             white-space: nowrap;
             min-height: 120px;
-            gap: 10px; /* Space between steps */
+            gap: 10px;
         }
 
         .tracking-steps::before {
@@ -366,13 +384,13 @@
             min-width: 100px;
             position: relative;
             z-index: 2;
-            padding: 0 5px; /* Reduced padding */
+            padding: 0 5px;
             text-align: center;
         }
 
         .tracking-step .circle {
-            width: 35px; /* Slightly larger */
-            height: 35px; /* Slightly larger */
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             background-color: #e0e0e0;
             display: flex;
@@ -382,13 +400,13 @@
             color: #666;
             margin-bottom: 10px;
             flex-shrink: 0;
-            border: 2px solid transparent; /* Default border */
+            border: 2px solid transparent;
             transition: all 0.3s ease-in-out;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow for circles */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .tracking-step span {
-            font-size: 11px; /* Slightly smaller font for more steps */
+            font-size: 11px;
             text-align: center;
             color: #666;
             word-wrap: break-word;
@@ -396,7 +414,6 @@
             transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
         }
 
-        /* Status-specific styles for tracking steps */
         .tracking-step.completed .circle {
             background-color: var(--green-success);
             color: #fff;
@@ -406,7 +423,7 @@
             background-color: var(--primary-color);
             color: #fff;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.4); /* More prominent shadow */
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.4);
         }
         .tracking-step.future .circle {
             background-color: #e0e0e0;
@@ -414,7 +431,6 @@
             border-color: #e0e0e0;
         }
         
-        /* Text styles for steps */
         .tracking-step.completed span {
             color: #333;
             font-weight: 500;
@@ -426,14 +442,6 @@
         .tracking-step.future span {
             color: #999;
         }
-
-        /* Specific colors for new steps - ensure these are distinct */
-        .tracking-step.booking .circle { background-color: #ff8c00; border-color: #ff8c00; } /* Dark Orange */
-        .tracking-step.pickup .circle { background-color: #4CAF50; border-color: #4CAF50; } /* Green */
-        .tracking-step.in-transit .circle { background-color: #008CBA; border-color: #008CBA; } /* Dark Blue */
-        .tracking-step.customs-clearance .circle { background-color: #f44336; border-color: #f44336; } /* Red */
-        .tracking-step.released-delivery .circle { background-color: #8A2BE2; border-color: #8A2BE2; } /* Blue Violet */
-        .tracking-step.delivered .background-color: var(--green-success); border-color: var(--green-success); } /* Green Success */
 
         .attached-files-list {
             list-style: none;
@@ -492,20 +500,205 @@
             display: block;
         }
 
+        /* Dashboard Specific Styles - Compacted */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .kpi-card {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .kpi-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 3px;
+        }
+        .kpi-card .label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-section {
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+        .section-title {
+            margin-bottom: 10px;
+        }
+
+        /* Styles for the PDF generation content (hidden by default) */
+        #pdfContentContainer {
+            display: none; /* Hidden by default */
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            background-color: #fff;
+            padding: 10mm; /* Adjusted padding to give more space */
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+            color: #333;
+        }
+        #pdfContentContainer .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+        }
+        #pdfContentContainer .header-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        #pdfContentContainer .header-left img {
+            height: 50px;
+            margin-right: 10px;
+        }
+        #pdfContentContainer .company-info {
+            font-size: 8pt;
+            line-height: 1.2;
+        }
+        #pdfContentContainer .header-right {
+            text-align: right;
+            font-size: 14pt; /* Reduced font size to prevent cutting off */
+            font-weight: bold;
+            color: #000;
+            flex: 1;
+        }
+        #pdfContentContainer .section-box {
+            border: 1px solid #000;
+            margin-bottom: 15px;
+            padding: 5px;
+        }
+        #pdfContentContainer .section-title {
+            background-color: #e0e0e0;
+            padding: 3px 5px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 9pt;
+        }
+        #pdfContentContainer .section-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px 10px;
+            padding: 5px;
+        }
+        #pdfContentContainer .section-content.three-cols {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        #pdfContentContainer .section-content.single-col {
+            grid-template-columns: 1fr;
+        }
+        #pdfContentContainer .item-label {
+            font-weight: bold;
+            font-size: 8pt;
+        }
+        #pdfContentContainer .item-value {
+            font-size: 9pt;
+        }
+        #pdfContentContainer .item-row {
+            display: flex;
+            gap: 5px;
+            align-items: baseline;
+        }
+        #pdfContentContainer .item-row.full-width {
+            grid-column: 1 / -1;
+        }
+        #pdfContentContainer .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        #pdfContentContainer .products-table th, #pdfContentContainer .products-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+            font-size: 8pt;
+        }
+        #pdfContentContainer .products-table th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+        }
+        #pdfContentContainer .products-table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #pdfContentContainer .products-table .qty, #pdfContentContainer .products-table .pkgs, #pdfContentContainer .products-table .nw, #pdfContentContainer .products-table .gw, #pdfContentContainer .products-table .cbm {
+            text-align: center;
+        }
+        #pdfContentContainer .footer-text {
+            margin-top: 30px;
+            font-size: 8pt;
+            text-align: center;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+        #pdfContentContainer .highlight-box {
+            border: 1px solid #000;
+            padding: 5px;
+            font-size: 8pt;
+            font-weight: bold;
+            background-color: #ffffcc;
+            margin-bottom: 15px;
+        }
+        #pdfContentContainer .top-right-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        #pdfContentContainer .top-right-info > div {
+            border: 1px solid #000;
+            padding: 5px;
+            flex: 1;
+            margin-left: 10px;
+            font-size: 9pt;
+        }
+        #pdfContentContainer .top-right-info > div:first-child {
+            margin-left: 0;
+        }
+        #pdfContentContainer .top-right-info .label {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        #pdfContentContainer .top-right-info .value {
+            white-space: nowrap;
+        }
+
+
         /* Media Queries for better responsiveness */
-        @media (max-width: 1200px) { /* Adjust for slightly smaller desktops/large tablets */
+        @media (max-width: 1200px) {
             .detail-grid {
-                grid-template-columns: repeat(4, 1fr); /* 4 columns */
+                grid-template-columns: repeat(4, 1fr);
             }
         }
 
-        @media (max-width: 992px) { /* Adjust for tablets */
+        @media (max-width: 992px) {
             .detail-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 columns */
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .followup-section {
+                flex-direction: column;
             }
         }
 
-        @media (max-width: 768px) { /* Adjust for smaller tablets */
+        @media (max-width: 768px) {
             .container {
                 padding: 15px;
             }
@@ -520,23 +713,23 @@
                 margin-top: 10px;
             }
             .detail-grid {
-                gap: 10px; /* Reduce gap on smaller screens */
-                grid-template-columns: repeat(2, 1fr); /* 2 columns */
+                gap: 10px;
+                grid-template-columns: repeat(2, 1fr);
             }
             .tracking-steps {
-                flex-wrap: wrap; /* Allow tracking steps to wrap */
-                justify-content: center; /* Center steps when wrapped */
+                flex-wrap: wrap;
+                justify-content: center;
                 padding: 15px 0;
             }
             .tracking-steps::before {
-                display: none; /* Hide the line on very small screens if steps wrap too much */
+                display: none;
             }
             .tracking-step {
-                min-width: 80px; /* Further reduce min-width for steps */
-                margin-bottom: 15px; /* Add vertical spacing when wrapped */
+                min-width: 80px;
+                margin-bottom: 15px;
             }
             .tab-button {
-                flex: 1; /* Make tabs take equal width */
+                flex: 1;
                 text-align: center;
                 margin-right: 0;
                 border-radius: 0;
@@ -548,11 +741,17 @@
         }
 
         @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
             .detail-grid {
-                grid-template-columns: 1fr; /* Single column layout on very small screens */
+                grid-template-columns: 1fr;
             }
             .detail-item.span-all-columns {
-                grid-column: auto; /* Remove span on single column layout */
+                grid-column: auto;
+            }
+            .followup-section {
+                flex-direction: column;
             }
         }
     </style>
@@ -564,12 +763,31 @@
                 <h1>Central Dimpex de Embarques</h1>
                 <p>Gerencie e acompanhe os embarques de Hong Kong.</p>
             </div>
-            <div class="header-right">
-                <button class="btn-secondary" onclick="showMessage('Navegação', 'Esta ação levaria de volta à Central de Pedidos principal. (Funcionalidade de navegação simulada)')">Voltar para Central de Pedidos</button>
-            </div>
         </header>
 
         <div class="container">
+            <div class="form-section">
+                <h2 class="section-title">Visão Geral do Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="kpi-card">
+                        <div class="value" id="totalShipmentsKPI">0</div>
+                        <div class="label">Total de Embarques</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="value" id="inTransitShipmentsKPI">0</div>
+                        <div class="label">Em Trânsito</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="value" id="customsClearanceShipmentsKPI">0</div>
+                        <div class="label">Desembaraço Aduaneiro</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="value" id="deliveredShipmentsKPI">0</div>
+                        <div class="label">Entregues ao Cliente</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="filters">
                 <div class="filter-group">
                     <label for="statusFilter">Filtrar por Status:</label>
@@ -579,14 +797,11 @@
                         <option value="Em Produção">Em Produção</option>
                         <option value="Carga Pronta">Carga Pronta</option>
                         <option value="Reserva de Espaço (Booking)">Reserva de Espaço (Booking)</option>
-                        <option value="Coleta da Carga (Pickup)">Coleta da Carga (Pickup)</option>
                         <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
                         <option value="Documentação Pendente">Documentação Pendente</option>
                         <option value="Documentação OK">Documentação OK</option>
                         <option value="Em Trânsito">Em Trânsito</option>
                         <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
-                        <option value="Desembaraço Aduaneiro">Desembaraço Aduaneiro</option>
-                        <option value="Liberação para Entrega">Liberação para Entrega</option>
                         <option value="Entrega ao Cliente">Entrega ao Cliente</option>
                     </select>
                 </div>
@@ -614,7 +829,7 @@
         </div>
     </div>
 
-    <!-- Detalhes do Pedido Dimpex - Agora na mesma página -->
+    <!-- Detalhes do Pedido Dimpex -->
     <div id="dimpex-detail-page" class="page">
         <header class="header">
             <div class="header-left">
@@ -627,7 +842,7 @@
         </header>
 
         <div class="container">
-            <!-- Tabs Navigation -->
+            <!-- Tabs Navigation for Detail Page -->
             <div class="tabs-container">
                 <button class="tab-button active" onclick="openTab(event, 'tabGeral')">Geral</button>
                 <button class="tab-button" onclick="openTab(event, 'tabDocumentos')">Documentos</button>
@@ -724,10 +939,18 @@
                             <div class="detail-label">Contain. LCL:</div>
                             <input type="text" id="detailContLCL">
                         </div>
-                        <div class="detail-item span-all-columns"> <!-- Added span-all-columns class -->
-                            <div class="detail-label">Follow Up:</div>
-                            <textarea id="detailFollowUp" rows="3"></textarea>
+                        
+                        <!-- Follow Up Section with PDF Button -->
+                        <div class="followup-section">
+                            <div class="followup-header">
+                                <div class="detail-label">Follow Up:</div>
+                                <button class="btn-primary" onclick="generatePdfFollowUp()">Gerar PDF</button>
+                            </div>
+                            <div class="followup-textarea-wrapper">
+                                <textarea id="detailFollowUp" rows="5"></textarea>
+                            </div>
                         </div>
+
                     </div>
                     <div style="margin-top: 20px; text-align: right;">
                         <button class="btn-primary" onclick="saveShipmentDetails()">Salvar Alterações</button>
@@ -748,14 +971,11 @@
                             <option value="Em Produção">Em Produção</option>
                             <option value="Carga Pronta">Carga Pronta</option>
                             <option value="Reserva de Espaço (Booking)">Reserva de Espaço (Booking)</option>
-                            <option value="Coleta da Carga (Pickup)">Coleta da Carga (Pickup)</option>
                             <option value="Saída do Porto de Embarque (ATD)">Saída do Porto de Embarque (ATD)</option>
                             <option value="Documentação Pendente">Documentação Pendente</option>
                             <option value="Documentação OK">Documentação OK</option>
                             <option value="Em Trânsito">Em Trânsito</option>
                             <option value="Chegada no Porto de Destino (ATA)">Chegada no Porto de Destino (ATA)</option>
-                            <option value="Desembaraço Aduaneiro">Desembaraço Aduaneiro</option>
-                            <option value="Liberação para Entrega">Liberação para Entrega</option>
                             <option value="Entrega ao Cliente">Entrega ao Cliente</option>
                         </select>
                         <button class="btn-primary" style="margin-top: 10px;" onclick="saveOrderStatus()">Salvar Novo Status</button>
@@ -836,10 +1056,10 @@
                             <input type="text" id="certOrigem" readonly>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Telex Releas:</div> <!-- Changed from Taxa Remessa -->
+                            <div class="detail-label">Telex Releas:</div>
                             <input type="text" id="telexRelease" readonly>
                         </div>
-                        <div class="detail-item span-all-columns"> <!-- Added span-all-columns class -->
+                        <div class="detail-item span-all-columns">
                             <div class="detail-label">Remarks:</div>
                             <textarea id="remarksDoc" rows="3" readonly></textarea>
                         </div>
@@ -952,7 +1172,7 @@
         </div>
     </div>
 
-    <!-- NEW: Modal para Visualização de Documentos -->
+    <!-- Modal para Visualização de Documentos -->
     <div id="documentViewerModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="closeDocumentViewerModal()">&times;</button>
@@ -961,6 +1181,177 @@
             <div class="modal-actions">
                 <button class="btn-primary" onclick="closeDocumentViewerModal()">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Hidden container for PDF generation content -->
+    <div id="pdfContentContainer">
+        <div class="header-section">
+            <div class="header-left">
+                <img src="https://placehold.co/150x50/cccccc/333333?text=TOYAMA+LOGO" alt="Toyama Hong Kong Ltd. Logo">
+                <div class="company-info">
+                    <strong>TOYAMA HONG KONG Ltd.</strong><br>
+                    Suite 01-02A, 9/F, Tower 5, China Hong Kong City<br>
+                    33 Canton Road, Tsim Sha Tsui, Kowloon, Hong Kong<br>
+                    Tel: 852-2542 8343<br>
+                    Fax: 852-2542 7002
+                </div>
+            </div>
+            <div class="header-right">
+                Customer Follow Up
+            </div>
+        </div>
+
+        <div class="top-right-info">
+            <div style="flex: 0.5;">
+                <div class="label">Ready date:</div>
+                <div class="value" id="pdfDocReadyDate"></div>
+            </div>
+            <div style="flex: 0.5;">
+                <div class="label">Terms:</div>
+                <div class="value" id="pdfDocTerms"></div>
+            </div>
+            <div style="flex: 0.5;">
+                <div class="label">POL:</div>
+                <div class="value" id="pdfDocPol"></div>
+            </div>
+        </div>
+        <div class="highlight-box">
+            Please always consider TYHK as "SHIPPER"
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Consignee/Notify</div>
+            <div class="section-content single-col">
+                <div class="item-row full-width">
+                    <span class="item-label">SHIP TO:</span>
+                    <span class="item-value" id="pdfDocConsignee"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Details</div>
+            <div class="section-content three-cols">
+                <div class="item-row">
+                    <span class="item-label">Nr. PO-C:</span>
+                    <span class="item-value" id="pdfDocPoC"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Nr. PI-C:</span>
+                    <span class="item-value" id="pdfDocPiC"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">POD:</span>
+                    <span class="item-value" id="pdfDocPod"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Follow Up</div>
+            <div class="section-content single-col">
+                <div class="item-row full-width">
+                    <span class="item-value" id="pdfDocFollowUp"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Financial</div>
+            <div class="section-content three-cols">
+                <div class="item-row">
+                    <span class="item-label">T/T Amount:</span>
+                    <span class="item-value" id="pdfDocTtAmount"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Down payment:</span>
+                    <span class="item-value" id="pdfDocDownPayment"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Date:</span>
+                    <span class="item-value" id="pdfDocDownPaymentDate"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Balance payment:</span>
+                    <span class="item-value" id="pdfDocBalancePayment"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Date:</span>
+                    <span class="item-value" id="pdfDocBalancePaymentDate"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Docs and shipping details</div>
+            <div class="section-content three-cols">
+                <div class="item-row">
+                    <span class="item-label">CI:</span>
+                    <span class="item-value" id="pdfDocCi"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Container:</span>
+                    <span class="item-value" id="pdfDocContainer"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Serial numbers:</span>
+                    <span class="item-value" id="pdfDocSerialNumbers"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Forwarder:</span>
+                    <span class="item-value" id="pdfDocForwarder"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">Telex Release:</span>
+                    <span class="item-value" id="pdfDocTelexRelease"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">ETD:</span>
+                    <span class="item-value" id="pdfDocEtd"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">COO:</span>
+                    <span class="item-value" id="pdfDocCoo"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">ATD:</span>
+                    <span class="item-value" id="pdfDocAtd"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">BL:</span>
+                    <span class="item-value" id="pdfDocBl"></span>
+                </div>
+                <div class="item-row">
+                    <span class="item-label">ETA:</span>
+                    <span class="item-value" id="pdfDocEta"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Products</div>
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>P.N.</th>
+                        <th>Description</th>
+                        <th class="qty">Qty</th>
+                        <th class="pkgs">Pkgs</th>
+                        <th class="nw">N.W.</th>
+                        <th class="gw">G.W.</th>
+                        <th class="cbm">CBM</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfProductsTableBodyDoc">
+                    <!-- Product rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+            <div style="font-size: 8pt; margin-top: 5px;">Puxar todas essas informações conforme estão no embarque!</div>
+        </div>
+
+        <div class="footer-text">
+            Final data will be available at the documents, which will be sent with stamp and signature after sailing
         </div>
     </div>
 
@@ -1059,7 +1450,7 @@
                 fornecedorLoja: '02',
                 cliente: 'Cliente B',
                 aprovacaoDate: '2025-06-30',
-                statusDimpex: 'Coleta da Carga (Pickup)',
+                statusDimpex: 'Reserva de Espaço (Booking)',
                 shipmentName: 'EMB-002-CLIB',
                 toyNumber: 'TOY1250002',
                 blNumber: '',
@@ -1090,21 +1481,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'RJ', // New field
-                        boxes: 1, // New field
+                        branch: 'RJ',
+                        boxes: 1,
                         item: 1,
-                        serialNumber: 'SN-GEN5000-001', // New field
-                        grossWeight: 200.0, // New field
-                        netWeight: 180.0, // New field
+                        serialNumber: 'SN-GEN5000-001',
+                        grossWeight: 200.0,
+                        netWeight: 180.0,
                         productCode: 'PROD002',
                         description: 'Gerador a Gasolina 5kVA',
                         quantity: 1,
-                        volumeM3: 0.8, // New field
+                        volumeM3: 0.8,
                         prcUnit: 310.00,
                         prcUnitFor: 280.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-002',
                 serialNum: 'SN-002-ABC',
                 numeroCI: 'CI-12345',
@@ -1112,12 +1502,11 @@
                 certOrigem: 'CO-DEF-456',
                 remarksDoc: 'Aguardando coleta e emissão de BL.',
                 emDocConf: '2025-07-02',
-                telexRelease: 'Não', // New field
-                // Finance specific fields
+                telexRelease: 'Não',
                 desconto: '50.00',
                 tipoDesconto: 'Promocional',
-                custoExtra: '75.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Expresso', // Renamed from tpQualEntrega
+                custoExtra: '75.00',
+                tpQualEntrega: 'Expresso',
                 titFornecedor: '15000.00',
                 pgtoAntecip: '3000.00',
                 dtPgAntCP: '2025-06-25',
@@ -1128,7 +1517,7 @@
                 dtPgAntCR: '2025-06-30',
                 pgSaldoCR: '13000.00',
                 dtPgSalCR: '2025-09-15',
-                dtFinalizado: '' // New field
+                dtFinalizado: ''
             },
             {
                 id: 'PED-020',
@@ -1167,21 +1556,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'MG', // New field
-                        boxes: 5, // New field
+                        branch: 'MG',
+                        boxes: 5,
                         item: 1,
-                        serialNumber: 'SN-MINIPUMP-001', // New field
-                        grossWeight: 15.0, // New field
-                        netWeight: 12.0, // New field
+                        serialNumber: 'SN-MINIPUMP-001',
+                        grossWeight: 15.0,
+                        netWeight: 12.0,
                         productCode: 'PROD003',
                         description: 'Mini Bomba D\'água',
                         quantity: 15,
-                        volumeM3: 0.1, // New field
+                        volumeM3: 0.1,
                         prcUnit: 22.00,
                         prcUnitFor: 20.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-003',
                 serialNum: 'SN-003-DEF',
                 numeroCI: 'CI-67890',
@@ -1189,12 +1577,11 @@
                 certOrigem: 'CO-GHI-789',
                 remarksDoc: 'Todos os documentos de embarque recebidos.',
                 emDocConf: '2025-07-05',
-                telexRelease: 'Sim', // New field
-                // Finance specific fields
+                telexRelease: 'Sim',
                 desconto: '20.00',
                 tipoDesconto: 'Quantidade',
-                custoExtra: '30.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                custoExtra: '30.00',
+                tpQualEntrega: 'Padrão',
                 titFornecedor: '5000.00',
                 pgtoAntecip: '1000.00',
                 dtPgAntCP: '2025-06-20',
@@ -1205,7 +1592,7 @@
                 dtPgAntCR: '2025-06-25',
                 pgSaldoCR: '4000.00',
                 dtPgSalCR: '2025-08-15',
-                dtFinalizado: '' // New field
+                dtFinalizado: ''
             },
             {
                 id: 'PED-025',
@@ -1244,21 +1631,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'SP', // New field
-                        boxes: 1, // New field
+                        branch: 'SP',
+                        boxes: 1,
                         item: 1,
-                        serialNumber: 'SN-GEN5000-002', // New field
-                        grossWeight: 200.0, // New field
-                        netWeight: 180.0, // New field
+                        serialNumber: 'SN-GEN5000-002',
+                        grossWeight: 200.0,
+                        netWeight: 180.0,
                         productCode: 'PROD002',
                         description: 'Gerador a Gasolina 5kVA',
                         quantity: 2,
-                        volumeM3: 0.8, // New field
+                        volumeM3: 0.8,
                         prcUnit: 2500.00,
                         prcUnitFor: 1200.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-004',
                 serialNum: 'SN-004-GHI',
                 numeroCI: 'CI-11223',
@@ -1266,12 +1652,11 @@
                 certOrigem: 'CO-JKL-012',
                 remarksDoc: 'Em trânsito. Acompanhando a localização do navio.',
                 emDocConf: '2025-07-12',
-                telexRelease: 'Não', // New field
-                // Finance specific fields
+                telexRelease: 'Não',
                 desconto: '0.00',
                 tipoDesconto: 'Nenhum',
-                custoExtra: '100.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Normal', // Renamed from tpQualEntrega
+                custoExtra: '100.00',
+                tpQualEntrega: 'Normal',
                 titFornecedor: '24000.00',
                 pgtoAntecip: '0.00',
                 dtPgAntCP: '',
@@ -1282,7 +1667,7 @@
                 dtPgAntCR: '',
                 pgSaldoCR: '30000.00',
                 dtPgSalCR: '2025-10-05',
-                dtFinalizado: '' // New field
+                dtFinalizado: ''
             },
             {
                 id: 'PED-026',
@@ -1321,21 +1706,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'BA', // New field
-                        boxes: 3, // New field
+                        branch: 'BA',
+                        boxes: 3,
                         item: 1,
-                        serialNumber: 'SN-MINIPUMP-002', // New field
-                        grossWeight: 10.0, // New field
-                        netWeight: 8.0, // New field
+                        serialNumber: 'SN-MINIPUMP-002',
+                        grossWeight: 10.0,
+                        netWeight: 8.0,
                         productCode: 'PROD003',
                         description: 'Mini Bomba D\'água',
                         quantity: 10,
-                        volumeM3: 0.08, // New field
+                        volumeM3: 0.08,
                         prcUnit: 250.00,
                         prcUnitFor: 120.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-005',
                 serialNum: 'SN-005-MNO',
                 numeroCI: 'CI-44556',
@@ -1343,12 +1727,11 @@
                 certOrigem: 'CO-PQR-345',
                 remarksDoc: 'Carga no porto de destino. Preparando documentação para alfândega.',
                 emDocConf: '2025-07-15',
-                telexRelease: 'Sim', // New field
-                // Finance specific fields
+                telexRelease: 'Sim',
                 desconto: '15.00',
                 tipoDesconto: 'Fidelidade',
-                custoExtra: '20.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                custoExtra: '20.00',
+                tpQualEntrega: 'Padrão',
                 titFornecedor: '12000.00',
                 pgtoAntecip: '2500.00',
                 dtPgAntCP: '2025-07-01',
@@ -1359,7 +1742,7 @@
                 dtPgAntCR: '2025-07-06',
                 pgSaldoCR: '10000.00',
                 dtPgSalCR: '2025-10-10',
-                dtFinalizado: '' // New field
+                dtFinalizado: ''
             },
             {
                 id: 'PED-027',
@@ -1368,7 +1751,7 @@
                 fornecedorLoja: '02',
                 cliente: 'Cliente I',
                 aprovacaoDate: '2025-07-07',
-                statusDimpex: 'Desembaraço Aduaneiro',
+                statusDimpex: 'Chegada no Porto de Destino (ATA)',
                 shipmentName: 'EMB-006-CLII',
                 toyNumber: 'TOY1250006',
                 blNumber: 'BL-HKG-005',
@@ -1379,7 +1762,7 @@
                 prevEmbarque: '2025-07-16',
                 dtBooking: '2025-07-14',
                 dtETA: '2025-11-01',
-                dtDesembaraco: '2025-07-25', // Example date
+                dtDesembaraco: '2025-07-25',
                 cargoAgent: 'Porto Forte',
                 paymentBeforeBL: false,
                 container20: '1',
@@ -1399,21 +1782,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'CE', // New field
-                        boxes: 1, // New field
+                        branch: 'CE',
+                        boxes: 1,
                         item: 1,
-                        serialNumber: 'SN-MX100-003', // New field
-                        grossWeight: 150.0, // New field
-                        netWeight: 140.0, // New field
+                        serialNumber: 'SN-MX100-003',
+                        grossWeight: 150.0,
+                        netWeight: 140.0,
                         productCode: 'PROD001',
                         description: 'Motor Diesel 10HP',
                         quantity: 3,
-                        volumeM3: 0.25, // New field
+                        volumeM3: 0.25,
                         prcUnit: 1500.00,
                         prcUnitFor: 800.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-006',
                 serialNum: 'SN-006-STU',
                 numeroCI: 'CI-77889',
@@ -1421,12 +1803,11 @@
                 certOrigem: 'CO-VWX-678',
                 remarksDoc: 'Desembaraço aduaneiro em fase final. Aguardando liberação.',
                 emDocConf: '2025-07-20',
-                telexRelease: 'Não', // New field
-                // Finance specific fields
+                telexRelease: 'Não',
                 desconto: '0.00',
                 tipoDesconto: 'Nenhum',
-                custoExtra: '40.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                custoExtra: '40.00',
+                tpQualEntrega: 'Padrão',
                 titFornecedor: '24000.00',
                 pgtoAntecip: '00.00',
                 dtPgAntCP: '',
@@ -1437,7 +1818,7 @@
                 dtPgAntCR: '',
                 pgSaldoCR: '28000.00',
                 dtPgSalCR: '2025-10-20',
-                dtFinalizado: '' // New field
+                dtFinalizado: ''
             },
             {
                 id: 'PED-028',
@@ -1446,7 +1827,7 @@
                 fornecedorLoja: '01',
                 cliente: 'Cliente J',
                 aprovacaoDate: '2025-07-08',
-                statusDimpex: 'Liberação para Entrega',
+                statusDimpex: 'Chegada no Porto de Destino (ATA)',
                 shipmentName: 'EMB-007-CLIJ',
                 toyNumber: 'TOY1250007',
                 blNumber: 'BL-HKG-006',
@@ -1477,21 +1858,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'GO', // New field
-                        boxes: 1, // New field
+                        branch: 'GO',
+                        boxes: 1,
                         item: 1,
-                        serialNumber: 'SN-GEN5000-004', // New field
-                        grossWeight: 200.0, // New field
-                        netWeight: 180.0, // New field
+                        serialNumber: 'SN-GEN5000-004',
+                        grossWeight: 200.0,
+                        netWeight: 180.0,
                         productCode: 'PROD002',
                         description: 'Gerador a Gasolina 5kVA',
                         quantity: 1,
-                        volumeM3: 0.8, // New field
+                        volumeM3: 0.8,
                         prcUnit: 2500.00,
                         prcUnitFor: 1200.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-007',
                 serialNum: 'SN-007-ABC',
                 numeroCI: 'CI-99887',
@@ -1499,12 +1879,11 @@
                 certOrigem: 'CO-DEF-901',
                 remarksDoc: 'Carga liberada. Coordenando transporte terrestre.',
                 emDocConf: '2025-07-28',
-                telexRelease: 'Sim', // New field
-                // Finance specific fields
+                telexRelease: 'Sim',
                 desconto: '0.00',
                 tipoDesconto: 'Nenhum',
-                custoExtra: '60.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Expresso', // Renamed from tpQualEntrega
+                custoExtra: '60.00',
+                tpQualEntrega: 'Expresso',
                 titFornecedor: '12000.00',
                 pgtoAntecip: '0.00',
                 dtPgAntCP: '',
@@ -1515,7 +1894,7 @@
                 dtPgAntCR: '',
                 pgSaldoCR: '15000.00',
                 dtPgSalCR: '2025-11-01',
-                dtFinalizado: '' // New field
+                dtFinalizado: ''
             },
             {
                 id: 'PED-029',
@@ -1555,21 +1934,20 @@
                 ],
                 productLines: [
                     {
-                        branch: 'SP', // New field
-                        boxes: 2, // New field
+                        branch: 'SP',
+                        boxes: 2,
                         item: 1,
-                        serialNumber: 'SN-MINIPUMP-003', // New field
-                        grossWeight: 15.0, // New field
-                        netWeight: 12.0, // New field
+                        serialNumber: 'SN-MINIPUMP-003',
+                        grossWeight: 15.0,
+                        netWeight: 12.0,
                         productCode: 'PROD003',
                         description: 'Mini Bomba D\'água',
                         quantity: 5,
-                        volumeM3: 0.1, // New field
+                        volumeM3: 0.1,
                         prcUnit: 250.00,
                         prcUnitFor: 120.00
                     }
                 ],
-                // Document specific fields
                 docsFornecedor: 'INV-2025-008',
                 serialNum: 'SN-008-CDE',
                 numeroCI: 'CI-11334',
@@ -1577,12 +1955,11 @@
                 certOrigem: 'CO-FGH-234',
                 remarksDoc: 'Entrega finalizada. Processo concluído.',
                 emDocConf: '2025-07-30',
-                telexRelease: 'Sim', // New field
-                // Finance specific fields
+                telexRelease: 'Sim',
                 desconto: '25.00',
                 tipoDesconto: 'Liquidação',
-                custoExtra: '15.00', // Renamed from custoEntrega
-                tpQualEntrega: 'Padrão', // Renamed from tpQualEntrega
+                custoExtra: '15.00',
+                tpQualEntrega: 'Padrão',
                 titFornecedor: '6000.00',
                 pgtoAntecip: '1500.00',
                 dtPgAntCP: '2025-07-05',
@@ -1593,29 +1970,33 @@
                 dtPgAntCR: '2025-07-10',
                 pgSaldoCR: '5500.00',
                 dtPgSalCR: '2025-11-05',
-                dtFinalizado: '2025-07-31' // New field
+                dtFinalizado: '2025-07-31'
             }
         ];
 
-        // This variable will hold the actual data for Dimpex orders, loaded from localStorage
         let dimpexOrders = [];
 
-        // Define the Dimpex tracking flow explicitly
         const dimpexTrackingFlow = [
             { name: 'Aprovado', class: 'approved', description: 'Pedido aprovado pela Gerência, aguardando início do processo Dimpex.' },
             { name: 'Em Produção', class: 'in-production', description: 'Fornecedor iniciou a produção dos itens.' },
             { name: 'Carga Pronta', class: 'ready-cargo', description: 'Mercadoria pronta para embarque na origem.' },
             { name: 'Reserva de Espaço (Booking)', class: 'booking', description: 'Espaço no navio reservado.' },
-            { name: 'Coleta da Carga (Pickup)', class: 'pickup', fun: 'collectCargo', description: 'Carga coletada do fornecedor.' },
             { name: 'Saída do Porto de Embarque (ATD)', class: 'atd', description: 'Carga embarcada e saiu do porto de origem.' },
             { name: 'Documentação Pendente', class: 'pending-doc', description: 'Aguardando recebimento e conferência de documentos do despachante.' },
             { name: 'Documentação OK', class: 'doc-ok', description: 'Todos os documentos recebidos e validados.' },
             { name: 'Em Trânsito', class: 'in-transit', description: 'Navio com a carga está em trânsito.' },
             { name: 'Chegada no Porto de Destino (ATA)', class: 'ata', description: 'Navio chegou ao porto de destino.' },
-            { name: 'Desembaraço Aduaneiro', class: 'customs-clearance', description: 'Processo de desembaraço aduaneiro em andamento.' },
-            { name: 'Liberação para Entrega', class: 'released-delivery', description: 'Carga liberada para transporte ao cliente.' },
             { name: 'Entrega ao Cliente', class: 'delivered', description: 'Mercadoria entregue ao cliente.' }
         ];
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const [year, month, day] = dateString.split('-');
+            if (year && month && day) {
+                return `${day}/${month}/${year}`;
+            }
+            return dateString;
+        }
 
         function showMessage(title, content, type = 'info', onConfirm = null, onCancel = null) {
             const modal = document.getElementById('messageModal');
@@ -1643,11 +2024,11 @@
             modal.classList.add('active');
         }
 
-        // Functions to control page visibility
         function showCentralPage() {
             document.getElementById('dimpex-detail-page').classList.remove('active');
             document.getElementById('dimpex-central-page').classList.add('active');
-            renderDimpexOrdersTable(); // Re-render table when returning to central view
+            renderDashboardKPIs();
+            renderDimpexOrdersTable();
         }
 
         function showDetailPage(orderId) {
@@ -1656,7 +2037,8 @@
                 currentDimpexOrder = order;
                 document.getElementById('dimpex-central-page').classList.remove('active');
                 document.getElementById('dimpex-detail-page').classList.add('active');
-                renderDimpexOrderDetails(); // Render details for the selected order
+                renderDimpexOrderDetails();
+                openTab(null, 'tabGeral');
             } else {
                 showMessage('Erro', 'Embarque não encontrado.', 'error');
             }
@@ -1679,22 +2061,20 @@
 
             filteredOrders.forEach(order => {
                 const row = document.createElement('tr');
-                // Call showDetailPage directly with the order ID
                 row.onclick = () => showDetailPage(order.id);
 
                 let statusClass = '';
-                // Determine the status class based on the order's statusDimpex
                 const flowStep = dimpexTrackingFlow.find(step => step.name === order.statusDimpex);
                 if (flowStep) {
                     statusClass = flowStep.class;
                 }
                 
                 row.innerHTML = `
-                    <td>${order.aprovacaoDate || 'N/A'}</td>
+                    <td>${formatDate(order.aprovacaoDate)}</td>
                     <td>${order.shipmentName || 'N/A'}</td>
                     <td>${order.fornecedor || 'N/A'}</td>
                     <td>${order.blNumber || 'N/A'}</td>
-                    <td>${order.blDate || 'N/A'}</td>
+                    <td>${formatDate(order.blDate)}</td>
                     <td>${order.fornecedorLoja || 'N/A'}</td>
                     <td>${order.paymentBeforeBL ? 'Sim' : 'Não'}</td>
                     <td><span class="status-indicator ${statusClass}"></span>${order.statusDimpex}</td>
@@ -1703,10 +2083,9 @@
             });
         }
 
-        // Helper function to safely get element value
         const safeGetValue = (id) => {
             const element = document.getElementById(id);
-            return element ? element.value : ''; // Return empty string if element is null
+            return element ? element.value : '';
         };
 
         function renderDimpexOrderDetails() {
@@ -1717,7 +2096,6 @@
                 return;
             }
 
-            // Helper function to safely set element value
             const safeSetValue = (id, value) => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -1727,7 +2105,6 @@
                 }
             };
 
-            // Helper function to safely set element innerText
             const safeSetText = (id, text) => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -1737,7 +2114,6 @@
                 }
             };
 
-            // Populate Shipment Overview (Geral Tab)
             safeSetText('detailShipmentName', currentDimpexOrder.shipmentName);
             safeSetText('overviewOrderId', currentDimpexOrder.id);
             safeSetValue('detailShipmentNameInput', currentDimpexOrder.shipmentName);
@@ -1745,32 +2121,29 @@
             safeSetValue('detailFornecedor', currentDimpexOrder.fornecedor);
             safeSetValue('detailFornecedorLoja', currentDimpexOrder.fornecedorLoja);
             safeSetValue('detailToyNumber', currentDimpexOrder.toyNumber);
-            safeSetValue('detailIncoterm', currentDimpexOrder.incoterm); // Editable
-            safeSetValue('detailPol', currentDimpexOrder.pol); // Editable
-            safeSetValue('detailPod', currentDimpexOrder.pod); // Editable
-            safeSetValue('detailPrevEmbarque', currentDimpexOrder.prevEmbarque); // Editable
-            safeSetValue('detailPagtoAntBL', currentDimpexOrder.paymentBeforeBL ? 'Sim' : 'Não'); // Read-only
-            safeSetValue('detailCargoAgent', currentDimpexOrder.cargoAgent); // Editable
+            safeSetValue('detailIncoterm', currentDimpexOrder.incoterm);
+            safeSetValue('detailPol', currentDimpexOrder.pol);
+            safeSetValue('detailPod', currentDimpexOrder.pod);
+            safeSetValue('detailPrevEmbarque', currentDimpexOrder.prevEmbarque);
+            safeSetValue('detailPagtoAntBL', currentDimpexOrder.paymentBeforeBL ? 'Sim' : 'Não');
+            safeSetValue('detailCargoAgent', currentDimpexOrder.cargoAgent);
             safeSetValue('detailDtBooking', currentDimpexOrder.dtBooking);
             safeSetValue('detailBlNumber', currentDimpexOrder.blNumber);
             safeSetValue('detailBlDate', currentDimpexOrder.blDate);
             safeSetValue('detailDtETA', currentDimpexOrder.dtETA);
             safeSetValue('detailDtDesembaraco', currentDimpexOrder.dtDesembaraco);
-            safeSetValue('detailDtFinalizado', currentDimpexOrder.dtFinalizado); // New field
+            safeSetValue('detailDtFinalizado', currentDimpexOrder.dtFinalizado);
 
-            // Ensure container values are strings, even if they are numbers in data
             safeSetValue('detailCont20', String(currentDimpexOrder.container20 || ''));
             safeSetValue('detailCont40', String(currentDimpexOrder.container40 || ''));
             safeSetValue('detailCont40HQ', String(currentDimpexOrder.container40HQ || ''));
             safeSetValue('detailContLCL', String(currentDimpexOrder.containerLCL || ''));
 
-            safeSetValue('detailFollowUp', currentDimpexOrder.followUp); // Editable
+            safeSetValue('detailFollowUp', currentDimpexOrder.followUp);
 
-            // Populate Status Tracking (Geral Tab)
             renderTracking(currentDimpexOrder.statusDimpex);
-            safeSetValue('newStatusSelect', currentDimpexOrder.statusDimpex); // Set current status in dropdown
+            safeSetValue('newStatusSelect', currentDimpexOrder.statusDimpex);
 
-            // Populate Customs Broker Info (Geral Tab)
             if (currentDimpexOrder.customsBroker) {
                 safeSetText('despachanteNome', currentDimpexOrder.customsBroker.name);
                 safeSetText('despachanteContato', currentDimpexOrder.customsBroker.contact);
@@ -1781,10 +2154,8 @@
                 safeSetText('despachanteTelefone', 'N/A');
             }
 
-            // Populate Product Details (Geral Tab)
             renderProductsTable();
 
-            // Populate Document Tab fields
             safeSetValue('docsFornecedor', currentDimpexOrder.docsFornecedor);
             safeSetValue('serialNum', currentDimpexOrder.serialNum);
             safeSetValue('numeroCI', currentDimpexOrder.numeroCI);
@@ -1792,15 +2163,14 @@
             safeSetValue('certOrigem', currentDimpexOrder.certOrigem);
             safeSetValue('remarksDoc', currentDimpexOrder.remarksDoc);
             safeSetValue('emDocConf', currentDimpexOrder.emDocConf);
-            safeSetValue('telexRelease', currentDimpexOrder.telexRelease); // New field
-            renderDocumentsTable(); // Render the dynamic documents table
-            renderAttachedFiles(); // Render the attached files list
+            safeSetValue('telexRelease', currentDimpexOrder.telexRelease);
+            renderDocumentsTable();
+            renderAttachedFiles();
 
-            // Populate Finance Tab fields
             safeSetValue('financeDesconto', currentDimpexOrder.desconto);
             safeSetValue('financeTipoDesconto', currentDimpexOrder.tipoDesconto);
-            safeSetValue('financeCustoExtra', currentDimpexOrder.custoExtra); // Renamed
-            safeSetValue('financeTpCustExtr', currentDimpexOrder.tpQualEntrega); // Renamed
+            safeSetValue('financeCustoExtra', currentDimpexOrder.custoExtra);
+            safeSetValue('financeTpCustExtr', currentDimpexOrder.tpQualEntrega);
             safeSetValue('financeTitFornecedor', currentDimpexOrder.titFornecedor);
             safeSetValue('financePgtoAntecip', currentDimpexOrder.pgtoAntecip);
             safeSetValue('financeDtPgAntCP', currentDimpexOrder.dtPgAntCP);
@@ -1811,9 +2181,6 @@
             safeSetValue('financeDtPgAntCR', currentDimpexOrder.dtPgAntCR);
             safeSetValue('financePgSaldoCR', currentDimpexOrder.pgSaldoCR);
             safeSetValue('financeDtPgSalCR', currentDimpexOrder.dtPgSalCR);
-
-            // Ensure the "Geral" tab is active by default when opening details
-            openTab(null, 'tabGeral');
         }
 
         function renderTracking(currentStatus) {
@@ -1836,13 +2203,12 @@
                     stepClass = 'future';
                 }
                 
-                // Add specific class for styling based on the step's predefined class
                 if (step.class) {
                     stepClass += ` ${step.class}`;
                 }
 
                 if (stepClass.includes('completed')) {
-                    circleContent = '&#10003;'; // Checkmark
+                    circleContent = '&#10003;';
                 } else if (stepClass.includes('active')) {
                     circleContent = (index + 1).toString();
                 }
@@ -1866,10 +2232,8 @@
 
             const newStatus = document.getElementById('newStatusSelect').value;
 
-            // Update the status in the currentDimpexOrder object
             currentDimpexOrder.statusDimpex = newStatus;
 
-            // Update localStorage to reflect the change for persistence across pages
             let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -1881,7 +2245,7 @@
             }
 
             showMessage('Sucesso', `Status do embarque ${currentDimpexOrder.shipmentName} atualizado para "${newStatus}"!`, 'success', () => {
-                renderDimpexOrderDetails(); // Re-render details to show updated status
+                renderDimpexOrderDetails();
             });
         }
 
@@ -1891,7 +2255,6 @@
                 return;
             }
 
-            // Update editable fields from the form using safeGetValue
             currentDimpexOrder.shipmentName = safeGetValue('detailShipmentNameInput');
             currentDimpexOrder.incoterm = safeGetValue('detailIncoterm');
             currentDimpexOrder.pol = safeGetValue('detailPol');
@@ -1910,7 +2273,6 @@
             currentDimpexOrder.containerLCL = safeGetValue('detailContLCL');
             currentDimpexOrder.followUp = safeGetValue('detailFollowUp');
 
-            // Update localStorage to reflect the change for persistence
             let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -1919,7 +2281,7 @@
             }
 
             showMessage('Sucesso', `Detalhes do embarque ${currentDimpexOrder.shipmentName} salvos com sucesso!`, 'success', () => {
-                renderDimpexOrderDetails(); // Re-render details to show updated values
+                renderDimpexOrderDetails();
             });
         }
 
@@ -1934,8 +2296,7 @@
                 `Tem certeza que deseja estornar o embarque ${currentDimpexOrder.shipmentName} para o status "Aprovado" (Compras)?`,
                 'warning',
                 () => {
-                    currentDimpexOrder.statusDimpex = 'Aprovado'; // Set status back to "Aprovado"
-                    // Update localStorage
+                    currentDimpexOrder.statusDimpex = 'Aprovado';
                     let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
                     const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
                     if (orderIndex !== -1) {
@@ -1943,7 +2304,7 @@
                         localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
                     }
                     showMessage('Sucesso', `Embarque ${currentDimpexOrder.shipmentName} estornado para "Aprovado" com sucesso!`, 'success', () => {
-                        showCentralPage(); // Go back to central page after reverting
+                        showCentralPage();
                     });
                 },
                 () => {
@@ -1965,12 +2326,10 @@
                 const li = document.createElement('li');
                 let buttonsHtml = '';
 
-                // Add "Visualizar" button if content exists
                 if (doc.content) {
                     buttonsHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Visualizar</button>`;
                 }
 
-                // Add "Extrair" button if status is 'Recebido' AND content exists
                 if (doc.status === 'Recebido' && doc.content) {
                     buttonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="extractAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Extrair</button>`;
                 }
@@ -2012,7 +2371,6 @@
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    // Sanitize filename for download
                     const fileName = doc.name.replace(/[^a-z0-9\s-]/gi, '').replace(/\s+/g, '-').toLowerCase() + '.txt';
                     a.download = fileName;
                     document.body.appendChild(a);
@@ -2033,7 +2391,6 @@
             document.getElementById('documentViewerModal').classList.remove('active');
         }
 
-
         function renderDocumentsTable() {
             const tbody = document.getElementById('documentsTableBody');
             tbody.innerHTML = '';
@@ -2052,7 +2409,7 @@
                 row.innerHTML = `
                     <td>${doc.name}</td>
                     <td><span class="status-indicator ${doc.status === 'Pendente' ? 'pending-doc' : 'doc-ok'}"></span>${doc.status}</td>
-                    <td>${doc.receivedDate || 'N/A'}</td>
+                    <td>${formatDate(doc.receivedDate)}</td>
                     <td>${actionButton}</td>
                 `;
                 tbody.appendChild(row);
@@ -2065,7 +2422,6 @@
             currentDimpexOrder.documents[index].status = 'Recebido';
             currentDimpexOrder.documents[index].receivedDate = new Date().toISOString().slice(0, 10);
 
-            // Update localStorage
             let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
@@ -2074,8 +2430,8 @@
             }
 
             showMessage('Sucesso', `Documento "${docName}" recebido com sucesso!`, 'success', () => {
-                renderDocumentsTable(); // Re-render documents table
-                renderAttachedFiles(); // Re-render attached files to show "Extrair" button
+                renderDocumentsTable();
+                renderAttachedFiles();
             });
         }
 
@@ -2108,16 +2464,15 @@
             });
         }
 
-        // Function to handle tab switching
         function openTab(evt, tabName) {
             let i, tabcontent, tabbuttons;
 
-            tabcontent = document.getElementsByClassName("tab-content");
+            tabcontent = document.querySelectorAll("#dimpex-detail-page .tab-content");
             for (i = 0; i < tabcontent.length; i++) {
                 tabcontent[i].classList.remove("active");
             }
 
-            tabbuttons = document.getElementsByClassName("tab-button");
+            tabbuttons = document.querySelectorAll("#dimpex-detail-page .tab-button");
             for (i = 0; i < tabbuttons.length; i++) {
                 tabbuttons[i].classList.remove("active");
             }
@@ -2126,7 +2481,6 @@
             if (evt) {
                 evt.currentTarget.classList.add("active");
             } else {
-                // If called without an event (e.g., on initial load), activate the corresponding button
                 const activeButton = Array.from(tabbuttons).find(button => button.innerText.includes(tabName === 'tabGeral' ? 'Geral' : tabName === 'tabDocumentos' ? 'Documentos' : 'Financeiro'));
                 if (activeButton) {
                     activeButton.classList.add('active');
@@ -2134,10 +2488,125 @@
             }
         }
 
+        function renderDashboardKPIs() {
+            const storedAllOrders = localStorage.getItem('dimpexOrders');
+            if (storedAllOrders) {
+                dimpexOrders = JSON.parse(storedAllOrders);
+            } else {
+                dimpexOrders = initialDimpexOrders;
+            }
 
-        // Initial load when the page is opened
+            const totalShipments = dimpexOrders.length;
+            const inTransitShipments = dimpexOrders.filter(order => order.statusDimpex === 'Em Trânsito').length;
+            const customsClearanceShipments = dimpexOrders.filter(order => order.statusDimpex === 'Desembaraço Aduaneiro').length;
+            const deliveredShipments = dimpexOrders.filter(order => order.statusDimpex === 'Entrega ao Cliente').length;
+
+            document.getElementById('totalShipmentsKPI').innerText = totalShipments;
+            document.getElementById('inTransitShipmentsKPI').innerText = inTransitShipments;
+            document.getElementById('customsClearanceShipmentsKPI').innerText = customsClearanceShipments;
+            document.getElementById('deliveredShipmentsKPI').innerText = deliveredShipments;
+        }
+
+        // Function to generate the Customer Follow Up document as PDF
+        async function generatePdfFollowUp() {
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum embarque selecionado para gerar o documento.', 'error');
+                return;
+            }
+
+            const pdfContentContainer = document.getElementById('pdfContentContainer');
+            
+            // Temporarily make the container visible for html2canvas
+            pdfContentContainer.style.display = 'block';
+
+            // Populate the hidden PDF content container
+            const setText = (id, value) => {
+                const element = pdfContentContainer.querySelector(`#${id}`);
+                if (element) {
+                    element.innerText = value || 'N/A';
+                    console.log(`Setting ${id}: ${value}`); // Debugging
+                } else {
+                    console.warn(`Element with ID '${id}' not found in PDF container.`); // Debugging
+                }
+            };
+
+            console.log("Populating PDF content for order:", currentDimpexOrder.id); // Debugging
+
+            setText('pdfDocReadyDate', formatDate(currentDimpexOrder.prevEmbarque));
+            setText('pdfDocTerms', currentDimpexOrder.incoterm);
+            setText('pdfDocPol', currentDimpexOrder.pol);
+            setText('pdfDocConsignee', currentDimpexOrder.cliente);
+            setText('pdfDocPoC', currentDimpexOrder.poCliente);
+            setText('pdfDocPiC', currentDimpexOrder.numeroCI);
+            setText('pdfDocPod', currentDimpexOrder.pod);
+            setText('pdfDocFollowUp', currentDimpexOrder.followUp);
+            setText('pdfDocTtAmount', `R$ ${parseFloat(currentDimpexOrder.titCliente || 0).toFixed(2).replace('.', ',')}`);
+            setText('pdfDocDownPayment', `R$ ${parseFloat(currentDimpexOrder.pgAntecipCR || 0).toFixed(2).replace('.', ',')}`);
+            setText('pdfDocDownPaymentDate', formatDate(currentDimpexOrder.dtPgAntCR));
+            setText('pdfDocBalancePayment', `R$ ${parseFloat(currentDimpexOrder.pgSaldoCR || 0).toFixed(2).replace('.', ',')}`);
+            setText('pdfDocBalancePaymentDate', formatDate(currentDimpexOrder.dtPgSalCR));
+            setText('pdfDocCi', currentDimpexOrder.numeroCI);
+            
+            let containerInfo = [];
+            if (currentDimpexOrder.container20 && parseInt(currentDimpexOrder.container20) > 0) containerInfo.push(`${currentDimpexOrder.container20}x20'`);
+            if (currentDimpexOrder.container40 && parseInt(currentDimpexOrder.container40) > 0) containerInfo.push(`${currentDimpexOrder.container40}x40'`);
+            if (currentDimpexOrder.container40HQ && parseInt(currentDimpexOrder.container40HQ) > 0) containerInfo.push(`${currentDimpexOrder.container40HQ}x40'HQ`);
+            if (currentDimpexOrder.containerLCL && parseInt(currentDimpexOrder.containerLCL) > 0) containerInfo.push(`LCL`);
+            setText('pdfDocContainer', containerInfo.join(', ') || 'N/A');
+
+            setText('pdfDocSerialNumbers', currentDimpexOrder.serialNum);
+            setText('pdfDocForwarder', currentDimpexOrder.cargoAgent);
+            setText('pdfDocTelexRelease', currentDimpexOrder.telexRelease);
+            setText('pdfDocEtd', formatDate(currentDimpexOrder.prevEmbarque));
+            setText('pdfDocCoo', currentDimpexOrder.certOrigem);
+            setText('pdfDocAtd', formatDate(currentDimpexOrder.blDate));
+            setText('pdfDocBl', currentDimpexOrder.blNumber);
+            setText('pdfDocEta', formatDate(currentDimpexOrder.dtETA));
+
+            const productsTableBody = pdfContentContainer.querySelector('#pdfProductsTableBodyDoc');
+            productsTableBody.innerHTML = '';
+            if (currentDimpexOrder.productLines && currentDimpexOrder.productLines.length > 0) {
+                currentDimpexOrder.productLines.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.productCode || 'N/A'}</td>
+                        <td>${product.description || 'N/A'}</td>
+                        <td class="qty">${product.quantity || 'N/A'}</td>
+                        <td class="pkgs">${product.boxes || 'N/A'}</td>
+                        <td class="nw">${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                        <td class="gw">${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                        <td class="cbm">${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
+                    `;
+                    productsTableBody.appendChild(row);
+                });
+            } else {
+                productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Nenhum produto cadastrado para este embarque.</td></tr>`;
+            }
+
+            // Options for PDF generation
+            const options = {
+                margin: 10, // Keep a reasonable margin
+                filename: `documento_acompanhamento_${currentDimpexOrder.id}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 1, logging: true, dpi: 192, letterRendering: true, useCORS: true, allowTaint: true }, // Scale set to 1
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', hotfixes: ['px_scaling'] }, // Added hotfixes
+                pagebreak: { mode: 'avoid-all' } // Avoid page breaks within elements
+            };
+
+            // Generate PDF
+            try {
+                await html2pdf().set(options).from(pdfContentContainer).save();
+                showMessage('Sucesso', 'PDF gerado com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                showMessage('Erro', 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.', 'error');
+            } finally {
+                // Hide the container again after PDF generation
+                pdfContentContainer.style.display = 'none';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Load all dimpex orders from localStorage, or use initial data if not found
             const storedAllOrders = localStorage.getItem('dimpexOrders');
             if (storedAllOrders) {
                 dimpexOrders = JSON.parse(storedAllOrders);
@@ -2145,9 +2614,8 @@
                 dimpexOrders = initialDimpexOrders;
                 localStorage.setItem('dimpexOrders', JSON.stringify(initialDimpexOrders));
             }
-            showCentralPage(); // Start by showing the central page
+            showCentralPage();
         });
     </script>
 </body>
 </html>
-
