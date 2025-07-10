@@ -1099,12 +1099,6 @@
                         </table>
                     </div>
                 </div>
-                <div class="form-section">
-                    <h2 class="section-title">Arquivos Anexados</h2>
-                    <ul id="attachedFilesList" class="attached-files-list">
-                        <!-- Attached files will be rendered here -->
-                    </ul>
-                </div>
             </div>
 
             <!-- Tab Content: Financeiro -->
@@ -1168,6 +1162,9 @@
                             <div class="detail-label">Dt Pg Sal CR:</div>
                             <input type="date" id="financeDtPgSalCR" readonly>
                         </div>
+                    </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn-primary" onclick="sendToProtheus()">Enviar para Protheus</button>
                     </div>
                 </div>
             </div>
@@ -2221,7 +2218,7 @@
             safeSetValue('emDocConf', currentDimpexOrder.emDocConf);
             safeSetValue('telexRelease', currentDimpexOrder.telexRelease);
             renderDocumentsTable();
-            renderAttachedFiles();
+            // Removed: renderAttachedFiles(); // This line was removed as per previous instruction
 
             safeSetValue('financeDesconto', currentDimpexOrder.desconto);
             safeSetValue('financeTipoDesconto', currentDimpexOrder.tipoDesconto);
@@ -2407,41 +2404,6 @@
             );
         }
 
-        function renderAttachedFiles() {
-            console.log('Rendering attached files...');
-            const ul = document.getElementById('attachedFilesList');
-            if (!ul) {
-                console.error('attachedFilesList not found.');
-                return;
-            }
-            ul.innerHTML = '';
-
-            if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
-                ul.innerHTML = `<li>Nenhum arquivo anexado.</li>`;
-                return;
-            }
-
-            currentDimpexOrder.documents.forEach(doc => {
-                const li = document.createElement('li');
-                let buttonsHtml = '';
-
-                if (doc.content) {
-                    buttonsHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Visualizar</button>`;
-                }
-
-                if (doc.status === 'Recebido' && doc.content) {
-                    buttonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="extractAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Extrair</button>`;
-                }
-
-                li.innerHTML = `
-                    <span>${doc.name}</span>
-                    <div>${buttonsHtml}</div>
-                `;
-                ul.appendChild(li);
-            });
-            console.log('Attached files rendered.');
-        }
-
         function viewAttachedFile(orderId, docName) {
             console.log(`Viewing attached file: ${docName} for order ID: ${orderId}`);
             const order = dimpexOrders.find(o => o.id === orderId);
@@ -2465,36 +2427,6 @@
                 documentViewerModal.classList.add('active');
             } else {
                 showMessage('Erro', `Conteúdo do documento "${docName}" não disponível para visualização.`, 'error');
-            }
-        }
-
-        function extractAttachedFile(orderId, docName) {
-            console.log(`Extracting attached file: ${docName} for order ID: ${orderId}`);
-            const order = dimpexOrders.find(o => o.id === orderId);
-            if (!order) {
-                showMessage('Erro', 'Embarque não encontrado para extrair o documento.', 'error');
-                return;
-            }
-            const doc = order.documents.find(d => d.name === docName);
-            if (doc && doc.content && doc.status === 'Recebido') {
-                try {
-                    const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    const fileName = doc.name.replace(/[^a-z0-9\s-]/gi, '').replace(/\s+/g, '-').toLowerCase() + '.txt';
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showMessage('Sucesso', `Documento "${docName}" extraído com sucesso!`, 'success');
-                } catch (e) {
-                    console.error('Erro ao extrair documento:', e);
-                    showMessage('Erro', `Não foi possível extrair o documento "${docName}".`, 'error');
-                }
-            } else {
-                showMessage('Erro', `O documento "${docName}" não pode ser extraído. Verifique se ele foi recebido e possui conteúdo.`, 'error');
             }
         }
 
@@ -2524,15 +2456,25 @@
 
             currentDimpexOrder.documents.forEach((doc, index) => {
                 const row = document.createElement('tr');
-                const actionButton = doc.status === 'Pendente' ?
-                    `<button class="btn-primary" onclick="receiveDocument('${doc.name.replace(/'/g, "\\'")}', ${index})">Receber Documento</button>` :
-                    `<button class="btn-secondary" disabled>Recebido</button>`;
+                let actionButtonsHtml = '';
+
+                // Button to receive document (if pending)
+                if (doc.status === 'Pendente') {
+                    actionButtonsHtml += `<button class="btn-primary" onclick="receiveDocument('${doc.name.replace(/'/g, "\\'")}', ${index})">Receber Documento</button>`;
+                } else {
+                    actionButtonsHtml += `<button class="btn-secondary" disabled>Recebido</button>`;
+                }
+
+                // Button to view attached file (if content exists)
+                if (doc.content) {
+                    actionButtonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Visualizar Anexo</button>`;
+                }
 
                 row.innerHTML = `
                     <td>${doc.name}</td>
                     <td><span class="status-indicator ${doc.status === 'Pendente' ? 'pending-doc' : 'doc-ok'}"></span>${doc.status}</td>
                     <td>${formatDate(doc.receivedDate)}</td>
-                    <td>${actionButton}</td>
+                    <td>${actionButtonsHtml}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2570,7 +2512,6 @@
 
             showMessage('Sucesso', `Documento "${docName}" recebido com sucesso!`, 'success', () => {
                 renderDocumentsTable();
-                renderAttachedFiles();
             });
             console.log('Document received and saved.');
         }
@@ -2831,6 +2772,42 @@
             showMessage('Sucesso', `PDF do embarque ${currentDimpexOrder.shipmentName} simulado como enviado por e-mail!`, 'success', () => {
                 closePdfViewerModal();
             });
+        }
+
+        /**
+         * Simulates sending the current shipment's financial data to Protheus.
+         * Displays a success message upon simulation.
+         */
+        function sendToProtheus() {
+            console.log('Attempting to send financial data to Protheus...');
+            if (!currentDimpexOrder) {
+                showMessage('Erro', 'Nenhum embarque selecionado para enviar ao Protheus.', 'error');
+                return;
+            }
+
+            // In a real application, you would gather the financial data from currentDimpexOrder
+            // and send it via an API call to the Protheus system.
+            // For this simulation, we'll just show a success message.
+            const financialData = {
+                shipmentId: currentDimpexOrder.id,
+                desconto: currentDimpexOrder.desconto,
+                tipoDesconto: currentDimpexOrder.tipoDesconto,
+                custoExtra: currentDimpexOrder.custoExtra,
+                tpQualEntrega: currentDimpexOrder.tpQualEntrega,
+                titFornecedor: currentDimpexOrder.titFornecedor,
+                pgtoAntecip: currentDimpexOrder.pgtoAntecip,
+                dtPgAntCP: currentDimpexOrder.dtPgAntCP,
+                pgtoSaldoCP: currentDimpexOrder.pgtoSaldoCP,
+                dtPgSalCP: currentDimpexOrder.dtPgSalCP,
+                titCliente: currentDimpexOrder.titCliente,
+                pgAntecipCR: currentDimpexOrder.pgAntecipCR,
+                dtPgAntCR: currentDimpexOrder.dtPgAntCR,
+                pgSaldoCR: currentDimpexOrder.pgSaldoCR,
+                dtPgSalCR: currentDimpexOrder.dtPgSalCR
+            };
+
+            console.log('Simulating sending the following financial data to Protheus:', financialData);
+            showMessage('Sucesso', `Dados financeiros do embarque ${currentDimpexOrder.shipmentName} simulados como enviados ao Protheus!`, 'success');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
