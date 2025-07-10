@@ -1091,6 +1091,7 @@
                                     <th>Status</th>
                                     <th>Data Recebimento</th>
                                     <th>Ação</th>
+                                    <th>Anexos</th> <!-- New column for attachments -->
                                 </tr>
                             </thead>
                             <tbody id="documentsTableBody">
@@ -1184,13 +1185,13 @@
         </div>
     </div>
 
-    <!-- Modal para Visualização de Documentos de Texto -->
+    <!-- Modal para Visualização de Documentos de Texto (Improved Styling) -->
     <div id="documentViewerModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 800px; width: 90%;">
             <button class="modal-close-btn" onclick="closeDocumentViewerModal()">&times;</button>
-            <h3 id="documentViewerTitle"></h3>
-            <pre id="documentViewerContent" style="white-space: pre-wrap; word-wrap: break-word; max-height: 70vh; overflow-y: auto; background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid var(--border-color);"></pre>
-            <div class="modal-actions">
+            <h3 id="documentViewerTitle" style="color: var(--primary-color); margin-bottom: 15px;"></h3>
+            <div id="documentViewerContent" style="white-space: pre-wrap; word-wrap: break-word; max-height: 70vh; overflow-y: auto; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); font-family: 'Roboto', sans-serif; font-size: 14px; line-height: 1.5; color: #333;"></div>
+            <div class="modal-actions" style="margin-top: 20px; text-align: right;">
                 <button class="btn-primary" onclick="closeDocumentViewerModal()">Fechar</button>
             </div>
         </div>
@@ -2218,7 +2219,6 @@
             safeSetValue('emDocConf', currentDimpexOrder.emDocConf);
             safeSetValue('telexRelease', currentDimpexOrder.telexRelease);
             renderDocumentsTable();
-            // Removed: renderAttachedFiles(); // This line was removed as per previous instruction
 
             safeSetValue('financeDesconto', currentDimpexOrder.desconto);
             safeSetValue('financeTipoDesconto', currentDimpexOrder.tipoDesconto);
@@ -2423,7 +2423,64 @@
 
             if (doc && doc.content) {
                 documentViewerTitle.innerText = doc.name;
-                documentViewerContent.innerText = doc.content;
+                documentViewerContent.innerHTML = ''; // Clear previous content
+
+                const lines = doc.content.split('\n');
+                let currentList = null; // To hold the current <ul> element for list items
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('---') && line.endsWith('---')) {
+                        // This is a section title
+                        const title = line.replace(/---/g, '').trim();
+                        const h4 = document.createElement('h4');
+                        h4.style.cssText = 'font-size: 16px; font-weight: 600; color: var(--primary-color); margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+                        h4.innerText = title;
+                        documentViewerContent.appendChild(h4);
+                        currentList = null; // Reset current list for new section
+                    } else if (line.includes(':') && !line.startsWith('-')) { // Avoid parsing list items as key-value
+                        // This is a key-value pair
+                        const parts = line.split(':', 2); // Split only on the first colon
+                        const label = parts[0].trim();
+                        const value = parts[1] ? parts[1].trim() : '';
+
+                        const itemDiv = document.createElement('div');
+                        itemDiv.style.cssText = 'display: flex; margin-bottom: 5px;';
+                        
+                        const labelSpan = document.createElement('span');
+                        labelSpan.style.cssText = 'font-weight: 500; color: #555; min-width: 120px;'; // Fixed width for labels
+                        labelSpan.innerText = `${label}:`;
+                        
+                        const valueSpan = document.createElement('span');
+                        valueSpan.style.cssText = 'color: #333; flex-grow: 1;';
+                        valueSpan.innerText = value;
+
+                        itemDiv.appendChild(labelSpan);
+                        itemDiv.appendChild(valueSpan);
+                        documentViewerContent.appendChild(itemDiv);
+                        currentList = null; // Reset current list
+                    } else if (line.startsWith('-')) {
+                        // This is a list item
+                        if (!currentList) {
+                            currentList = document.createElement('ul');
+                            currentList.style.cssText = 'list-style: disc inside; margin-left: 20px; margin-bottom: 10px;';
+                            documentViewerContent.appendChild(currentList);
+                        }
+                        const listItem = document.createElement('li');
+                        listItem.style.cssText = 'margin-bottom: 3px; color: #333;';
+                        listItem.innerText = line;
+                        currentList.appendChild(listItem);
+                    }
+                    else if (line) {
+                        // Regular paragraph text
+                        const p = document.createElement('p');
+                        p.style.cssText = 'margin-bottom: 10px; color: #444;';
+                        p.innerText = line;
+                        documentViewerContent.appendChild(p);
+                        currentList = null; // Reset current list
+                    }
+                });
+
                 documentViewerModal.classList.add('active');
             } else {
                 showMessage('Erro', `Conteúdo do documento "${docName}" não disponível para visualização.`, 'error');
@@ -2450,13 +2507,14 @@
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este embarque.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este embarque.</td></tr>`;
                 return;
             }
 
             currentDimpexOrder.documents.forEach((doc, index) => {
                 const row = document.createElement('tr');
                 let actionButtonsHtml = '';
+                let attachmentButtonHtml = '';
 
                 // Button to receive document (if pending)
                 if (doc.status === 'Pendente') {
@@ -2465,9 +2523,11 @@
                     actionButtonsHtml += `<button class="btn-secondary" disabled>Recebido</button>`;
                 }
 
-                // Button to view attached file (if content exists)
+                // Button to view attached file (if content exists) - now in its own column
                 if (doc.content) {
-                    actionButtonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Visualizar Anexo</button>`;
+                    attachmentButtonHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Visualizar Anexo</button>`;
+                } else {
+                    attachmentButtonHtml += `<button class="btn-secondary" disabled>Sem Anexo</button>`;
                 }
 
                 row.innerHTML = `
@@ -2475,6 +2535,7 @@
                     <td><span class="status-indicator ${doc.status === 'Pendente' ? 'pending-doc' : 'doc-ok'}"></span>${doc.status}</td>
                     <td>${formatDate(doc.receivedDate)}</td>
                     <td>${actionButtonsHtml}</td>
+                    <td>${attachmentButtonHtml}</td> <!-- New column for attachment button -->
                 `;
                 tbody.appendChild(row);
             });
