@@ -1172,7 +1172,7 @@
         </div>
     </div>
 
-    <!-- Modal para Visualização de Documentos -->
+    <!-- Modal para Visualização de Documentos de Texto -->
     <div id="documentViewerModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="closeDocumentViewerModal()">&times;</button>
@@ -1180,6 +1180,18 @@
             <pre id="documentViewerContent" style="white-space: pre-wrap; word-wrap: break-word; max-height: 70vh; overflow-y: auto; background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid var(--border-color);"></pre>
             <div class="modal-actions">
                 <button class="btn-primary" onclick="closeDocumentViewerModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVO Modal para Visualização de PDF -->
+    <div id="pdfViewerModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 90%; width: 90%; height: 90%; padding: 0;">
+            <button class="modal-close-btn" onclick="closePdfViewerModal()">&times;</button>
+            <h3 style="padding: 15px 30px; margin-bottom: 0;">Visualizador de PDF</h3>
+            <iframe id="pdfFrame" style="width: 100%; height: calc(100% - 60px); border: none;"></iframe>
+            <div class="modal-actions" style="padding: 15px 30px; text-align: center;">
+                <button class="btn-primary" onclick="closePdfViewerModal()">Fechar</button>
             </div>
         </div>
     </div>
@@ -1356,6 +1368,7 @@
     </div>
 
     <script>
+        console.log('Script loaded. Starting initialization...');
         let currentDimpexOrder = null; // Global variable to hold the currently viewed order
 
         // Simulated data for Dimpex orders (already approved by manager)
@@ -1999,12 +2012,21 @@
         }
 
         function showMessage(title, content, type = 'info', onConfirm = null, onCancel = null) {
+            console.log(`Showing message: ${title} - ${content}`);
             const modal = document.getElementById('messageModal');
-            document.getElementById('messageModalTitle').innerText = title;
-            document.getElementById('messageModalContent').innerHTML = content;
+            const modalTitle = document.getElementById('messageModalTitle');
+            const modalContent = document.getElementById('messageModalContent');
             const confirmBtn = document.getElementById('messageModalConfirmBtn');
             const cancelBtn = document.getElementById('messageModalCancelBtn');
             const closeBtn = document.getElementById('messageModalCloseBtn');
+
+            if (!modal || !modalTitle || !modalContent || !confirmBtn || !cancelBtn || !closeBtn) {
+                console.error('One or more modal elements not found.');
+                return;
+            }
+
+            modalTitle.innerText = title;
+            modalContent.innerHTML = content;
 
             confirmBtn.onclick = () => { if (onConfirm) onConfirm(); modal.classList.remove('active'); };
             cancelBtn.onclick = () => { if (onCancel) onCancel(); modal.classList.remove('active'); };
@@ -2025,18 +2047,24 @@
         }
 
         function showCentralPage() {
-            document.getElementById('dimpex-detail-page').classList.remove('active');
-            document.getElementById('dimpex-central-page').classList.add('active');
+            console.log('Showing central page...');
+            const detailPage = document.getElementById('dimpex-detail-page');
+            const centralPage = document.getElementById('dimpex-central-page');
+            if (detailPage) detailPage.classList.remove('active');
+            if (centralPage) centralPage.classList.add('active');
             renderDashboardKPIs();
             renderDimpexOrdersTable();
         }
 
         function showDetailPage(orderId) {
+            console.log(`Showing detail page for order ID: ${orderId}`);
             const order = dimpexOrders.find(o => o.id === orderId);
             if (order) {
                 currentDimpexOrder = order;
-                document.getElementById('dimpex-central-page').classList.remove('active');
-                document.getElementById('dimpex-detail-page').classList.add('active');
+                const centralPage = document.getElementById('dimpex-central-page');
+                const detailPage = document.getElementById('dimpex-detail-page');
+                if (centralPage) centralPage.classList.remove('active');
+                if (detailPage) detailPage.classList.add('active');
                 renderDimpexOrderDetails();
                 openTab(null, 'tabGeral');
             } else {
@@ -2045,10 +2073,16 @@
         }
 
         function renderDimpexOrdersTable() {
+            console.log('Rendering Dimpex orders table...');
             const tbody = document.getElementById('dimpexOrdersTableBody');
+            if (!tbody) {
+                console.error('dimpexOrdersTableBody not found.');
+                return;
+            }
             tbody.innerHTML = '';
 
-            const statusFilter = document.getElementById('statusFilter').value;
+            const statusFilterElement = document.getElementById('statusFilter');
+            const statusFilter = statusFilterElement ? statusFilterElement.value : 'Todos';
 
             let filteredOrders = dimpexOrders.filter(order => {
                 return statusFilter === 'Todos' || order.statusDimpex === statusFilter;
@@ -2081,6 +2115,7 @@
                 `;
                 tbody.appendChild(row);
             });
+            console.log('Dimpex orders table rendered.');
         }
 
         const safeGetValue = (id) => {
@@ -2089,6 +2124,7 @@
         };
 
         function renderDimpexOrderDetails() {
+            console.log('Rendering Dimpex order details...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado. Retornando à Central Dimpex.', 'error', () => {
                     showCentralPage();
@@ -2181,10 +2217,16 @@
             safeSetValue('financeDtPgAntCR', currentDimpexOrder.dtPgAntCR);
             safeSetValue('financePgSaldoCR', currentDimpexOrder.pgSaldoCR);
             safeSetValue('financeDtPgSalCR', currentDimpexOrder.dtPgSalCR);
+            console.log('Dimpex order details rendered.');
         }
 
         function renderTracking(currentStatus) {
+            console.log(`Rendering tracking for status: ${currentStatus}`);
             const trackingSection = document.getElementById('dimpexTrackingSection');
+            if (!trackingSection) {
+                console.error('dimpexTrackingSection not found.');
+                return;
+            }
             trackingSection.innerHTML = '';
 
             let currentStatusIndex = dimpexTrackingFlow.findIndex(step => step.name === currentStatus);
@@ -2222,19 +2264,33 @@
             });
             trackingHtml += '</div>';
             trackingSection.innerHTML = trackingHtml;
+            console.log('Tracking rendered.');
         }
 
         function saveOrderStatus() {
+            console.log('Saving order status...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque carregado.', 'error');
                 return;
             }
 
-            const newStatus = document.getElementById('newStatusSelect').value;
+            const newStatusSelect = document.getElementById('newStatusSelect');
+            if (!newStatusSelect) {
+                console.error('newStatusSelect not found.');
+                return;
+            }
+            const newStatus = newStatusSelect.value;
 
             currentDimpexOrder.statusDimpex = newStatus;
 
-            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            let allDimpexOrders = [];
+            try {
+                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            } catch (e) {
+                console.error('Error parsing dimpexOrders from localStorage:', e);
+                allDimpexOrders = [];
+            }
+            
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
                 allDimpexOrders[orderIndex] = currentDimpexOrder;
@@ -2247,9 +2303,11 @@
             showMessage('Sucesso', `Status do embarque ${currentDimpexOrder.shipmentName} atualizado para "${newStatus}"!`, 'success', () => {
                 renderDimpexOrderDetails();
             });
+            console.log('Order status saved.');
         }
 
         function saveShipmentDetails() {
+            console.log('Saving shipment details...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque carregado para salvar os detalhes.', 'error');
                 return;
@@ -2273,7 +2331,14 @@
             currentDimpexOrder.containerLCL = safeGetValue('detailContLCL');
             currentDimpexOrder.followUp = safeGetValue('detailFollowUp');
 
-            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            let allDimpexOrders = [];
+            try {
+                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            } catch (e) {
+                console.error('Error parsing dimpexOrders from localStorage:', e);
+                allDimpexOrders = [];
+            }
+
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
                 allDimpexOrders[orderIndex] = currentDimpexOrder;
@@ -2283,9 +2348,11 @@
             showMessage('Sucesso', `Detalhes do embarque ${currentDimpexOrder.shipmentName} salvos com sucesso!`, 'success', () => {
                 renderDimpexOrderDetails();
             });
+            console.log('Shipment details saved.');
         }
 
         function revertToPurchase() {
+            console.log('Reverting to purchase status...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque carregado para estornar.', 'error');
                 return;
@@ -2297,7 +2364,13 @@
                 'warning',
                 () => {
                     currentDimpexOrder.statusDimpex = 'Aprovado';
-                    let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+                    let allDimpexOrders = [];
+                    try {
+                        allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+                    } catch (e) {
+                        console.error('Error parsing dimpexOrders from localStorage:', e);
+                        allDimpexOrders = [];
+                    }
                     const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
                     if (orderIndex !== -1) {
                         allDimpexOrders[orderIndex] = currentDimpexOrder;
@@ -2309,12 +2382,18 @@
                 },
                 () => {
                     // User cancelled, do nothing
+                    console.log('Revert to purchase cancelled by user.');
                 }
             );
         }
 
         function renderAttachedFiles() {
+            console.log('Rendering attached files...');
             const ul = document.getElementById('attachedFilesList');
+            if (!ul) {
+                console.error('attachedFilesList not found.');
+                return;
+            }
             ul.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
@@ -2327,11 +2406,11 @@
                 let buttonsHtml = '';
 
                 if (doc.content) {
-                    buttonsHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Visualizar</button>`;
+                    buttonsHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Visualizar</button>`;
                 }
 
                 if (doc.status === 'Recebido' && doc.content) {
-                    buttonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="extractAttachedFile('${currentDimpexOrder.id}', '${doc.name}')">Extrair</button>`;
+                    buttonsHtml += `<button class="btn-primary" style="margin-left: 10px;" onclick="extractAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Extrair</button>`;
                 }
 
                 li.innerHTML = `
@@ -2340,25 +2419,37 @@
                 `;
                 ul.appendChild(li);
             });
+            console.log('Attached files rendered.');
         }
 
         function viewAttachedFile(orderId, docName) {
+            console.log(`Viewing attached file: ${docName} for order ID: ${orderId}`);
             const order = dimpexOrders.find(o => o.id === orderId);
             if (!order) {
                 showMessage('Erro', 'Embarque não encontrado para visualizar o documento.', 'error');
                 return;
             }
             const doc = order.documents.find(d => d.name === docName);
+            const documentViewerTitle = document.getElementById('documentViewerTitle');
+            const documentViewerContent = document.getElementById('documentViewerContent');
+            const documentViewerModal = document.getElementById('documentViewerModal');
+
+            if (!documentViewerTitle || !documentViewerContent || !documentViewerModal) {
+                console.error('One or more document viewer modal elements not found.');
+                return;
+            }
+
             if (doc && doc.content) {
-                document.getElementById('documentViewerTitle').innerText = doc.name;
-                document.getElementById('documentViewerContent').innerText = doc.content;
-                document.getElementById('documentViewerModal').classList.add('active');
+                documentViewerTitle.innerText = doc.name;
+                documentViewerContent.innerText = doc.content;
+                documentViewerModal.classList.add('active');
             } else {
                 showMessage('Erro', `Conteúdo do documento "${docName}" não disponível para visualização.`, 'error');
             }
         }
 
         function extractAttachedFile(orderId, docName) {
+            console.log(`Extracting attached file: ${docName} for order ID: ${orderId}`);
             const order = dimpexOrders.find(o => o.id === orderId);
             if (!order) {
                 showMessage('Erro', 'Embarque não encontrado para extrair o documento.', 'error');
@@ -2388,11 +2479,22 @@
         }
 
         function closeDocumentViewerModal() {
-            document.getElementById('documentViewerModal').classList.remove('active');
+            console.log('Closing document viewer modal.');
+            const documentViewerModal = document.getElementById('documentViewerModal');
+            if (documentViewerModal) {
+                documentViewerModal.classList.remove('active');
+            } else {
+                console.warn('documentViewerModal not found when trying to close.');
+            }
         }
 
         function renderDocumentsTable() {
+            console.log('Rendering documents table...');
             const tbody = document.getElementById('documentsTableBody');
+            if (!tbody) {
+                console.error('documentsTableBody not found.');
+                return;
+            }
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
@@ -2403,7 +2505,7 @@
             currentDimpexOrder.documents.forEach((doc, index) => {
                 const row = document.createElement('tr');
                 const actionButton = doc.status === 'Pendente' ?
-                    `<button class="btn-primary" onclick="receiveDocument('${doc.name}', ${index})">Receber Documento</button>` :
+                    `<button class="btn-primary" onclick="receiveDocument('${doc.name.replace(/'/g, "\\'")}', ${index})">Receber Documento</button>` :
                     `<button class="btn-secondary" disabled>Recebido</button>`;
 
                 row.innerHTML = `
@@ -2414,15 +2516,32 @@
                 `;
                 tbody.appendChild(row);
             });
+            console.log('Documents table rendered.');
         }
 
         function receiveDocument(docName, index) {
-            if (!currentDimpexOrder || !currentDimpexOrder.documents) return;
+            console.log(`Receiving document: ${docName} at index: ${index}`);
+            if (!currentDimpexOrder || !currentDimpexOrder.documents) {
+                console.error('currentDimpexOrder or documents array is null/undefined.');
+                return;
+            }
+
+            if (index < 0 || index >= currentDimpexOrder.documents.length) {
+                console.error('Invalid document index:', index);
+                return;
+            }
 
             currentDimpexOrder.documents[index].status = 'Recebido';
             currentDimpexOrder.documents[index].receivedDate = new Date().toISOString().slice(0, 10);
 
-            let allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            let allDimpexOrders = [];
+            try {
+                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            } catch (e) {
+                console.error('Error parsing dimpexOrders from localStorage:', e);
+                allDimpexOrders = [];
+            }
+            
             const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
             if (orderIndex !== -1) {
                 allDimpexOrders[orderIndex] = currentDimpexOrder;
@@ -2433,10 +2552,16 @@
                 renderDocumentsTable();
                 renderAttachedFiles();
             });
+            console.log('Document received and saved.');
         }
 
         function renderProductsTable() {
+            console.log('Rendering products table...');
             const tbody = document.getElementById('productsTableBody');
+            if (!tbody) {
+                console.error('productsTableBody not found.');
+                return;
+            }
             tbody.innerHTML = '';
 
             if (!currentDimpexOrder || !currentDimpexOrder.productLines || currentDimpexOrder.productLines.length === 0) {
@@ -2454,7 +2579,7 @@
                     <td>${product.serialNumber || 'N/A'}</td>
                     <td>${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
                     <td>${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                    <td>${product.productCode || 'N/A'}</td>
+                    <td>${(product.productCode || 'N/A')}</td>
                     <td>${product.quantity || 'N/A'} ${product.unitMeasure || ''}</td>
                     <td>${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
                     <td>R$ ${(product.prcUnit !== undefined && product.prcUnit !== null) ? product.prcUnit.toFixed(2).replace('.', ',') : 'N/A'}</td>
@@ -2462,38 +2587,69 @@
                 `;
                 tbody.appendChild(row);
             });
+            console.log('Products table rendered.');
         }
 
         function openTab(evt, tabName) {
+            console.log(`Opening tab: ${tabName}`);
             let i, tabcontent, tabbuttons;
 
             tabcontent = document.querySelectorAll("#dimpex-detail-page .tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove("active");
-            }
+            tabcontent.forEach(el => el.classList.remove("active"));
 
             tabbuttons = document.querySelectorAll("#dimpex-detail-page .tab-button");
-            for (i = 0; i < tabbuttons.length; i++) {
-                tabbuttons[i].classList.remove("active");
-            }
+            tabbuttons.forEach(el => el.classList.remove("active"));
 
-            document.getElementById(tabName).classList.add("active");
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) {
+                targetTab.classList.add("active");
+            } else {
+                console.error(`Tab content with ID '${tabName}' not found.`);
+            }
+            
             if (evt) {
                 evt.currentTarget.classList.add("active");
             } else {
-                const activeButton = Array.from(tabbuttons).find(button => button.innerText.includes(tabName === 'tabGeral' ? 'Geral' : tabName === 'tabDocumentos' ? 'Documentos' : 'Financeiro'));
+                const buttonText = {
+                    'tabGeral': 'Geral',
+                    'tabDocumentos': 'Documentos',
+                    'tabFinanceiro': 'Financeiro'
+                };
+                const activeButton = Array.from(tabbuttons).find(button => button.innerText.includes(buttonText[tabName]));
                 if (activeButton) {
                     activeButton.classList.add('active');
+                } else {
+                    console.warn(`No active tab button found for tabName: ${tabName}`);
                 }
             }
+            console.log('Tab opened.');
         }
 
         function renderDashboardKPIs() {
+            console.log('Rendering dashboard KPIs...');
+            const totalShipmentsKPI = document.getElementById('totalShipmentsKPI');
+            const inTransitShipmentsKPI = document.getElementById('inTransitShipmentsKPI');
+            const customsClearanceShipmentsKPI = document.getElementById('customsClearanceShipmentsKPI');
+            const deliveredShipmentsKPI = document.getElementById('deliveredShipmentsKPI');
+
+            if (!totalShipmentsKPI || !inTransitShipmentsKPI || !customsClearanceShipmentsKPI || !deliveredShipmentsKPI) {
+                console.error('One or more KPI elements not found.');
+                return;
+            }
+
             const storedAllOrders = localStorage.getItem('dimpexOrders');
             if (storedAllOrders) {
-                dimpexOrders = JSON.parse(storedAllOrders);
+                try {
+                    dimpexOrders = JSON.parse(storedAllOrders);
+                    console.log('Dimpex orders loaded from localStorage.');
+                } catch (e) {
+                    console.error('Error parsing dimpexOrders from localStorage:', e);
+                    dimpexOrders = initialDimpexOrders; // Fallback to initial data on parse error
+                }
             } else {
                 dimpexOrders = initialDimpexOrders;
+                localStorage.setItem('dimpexOrders', JSON.stringify(initialDimpexOrders));
+                console.log('Initial Dimpex orders set and saved to localStorage.');
             }
 
             const totalShipments = dimpexOrders.length;
@@ -2501,36 +2657,46 @@
             const customsClearanceShipments = dimpexOrders.filter(order => order.statusDimpex === 'Desembaraço Aduaneiro').length;
             const deliveredShipments = dimpexOrders.filter(order => order.statusDimpex === 'Entrega ao Cliente').length;
 
-            document.getElementById('totalShipmentsKPI').innerText = totalShipments;
-            document.getElementById('inTransitShipmentsKPI').innerText = inTransitShipments;
-            document.getElementById('customsClearanceShipmentsKPI').innerText = customsClearanceShipments;
-            document.getElementById('deliveredShipmentsKPI').innerText = deliveredShipments;
+            totalShipmentsKPI.innerText = totalShipments;
+            inTransitShipmentsKPI.innerText = inTransitShipments;
+            customsClearanceShipmentsKPI.innerText = customsClearanceShipments;
+            deliveredShipmentsKPI.innerText = deliveredShipments;
+            console.log('Dashboard KPIs rendered.');
         }
 
         // Function to generate the Customer Follow Up document as PDF
         async function generatePdfFollowUp() {
+            console.log('Attempting to generate PDF...');
             if (!currentDimpexOrder) {
                 showMessage('Erro', 'Nenhum embarque selecionado para gerar o documento.', 'error');
                 return;
             }
 
             const pdfContentContainer = document.getElementById('pdfContentContainer');
+            const pdfViewerModal = document.getElementById('pdfViewerModal');
+            const pdfFrame = document.getElementById('pdfFrame');
+
+            if (!pdfContentContainer || !pdfViewerModal || !pdfFrame) {
+                console.error('One or more PDF related elements not found (pdfContentContainer, pdfViewerModal, or pdfFrame).');
+                showMessage('Erro', 'Erro interno: Elementos do visualizador de PDF não encontrados.', 'error');
+                return;
+            }
             
             // Temporarily make the container visible for html2canvas
             pdfContentContainer.style.display = 'block';
+            console.log('pdfContentContainer set to display: block.');
 
             // Populate the hidden PDF content container
             const setText = (id, value) => {
                 const element = pdfContentContainer.querySelector(`#${id}`);
                 if (element) {
-                    element.innerText = value || 'N/A';
-                    console.log(`Setting ${id}: ${value}`); // Debugging
+                    element.innerText = value !== undefined && value !== null ? value : 'N/A';
                 } else {
-                    console.warn(`Element with ID '${id}' not found in PDF container.`); // Debugging
+                    console.warn(`Element with ID '${id}' not found in PDF container.`);
                 }
             };
 
-            console.log("Populating PDF content for order:", currentDimpexOrder.id); // Debugging
+            console.log("Populating PDF content for order:", currentDimpexOrder.id);
 
             setText('pdfDocReadyDate', formatDate(currentDimpexOrder.prevEmbarque));
             setText('pdfDocTerms', currentDimpexOrder.incoterm);
@@ -2564,23 +2730,27 @@
             setText('pdfDocEta', formatDate(currentDimpexOrder.dtETA));
 
             const productsTableBody = pdfContentContainer.querySelector('#pdfProductsTableBodyDoc');
-            productsTableBody.innerHTML = '';
-            if (currentDimpexOrder.productLines && currentDimpexOrder.productLines.length > 0) {
-                currentDimpexOrder.productLines.forEach(product => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${product.productCode || 'N/A'}</td>
-                        <td>${product.description || 'N/A'}</td>
-                        <td class="qty">${product.quantity || 'N/A'}</td>
-                        <td class="pkgs">${product.boxes || 'N/A'}</td>
-                        <td class="nw">${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                        <td class="gw">${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
-                        <td class="cbm">${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
-                    `;
-                    productsTableBody.appendChild(row);
-                });
+            if (productsTableBody) {
+                productsTableBody.innerHTML = '';
+                if (currentDimpexOrder.productLines && currentDimpexOrder.productLines.length > 0) {
+                    currentDimpexOrder.productLines.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.productCode || 'N/A'}</td>
+                            <td>${product.description || 'N/A'}</td>
+                            <td class="qty">${product.quantity || 'N/A'}</td>
+                            <td class="pkgs">${product.boxes || 'N/A'}</td>
+                            <td class="nw">${(product.netWeight !== undefined && product.netWeight !== null) ? product.netWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                            <td class="gw">${(product.grossWeight !== undefined && product.grossWeight !== null) ? product.grossWeight.toFixed(2).replace('.', ',') : 'N/A'}</td>
+                            <td class="cbm">${(product.volumeM3 !== undefined && product.volumeM3 !== null) ? product.volumeM3.toFixed(3).replace('.', ',') : 'N/A'}</td>
+                        `;
+                        productsTableBody.appendChild(row);
+                    });
+                } else {
+                    productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Nenhum produto cadastrado para este embarque.</td></tr>`;
+                }
             } else {
-                productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Nenhum produto cadastrado para este embarque.</td></tr>`;
+                console.warn('pdfProductsTableBodyDoc not found in PDF container.');
             }
 
             // Options for PDF generation
@@ -2593,28 +2763,55 @@
                 pagebreak: { mode: 'avoid-all' } // Avoid page breaks within elements
             };
 
-            // Generate PDF
+            // Generate PDF and open in new tab
             try {
-                await html2pdf().set(options).from(pdfContentContainer).save();
-                showMessage('Sucesso', 'PDF gerado com sucesso!', 'success');
+                console.log('Calling html2pdf()...');
+                const pdfDataUri = await html2pdf().set(options).from(pdfContentContainer).outputPdf('datauristring');
+                console.log('PDF data URI string generated. Setting iframe src...');
+                
+                pdfFrame.src = pdfDataUri; // Set the data URI to the iframe's src
+                pdfViewerModal.classList.add('active'); // Show the modal
+                showMessage('Sucesso', 'PDF gerado e aberto no visualizador!', 'success');
             } catch (error) {
                 console.error('Erro ao gerar PDF:', error);
                 showMessage('Erro', 'Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.', 'error');
             } finally {
                 // Hide the container again after PDF generation
                 pdfContentContainer.style.display = 'none';
+                console.log('pdfContentContainer set back to display: none.');
+            }
+        }
+
+        function closePdfViewerModal() {
+            console.log('Closing PDF viewer modal.');
+            const pdfViewerModal = document.getElementById('pdfViewerModal');
+            const pdfFrame = document.getElementById('pdfFrame');
+            if (pdfViewerModal) {
+                pdfViewerModal.classList.remove('active');
+            }
+            if (pdfFrame) {
+                pdfFrame.src = ''; // Clear the iframe src to prevent memory leaks
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded event fired. Initializing app...');
             const storedAllOrders = localStorage.getItem('dimpexOrders');
             if (storedAllOrders) {
-                dimpexOrders = JSON.parse(storedAllOrders);
+                try {
+                    dimpexOrders = JSON.parse(storedAllOrders);
+                    console.log('Dimpex orders loaded from localStorage.');
+                } catch (e) {
+                    console.error('Error parsing dimpexOrders from localStorage on DOMContentLoaded:', e);
+                    dimpexOrders = initialDimpexOrders; // Fallback to initial data on parse error
+                }
             } else {
                 dimpexOrders = initialDimpexOrders;
                 localStorage.setItem('dimpexOrders', JSON.stringify(initialDimpexOrders));
+                console.log('Initial Dimpex orders set and saved to localStorage.');
             }
             showCentralPage();
+            console.log('App initialization complete.');
         });
     </script>
 </body>
