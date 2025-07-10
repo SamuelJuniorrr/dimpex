@@ -108,6 +108,70 @@
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+        .btn-danger {
+            background-color: var(--red-alert);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        /* Style for icon buttons */
+        .icon-button {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            color: #555;
+            vertical-align: middle;
+        }
+        .icon-button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: var(--primary-color);
+        }
+        .icon-button svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        .icon-button.primary {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        .icon-button.primary:hover:not(:disabled) {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .icon-button.danger {
+            background-color: var(--red-alert);
+            color: #fff;
+            border-color: var(--red-alert);
+        }
+        .icon-button.danger:hover:not(:disabled) {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+        .icon-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e9ecef;
+            border-color: #e9ecef;
+            color: #888;
+        }
+
         .input-group {
             margin-bottom: 15px;
         }
@@ -209,6 +273,10 @@
         .status-indicator.customs-clearance { background-color: #f44336; }
         .status-indicator.released-delivery { background-color: #8A2BE2; }
         .status-indicator.delivered { background-color: var(--green-success); border-color: var(--green-success); }
+        .status-indicator.accepted { background-color: var(--green-success); } /* Dimpex Accepted */
+        .status-indicator.rejected { background-color: var(--red-alert); }   /* Dimpex Rejected */
+        .status-indicator.pending-approval { background-color: var(--orange-warning); } /* Dimpex Pending Approval */
+
 
         .modal-overlay {
             display: none;
@@ -1089,9 +1157,9 @@
                                 <tr>
                                     <th>Documento</th>
                                     <th>Status</th>
-                                    <th>Data Recebimento</th>
-                                    <th>Ação</th>
-                                    <th>Anexos</th> <!-- New column for attachments -->
+                                    <th>Receber</th> <!-- Changed from "Ação" -->
+                                    <th>Visualizar</th> <!-- Changed from "Anexos" -->
+                                    <th>Aprovação Dimpex</th>
                                 </tr>
                             </thead>
                             <tbody id="documentsTableBody">
@@ -1215,7 +1283,7 @@
         <div class="header-section">
             <div class="header-left">
                 <!-- Updated image source to the requested URL with onerror fallback -->
-                <img src="https://iili.io/FEsYhyG.png" alt="Toyama Hong Kong Ltd. Logo" onerror="this.onerror=null;this.src='https://placehold.co/150x50/ff0000/ffffff?text=Erro+ao+carregar+Logo';">
+                <img src="https://iili.io/FEsYhyG.png" alt="Logo da Toyama Hong Kong Ltd." onerror="this.onerror=null;this.src='https://placehold.co/150x50/ff0000/ffffff?text=Erro+ao+carregar+Logo';">
                 <div class="company-info">
                     <strong>TOYAMA HONG KONG Ltd.</strong><br>
                     Suite 01-02A, 9/F, Tower 5, China Hong Kong City<br>
@@ -1418,16 +1486,16 @@
                 incoterm: 'FOB', // Editable
                 customsBroker: { name: 'Despachante Alfa', contact: 'contato@alfa.com', phone: '11 9876-5432' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-015)', status: 'Recebido', receivedDate: '2025-06-28', fileLink: '#',
+                    { name: 'Solicitação do Cliente (PED-015)', status: 'Recebido', receivedDate: '2025-06-28', dimpexApprovalStatus: 'Pendente',
                       content: '--- Solicitação do Cliente (PED-015) ---\n\nCliente: Cliente A\nData da Solicitação: 2025-06-28\n\nItens Solicitados:\n- Motor Diesel 10HP (Modelo MX-100): 5 unidades\n\nDetalhes Adicionais:\n- Uso: Novo projeto de expansão.\n- Prioridade: Alta.\n- Observações: Necessário entrega até 2025-08-20.\n\nAtenciosamente,\nEquipe de Compras Cliente A'
                     },
-                    { name: 'PO Aprovada (PED-015)', status: 'Recebido', receivedDate: '2025-06-29', fileLink: '#',
+                    { name: 'PO Aprovada (PED-015)', status: 'Recebido', receivedDate: '2025-06-29', dimpexApprovalStatus: 'Pendente',
                       content: '--- Ordem de Compra Aprovada (PO-1127TYCH) ---\n\nNúmero PO: 1127TYCH\nPedido Interno: PED-015\nFornecedor: Fornecedor LONCIN (Loja 01)\nData de Aprovação: 2025-06-29\n\nItens da PO:\n- Código: PROD001\n- Descrição: Motor Diesel 10HP (Modelo MX-100)\n- Quantidade: 5 UN\n- Preço Unitário (USD): 140.00\n- Preço Unitário (BRL): 152.00\n\nCondições de Pagamento: 30 dias após data BL.\nValor Total PO: USD 700.00\n\nStatus: APROVADA\n\nGerado por: Gerência de Compras'
                     },
-                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
-                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
-                    { name: 'Packing List', status: 'Pendente', receivedDate: '' },
-                    { name: 'Certificado de Origem', status: 'Pendente', receivedDate: '' }
+                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' },
+                    { name: 'Certificado de Origem', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Certificado de Origem ---\n\nEste é um documento de Certificado de Origem simulado. Conteúdo real seria o certificado.' }
                 ],
                 productLines: [
                     {
@@ -1500,12 +1568,16 @@
                 incoterm: 'CIF',
                 customsBroker: { name: 'Despachante Beta', contact: 'contato@beta.com', phone: '21 9987-6543' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-019)', status: 'Recebido', receivedDate: '2025-06-29', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-019)', status: 'Recebido', receivedDate: '2025-06-30', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '' },
-                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '' },
-                    { name: 'Packing List', status: 'Pendente', receivedDate: '' },
-                    { name: 'Licença de Importação', status: 'Pendente', receivedDate: '' }
+                    { name: 'Solicitação do Cliente (PED-019)', status: 'Recebido', receivedDate: '2025-06-29', dimpexApprovalStatus: 'Pendente',
+                      content: '--- Solicitação do Cliente (PED-019) ---\n\nDetalhes da Solicitação para Cliente B.\n\nConteúdo de exemplo para visualização.'
+                    },
+                    { name: 'PO Aprovada (PED-019)', status: 'Recebido', receivedDate: '2025-06-30', dimpexApprovalStatus: 'Pendente',
+                      content: '--- Ordem de Compra Aprovada (PED-019) ---\n\nDetalhes da PO aprovada para Cliente B.\n\nConteúdo de exemplo para visualização.'
+                    },
+                    { name: 'Bill of Lading (BL)', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' },
+                    { name: 'Licença de Importação', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Licença de Importação ---\n\nEste é um documento de Licença de Importação simulado. Conteúdo real seria a licença.' }
                 ],
                 productLines: [
                     {
@@ -1576,11 +1648,11 @@
                 incoterm: 'EXW',
                 customsBroker: { name: 'Despachante Gama', contact: 'contato@gama.com', phone: '51 9765-4321' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-020)', status: 'Recebido', receivedDate: '2025-06-24', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-020)', status: 'Recebido', receivedDate: '2025-06-25', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-01' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-01' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-01' }
+                    { name: 'Solicitação do Cliente (PED-020)', status: 'Recebido', receivedDate: '2025-06-24', dimpexApprovalStatus: 'Pendente', content: '--- Solicitação do Cliente (PED-020) ---\n\nDetalhes da Solicitação para Toyama Chile.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'PO Aprovada (PED-020)', status: 'Recebido', receivedDate: '2025-06-25', dimpexApprovalStatus: 'Pendente', content: '--- Ordem de Compra Aprovada (PED-020) ---\n\nDetalhes da PO aprovada para Toyama Chile.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-01', dimpexApprovalStatus: 'Pendente', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-01', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-01', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
                 ],
                 productLines: [
                     {
@@ -1651,11 +1723,11 @@
                 incoterm: 'FOB',
                 customsBroker: { name: 'Despachante Theta', contact: 'contato@theta.com', phone: '91 9456-7890' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-025)', status: 'Recebido', receivedDate: '2025-07-04', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-025)', status: 'Recebido', receivedDate: '2025-07-05', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-12' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-12' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-12' }
+                    { name: 'Solicitação do Cliente (PED-025)', status: 'Recebido', receivedDate: '2025-07-04', dimpexApprovalStatus: 'Aceito', content: '--- Solicitação do Cliente (PED-025) ---\n\nDetalhes da Solicitação para Cliente G.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'PO Aprovada (PED-025)', status: 'Recebido', receivedDate: '2025-07-05', dimpexApprovalStatus: 'Aceito', content: '--- Ordem de Compra Aprovada (PED-025) ---\n\nDetalhes da PO aprovada para Cliente G.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-12', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
                 ],
                 productLines: [
                     {
@@ -1726,11 +1798,11 @@
                 incoterm: 'CFR',
                 customsBroker: { name: 'Despachante Iota', contact: 'contato@iota.com', phone: '71 9678-9012' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-026)', status: 'Recebido', receivedDate: '2025-07-05', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-026)', status: 'Recebido', receivedDate: '2025-07-06', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-15' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-15' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-15' }
+                    { name: 'Solicitação do Cliente (PED-026)', status: 'Recebido', receivedDate: '2025-07-05', dimpexApprovalStatus: 'Pendente', content: '--- Solicitação do Cliente (PED-026) ---\n\nDetalhes da Solicitação para Cliente H.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'PO Aprovada (PED-026)', status: 'Recebido', receivedDate: '2025-07-06', dimpexApprovalStatus: 'Pendente', content: '--- Ordem de Compra Aprovada (PED-026) ---\n\nDetalhes da PO aprovada para Cliente H.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-15', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' }
                 ],
                 productLines: [
                     {
@@ -1801,12 +1873,12 @@
                 incoterm: 'DAP',
                 customsBroker: { name: 'Despachante Kappa', contact: 'contato@kappa.com', phone: '85 9123-4567' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-027)', status: 'Recebido', receivedDate: '2025-07-06', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-027)', status: 'Recebido', receivedDate: '2025-07-07', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-18' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-18' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-18' },
-                    { name: 'Certificado de Conformidade', status: 'Pendente', receivedDate: '' }
+                    { name: 'Solicitação do Cliente (PED-027)', status: 'Recebido', receivedDate: '2025-07-06', dimpexApprovalStatus: 'Aceito', content: '--- Solicitação do Cliente (PED-027) ---\n\nDetalhes da Solicitação para Cliente I.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'PO Aprovada (PED-027)', status: 'Recebido', receivedDate: '2025-07-07', dimpexApprovalStatus: 'Aceito', content: '--- Ordem de Compra Aprovada (PED-027) ---\n\nDetalhes da PO aprovada para Cliente I.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-18', dimpexApprovalStatus: 'Pendente', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-18', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-18', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' },
+                    { name: 'Certificado de Conformidade', status: 'Pendente', receivedDate: '', dimpexApprovalStatus: 'N/A', content: '--- Certificado de Conformidade ---\n\nEste é um documento de Certificado de Conformidade simulado. Conteúdo real seria o certificado.' }
                 ],
                 productLines: [
                     {
@@ -1877,12 +1949,12 @@
                 incoterm: 'DDP',
                 customsBroker: { name: 'Despachante Lambda', contact: 'contato@lambda.com', phone: '62 9876-5432' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-028)', status: 'Recebido', receivedDate: '2025-07-07', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-028)', status: 'Recebido', receivedDate: '2025-07-08', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-20' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-20' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-20' },
-                    { name: 'Comprovante de Pagamento de Impostos', status: 'Recebido', receivedDate: '2025-07-20' }
+                    { name: 'Solicitação do Cliente (PED-028)', status: 'Recebido', receivedDate: '2025-07-07', dimpexApprovalStatus: 'Aceito', content: '--- Solicitação do Cliente (PED-028) ---\n\nDetalhes da Solicitação para Cliente J.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'PO Aprovada (PED-028)', status: 'Recebido', receivedDate: '2025-07-08', dimpexApprovalStatus: 'Aceito', content: '--- Ordem de Compra Aprovada (PED-028) ---\n\nDetalhes da PO aprovada para Cliente J.\n\nConteúdo de exemplo para visualização.' },
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-20', dimpexApprovalStatus: 'Aceito', content: '--- Bill of Lading (BL) ---\n\nEste é um documento BL simulado. Conteúdo real seria o BL.' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-20', dimpexApprovalStatus: 'Pendente', content: '--- Commercial Invoice ---\n\nEste é um documento de Commercial Invoice simulado. Conteúdo real seria a fatura comercial.' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-20', dimpexApprovalStatus: 'Pendente', content: '--- Packing List ---\n\nEste é um documento de Packing List simulado. Conteúdo real seria a lista de embalagem.' },
+                    { name: 'Comprovante de Pagamento de Impostos', status: 'Recebido', receivedDate: '2025-07-20', dimpexApprovalStatus: 'Pendente', content: '--- Comprovante de Pagamento de Impostos ---\n\nEste é um documento de Comprovante de Pagamento de Impostos simulado. Conteúdo real seria o comprovante.' }
                 ],
                 productLines: [
                     {
@@ -1953,12 +2025,12 @@
                 incoterm: 'FOB',
                 customsBroker: { name: 'Despachante Mu', contact: 'contato@mu.com', phone: '11 9111-2222' },
                 documents: [
-                    { name: 'Solicitação do Cliente (PED-029)', status: 'Recebido', receivedDate: '2025-07-08', fileLink: '#' },
-                    { name: 'PO Aprovada (PED-029)', status: 'Recebido', receivedDate: '2025-07-09', fileLink: '#' },
-                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-22' },
-                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-22' },
-                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-22' },
-                    { name: 'Comprovante de Entrega', status: 'Recebido', receivedDate: '2025-07-22' }
+                    { name: 'Solicitação do Cliente (PED-029)', status: 'Recebido', receivedDate: '2025-07-08', dimpexApprovalStatus: 'Aceito' },
+                    { name: 'PO Aprovada (PED-029)', status: 'Recebido', receivedDate: '2025-07-09', dimpexApprovalStatus: 'Aceito' },
+                    { name: 'Bill of Lading (BL)', status: 'Recebido', receivedDate: '2025-07-22', dimpexApprovalStatus: 'Aceito' },
+                    { name: 'Commercial Invoice', status: 'Recebido', receivedDate: '2025-07-22', dimpexApprovalStatus: 'Aceito' },
+                    { name: 'Packing List', status: 'Recebido', receivedDate: '2025-07-22', dimpexApprovalStatus: 'Aceito' },
+                    { name: 'Comprovante de Entrega', status: 'Recebido', receivedDate: '2025-07-22', dimpexApprovalStatus: 'Aceito' }
                 ],
                 productLines: [
                     {
@@ -2506,36 +2578,86 @@
             }
             tbody.innerHTML = '';
 
+            // Re-load dimpexOrders from localStorage to ensure latest data
+            const storedAllOrders = localStorage.getItem('dimpexOrders');
+            if (storedAllOrders) {
+                try {
+                    dimpexOrders = JSON.parse(storedAllOrders);
+                } catch (e) {
+                    console.error('Error parsing dimpexOrders from localStorage in renderDocumentsTable:', e);
+                    // Fallback to current in-memory data if parse fails, but log the error
+                }
+            }
+
             if (!currentDimpexOrder || !currentDimpexOrder.documents || currentDimpexOrder.documents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este embarque.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px;">Nenhum documento cadastrado para este embarque.</td></tr>`;
                 return;
             }
 
+            // Find the current order again from the freshly loaded dimpexOrders
+            const updatedCurrentOrder = dimpexOrders.find(o => o.id === currentDimpexOrder.id);
+            if (!updatedCurrentOrder) {
+                console.error('Current order not found after re-loading dimpexOrders in renderDocumentsTable.');
+                return;
+            }
+            // Update currentDimpexOrder to the latest version
+            currentDimpexOrder = updatedCurrentOrder;
+
+
             currentDimpexOrder.documents.forEach((doc, index) => {
                 const row = document.createElement('tr');
-                let actionButtonsHtml = '';
-                let attachmentButtonHtml = '';
+                let receiveButtonHtml = '';
+                let viewAttachmentButtonHtml = '';
+                let dimpexApprovalHtml = '';
 
-                // Button to receive document (if pending)
+                // Receive Document Button (checkmark icon)
                 if (doc.status === 'Pendente') {
-                    actionButtonsHtml += `<button class="btn-primary" onclick="receiveDocument('${doc.name.replace(/'/g, "\\'")}', ${index})">Receber Documento</button>`;
+                    receiveButtonHtml = `<button class="icon-button primary" onclick="receiveDocument('${doc.name.replace(/'/g, "\\'")}', ${index})" title="Receber Documento">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                                        </button>`;
                 } else {
-                    actionButtonsHtml += `<button class="btn-secondary" disabled>Recebido</button>`;
+                    receiveButtonHtml = `<button class="icon-button" disabled title="Documento Recebido">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                                        </button>`;
                 }
 
-                // Button to view attached file (if content exists) - now in its own column
+                // View Attached File Button (eye icon)
+                // The button is now enabled if doc.content exists, regardless of 'Recebido' status
                 if (doc.content) {
-                    attachmentButtonHtml += `<button class="btn-primary" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')">Visualizar Anexo</button>`;
+                    viewAttachmentButtonHtml = `<button class="icon-button" onclick="viewAttachedFile('${currentDimpexOrder.id}', '${doc.name.replace(/'/g, "\\'")}')" title="Visualizar Anexo">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                                                </button>`;
                 } else {
-                    attachmentButtonHtml += `<button class="btn-secondary" disabled>Sem Anexo</button>`;
+                    viewAttachmentButtonHtml = `<button class="icon-button" disabled title="Sem Anexo">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                                                </button>`;
                 }
+
+                // Dimpex Approval Buttons/Status (checkmark for accept, cross for reject)
+                if (doc.status === 'Recebido') {
+                    if (doc.dimpexApprovalStatus === 'Pendente') {
+                        dimpexApprovalHtml += `<button class="icon-button primary" style="margin-right: 5px;" onclick="acceptDocument('${doc.name.replace(/'/g, "\\'")}', ${index})" title="Aceitar Documento">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                                                </button>`;
+                        dimpexApprovalHtml += `<button class="icon-button danger" onclick="rejectDocument('${doc.name.replace(/'/g, "\\'")}', ${index})" title="Recusar Documento">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                                                </button>`;
+                    } else if (doc.dimpexApprovalStatus === 'Aceito') {
+                        dimpexApprovalHtml += `<span class="status-indicator accepted"></span>Aceito`;
+                    } else if (doc.dimpexApprovalStatus === 'Recusado') {
+                        dimpexApprovalHtml += `<span class="status-indicator rejected"></span>Recusado`;
+                    }
+                } else {
+                    dimpexApprovalHtml += `<span class="status-indicator pending-approval"></span>Aguardando Recebimento`;
+                }
+
 
                 row.innerHTML = `
                     <td>${doc.name}</td>
                     <td><span class="status-indicator ${doc.status === 'Pendente' ? 'pending-doc' : 'doc-ok'}"></span>${doc.status}</td>
-                    <td>${formatDate(doc.receivedDate)}</td>
-                    <td>${actionButtonsHtml}</td>
-                    <td>${attachmentButtonHtml}</td> <!-- New column for attachment button -->
+                    <td>${receiveButtonHtml}</td>
+                    <td>${viewAttachmentButtonHtml}</td>
+                    <td>${dimpexApprovalHtml}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2556,6 +2678,7 @@
 
             currentDimpexOrder.documents[index].status = 'Recebido';
             currentDimpexOrder.documents[index].receivedDate = new Date().toISOString().slice(0, 10);
+            currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Pendente'; // Set to pending approval once received
 
             let allDimpexOrders = [];
             try {
@@ -2575,6 +2698,84 @@
                 renderDocumentsTable();
             });
             console.log('Document received and saved.');
+        }
+
+        function acceptDocument(docName, index) {
+            console.log(`Accepting document: ${docName} at index: ${index}`);
+            if (!currentDimpexOrder || !currentDimpexOrder.documents) {
+                console.error('currentDimpexOrder or documents array is null/undefined.');
+                return;
+            }
+
+            if (index < 0 || index >= currentDimpexOrder.documents.length) {
+                console.error('Invalid document index:', index);
+                return;
+            }
+
+            currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Aceito';
+
+            let allDimpexOrders = [];
+            try {
+                allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+            } catch (e) {
+                console.error('Error parsing dimpexOrders from localStorage:', e);
+                allDimpexOrders = [];
+            }
+            
+            const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
+            if (orderIndex !== -1) {
+                allDimpexOrders[orderIndex] = currentDimpexOrder;
+                localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+            }
+
+            showMessage('Sucesso', `Documento "${docName}" aceito pelo Dimpex!`, 'success', () => {
+                renderDocumentsTable();
+            });
+            console.log('Document accepted and saved.');
+        }
+
+        function rejectDocument(docName, index) {
+            console.log(`Rejecting document: ${docName} at index: ${index}`);
+            if (!currentDimpexOrder || !currentDimpexOrder.documents) {
+                console.error('currentDimpexOrder or documents array is null/undefined.');
+                return;
+            }
+
+            if (index < 0 || index >= currentDimpexOrder.documents.length) {
+                console.error('Invalid document index:', index);
+                return;
+            }
+
+            showMessage(
+                'Confirmação',
+                `Tem certeza que deseja recusar o documento "${docName}"?`,
+                'warning',
+                () => {
+                    currentDimpexOrder.documents[index].dimpexApprovalStatus = 'Recusado';
+
+                    let allDimpexOrders = [];
+                    try {
+                        allDimpexOrders = JSON.parse(localStorage.getItem('dimpexOrders')) || [];
+                    } catch (e) {
+                        console.error('Error parsing dimpexOrders from localStorage:', e);
+                        allDimpexOrders = [];
+                    }
+                    
+                    const orderIndex = allDimpexOrders.findIndex(order => order.id === currentDimpexOrder.id);
+                    if (orderIndex !== -1) {
+                        allDimpexOrders[orderIndex] = currentDimpexOrder;
+                        localStorage.setItem('dimpexOrders', JSON.stringify(allDimpexOrders));
+                    }
+
+                    showMessage('Sucesso', `Documento "${docName}" recusado pelo Dimpex!`, 'success', () => {
+                        renderDocumentsTable();
+                    });
+                    console.log('Document rejected and saved.');
+                },
+                () => {
+                    console.log('Rejection cancelled by user.');
+                }
+            );
         }
 
         function renderProductsTable() {
@@ -2877,6 +3078,18 @@
             if (storedAllOrders) {
                 try {
                     dimpexOrders = JSON.parse(storedAllOrders);
+                    // Ensure dimpexApprovalStatus is initialized for existing documents
+                    dimpexOrders.forEach(order => {
+                        order.documents.forEach(doc => {
+                            if (doc.dimpexApprovalStatus === undefined) {
+                                doc.dimpexApprovalStatus = doc.status === 'Recebido' ? 'Pendente' : 'N/A';
+                            }
+                            // Ensure content exists for received documents to enable view button
+                            if (doc.status === 'Recebido' && !doc.content) {
+                                doc.content = `--- Documento ${doc.name} ---\n\nConteúdo de exemplo para o documento ${doc.name}.\n\nEste é um placeholder para visualização.`;
+                            }
+                        });
+                    });
                     console.log('Dimpex orders loaded from localStorage.');
                 } catch (e) {
                     console.error('Error parsing dimpexOrders from localStorage on DOMContentLoaded:', e);
